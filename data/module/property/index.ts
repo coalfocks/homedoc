@@ -37,8 +37,14 @@ const deleteProperty = async (query: PropertyType) => {
   return await Property.where(query).delete()
 }
 
-// owner methods
-// area methods
+const getPropertyOwner = async (query: PropertyType) => {
+  return await Property.where(query).owner()
+}
+
+const getPropertyAreas = async (query: PropertyType) => {
+  return await Property.where(query).areas()
+}
+
 // note methods
 
 export {
@@ -47,4 +53,6 @@ export {
   updateProperty,
   upsertProperty,
   deleteProperty,
+  getPropertyOwner,
+  getPropertyAreas,
 }

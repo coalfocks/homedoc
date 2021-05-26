@@ -1,0 +1,18 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/hooks.ts",
+  "sourceHash": "20c9ba592b2cc009d1bc800e262d7b53bcdedd05",
+  "deps": [
+    {
+      "url": "https://esm.sh/react@17.0.2"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/events.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/context.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/helper.ts"
+    }
+  ]
+}

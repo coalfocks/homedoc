@@ -1,0 +1,12 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/routing.ts",
+  "sourceHash": "2f051a40a53c19dedcc1181d8efc8466697e5657",
+  "deps": [
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/shared/util.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/redirect.ts"
+    }
+  ]
+}

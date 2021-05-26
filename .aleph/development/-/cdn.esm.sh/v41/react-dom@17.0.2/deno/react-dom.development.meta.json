@@ -1,0 +1,15 @@
+{
+  "url": "https://cdn.esm.sh/v41/react-dom@17.0.2/deno/react-dom.development.js",
+  "sourceHash": "29e84706c27d550872d74669859c32a2b47b47d6",
+  "deps": [
+    {
+      "url": "https://cdn.esm.sh/v41/object-assign@4.1.1/deno/object-assign.development.js"
+    },
+    {
+      "url": "https://cdn.esm.sh/v41/react@17.0.2/deno/react.development.js"
+    },
+    {
+      "url": "https://cdn.esm.sh/v41/scheduler@0.20.2/deno/scheduler.development.js"
+    }
+  ]
+}

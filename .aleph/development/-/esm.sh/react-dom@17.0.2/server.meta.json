@@ -1,0 +1,12 @@
+{
+  "url": "https://esm.sh/react-dom@17.0.2/server",
+  "sourceHash": "fbcec2abad346afc0a1935897b5098b57db66061",
+  "deps": [
+    {
+      "url": "https://cdn.esm.sh/v41/react-dom@17.0.2/deno/server.development.js"
+    },
+    {
+      "url": "https://cdn.esm.sh/v41/react-dom@17.0.2/deno/server.development.js"
+    }
+  ]
+}

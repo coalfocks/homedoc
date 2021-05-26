@@ -25,7 +25,7 @@ const updateUser = async (newUser: UserType) => {
 }
 
 const upsertUser = async (newUser: UserType) => {
-  const id = User.select('id').where({ id: newUser.id! })
+  const id = await User.select('id').where({ id: newUser.id! }).first()
   if (!id) return await createUser(newUser)
   else return await updateUser(newUser)
 }
@@ -34,10 +34,20 @@ const deleteUser = async (query: UserType) => {
   return await User.where(query).delete()
 }
 
+const getUserProperties = async (query: UserType) => {
+  return await User.where(query).properties()
+}
+
+const cleanUserTable = async () => {
+  return await User.delete()
+}
+
 export {
   getUser,
   createUser,
   updateUser,
   upsertUser,
   deleteUser,
+  getUserProperties,
+  cleanUserTable,
 }

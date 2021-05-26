@@ -1,0 +1,12 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/refresh.ts",
+  "sourceHash": "d9d5360a5009a51598a7cab4aaed0caa98f8b94c",
+  "deps": [
+    {
+      "url": "https://esm.sh/react-refresh@0.10.0/runtime"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/shared/util.ts"
+    }
+  ]
+}

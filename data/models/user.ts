@@ -14,9 +14,17 @@ class User extends Model {
     },
     first: DataTypes.string(120),
     last: DataTypes.string(120),
-    email: DataTypes.string(120),
+    email: {
+      type: DataTypes.STRING,
+      length: 120,
+      unique: true,
+    },
     phone: DataTypes.string(20),
-    handle: DataTypes.string(120),
+    handle: {
+      type: DataTypes.STRING,
+      length: 120,
+      unique: true,
+    },
   }
 
   static properties() {

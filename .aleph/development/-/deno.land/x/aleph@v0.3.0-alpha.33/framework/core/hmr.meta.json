@@ -1,0 +1,9 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/hmr.ts",
+  "sourceHash": "79ffc3b508f8cc43048560528767ddb9b91bf99e",
+  "deps": [
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/events.ts"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "url": "https://esm.sh/react-refresh@0.10.0/runtime",
+  "sourceHash": "d09e2cd469dea8bc73bbe68ecc09b68d1f057de0",
+  "deps": [
+    {
+      "url": "https://cdn.esm.sh/v41/react-refresh@0.10.0/deno/runtime.development.js"
+    },
+    {
+      "url": "https://cdn.esm.sh/v41/react-refresh@0.10.0/deno/runtime.development.js"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/components/Router.ts",
+  "sourceHash": "7ee34342167460c620c4478bfd3becb47fddf556",
+  "deps": [
+    {
+      "url": "https://esm.sh/react@17.0.2"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/events.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/module.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/routing.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/context.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/helper.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/pagedata.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/pageprops.ts"
+    },
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/components/ErrorBoundary.ts"
+    }
+  ]
+}

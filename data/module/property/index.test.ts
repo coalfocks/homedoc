@@ -5,6 +5,8 @@ import {
   updateProperty,
   deleteProperty,
   upsertProperty,
+  getPropertyOwner,
+  getPropertyAreas,
 } from './index.ts'
 import {
   createUser,
@@ -56,3 +58,8 @@ Deno.test('upsert property', async () => {
   assertObjectMatch(property2, {...property, primaryResidence: false })
 })
 
+Deno.test('get property owner', async () => {
+  const property1 = await upsertProperty(property)
+  const owner = await getPropertyOwner({ id: +property1.id! })
+  assertObjectMatch(owner, user)
+})

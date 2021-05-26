@@ -1,0 +1,9 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/module.ts",
+  "sourceHash": "6dd5d36b947cd3528bc8dad4c5e9abba963bf504",
+  "deps": [
+    {
+      "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/shared/util.ts"
+    }
+  ]
+}

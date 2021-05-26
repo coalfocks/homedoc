@@ -1,0 +1,9 @@
+{
+  "url": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/helper.ts",
+  "sourceHash": "f23db6369b6d4461c0b30b7fc639a4e436532280",
+  "deps": [
+    {
+      "url": "https://esm.sh/react@17.0.2"
+    }
+  ]
+}
