@@ -1,6 +1,5 @@
 //import type { APIRequest } from "aleph/types"
-//import { createUser } from '../../../data/module/user/index.ts'
-const createUser = user => {}
+import { createUser } from '../../data/module/user/index.ts'
 
 //export default async function handler(req: APIRequest) {
 export default async function handler(req) {
@@ -16,7 +15,8 @@ export default async function handler(req) {
       break
     case 'POST':
       status = 201
-      user = body.user
+      const { password, ...user } = body.user
+      console.log(user)
       res = await postUser(user)
       break
     case 'PUT':

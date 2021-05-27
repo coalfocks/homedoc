@@ -2,8 +2,7 @@ import {
   assertEquals,
   assertObjectMatch,
   assertThrowsAsync,
-  Model,
-} from '../../../deps.ts'
+} from 'asserts'
 import {
   getUser,
   createUser,

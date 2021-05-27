@@ -27,8 +27,8 @@ export default function Register() {
     }
     const newUser = await axios.post('/api/user/user', {
       user: {
-        firstName,
-        lastName,
+        first: firstName,
+        last: lastName,
         email,
         phone,
         handle,

@@ -1,6 +1,9 @@
+import { Relationships } from 'https://deno.land/x/denodb/mod.ts'
 import {
   User,
+  Property,
 } from '../../models/index.ts'
+import db from '../../connection.ts'
 
 type UserType = {
   id?: number
@@ -10,6 +13,15 @@ type UserType = {
   phone?: string
   handle?: string
 }
+
+const init = async () => {
+  const models = [ User ]
+  const database = db()
+  Relationships.belongsTo(Property, User)
+  await database.link(models)
+}
+
+init()
 
 const getUser = async (query: UserType) => {
   return await User.where(query).first()

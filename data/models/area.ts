@@ -1,4 +1,4 @@
-import { Model, DataTypes } from '../../deps.ts'
+import { Model, DataTypes } from 'https://deno.land/x/denodb/mod.ts'
 import Property from './property.ts'
 import Note from './note.ts'
 

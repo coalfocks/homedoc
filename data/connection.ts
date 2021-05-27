@@ -1,5 +1,6 @@
-import { Database, PostgresConnector } from '../deps.ts'
-import { config } from '../deps.ts'
+//import { Database, PostgresConnector } from 'denodb'
+import { Database, PostgresConnector } from 'https://deno.land/x/denodb/mod.ts'
+import { config } from 'config'
 
 export default () => {
   const connector = new PostgresConnector({

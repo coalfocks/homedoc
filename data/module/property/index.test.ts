@@ -1,4 +1,4 @@
-import { assertEquals, assertObjectMatch } from '../../../deps.ts'
+import { assertEquals, assertObjectMatch } from 'asserts'
 import {
   getProperty,
   createProperty,

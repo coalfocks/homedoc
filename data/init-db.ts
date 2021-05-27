@@ -1,4 +1,4 @@
-import { Relationships } from '../deps.ts'
+import { Relationships } from 'https://deno.land/x/denodb/mod.ts'
 import db from './connection.ts'
 import {
   User,
