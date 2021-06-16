@@ -85,3 +85,6 @@ Deno.test('get user properties', async () => {
   assertObjectMatch(property, userProperties[0])
 })
 
+
+//TODO: test getting user password
+

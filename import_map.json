@@ -5,6 +5,7 @@
     "aleph/types": "https://deno.land/x/aleph@v0.3.0-alpha.33/types.ts",
     "asserts": "https://deno.land/std/testing/asserts.ts",
     "axios": "https://esm.sh/axios",
+    "bcrypt": ""https://deno.land/x/bcrypt@v0.2.4/mod.ts",
     "config": "https://deno.land/x/dotenv/mod.ts",
     "framework": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/core/mod.ts",
     "framework/react": "https://deno.land/x/aleph@v0.3.0-alpha.33/framework/react/mod.ts",

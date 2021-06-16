@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'https://deno.land/x/denodb/mod.ts'
 import Property from './property.ts'
+import Auth from './auth.ts'
 
 class User extends Model {
 
@@ -29,6 +30,10 @@ class User extends Model {
 
   static properties() {
     return this.hasMany(Property)
+  }
+
+  static password() {
+    return this.hasOne(Auth)
   }
 }
 

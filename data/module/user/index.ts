@@ -2,6 +2,7 @@ import { Relationships } from 'https://deno.land/x/denodb/mod.ts'
 import {
   User,
   Property,
+  Auth,
 } from '../../models/index.ts'
 import db from '../../connection.ts'
 
@@ -18,6 +19,8 @@ const init = async () => {
   const models = [ User ]
   const database = db()
   Relationships.belongsTo(Property, User)
+  // TODO: maybe don't need to link?
+  Relationships.belongsTo(Auth, User)
   await database.link(models)
 }
 
@@ -48,6 +51,10 @@ const deleteUser = async (query: UserType) => {
 
 const getUserProperties = async (query: UserType) => {
   return await User.where(query).properties()
+}
+
+const getUserPassword = async (query: UserType) => {
+  return await User.where(query).password()
 }
 
 const cleanUserTable = async () => {
