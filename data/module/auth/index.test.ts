@@ -13,74 +13,76 @@ import {
   cleanAuthTable,
 } from './index.ts'
 import {
-  createProperty,
-} from '../../module/property/index.ts'
+  createUser,
+  getUserPassword,
+} from '../../module/user/index.ts'
 import db from '../../connection.ts'
 import '../../init-db.ts'
 
-const Auth = {
-  
+const auth = {
+  password: 'test-password',   
 }
 
-Deno.test('create Auth', async () => {
+const user = {
+  first: 'firstname',
+  last: 'lastname',
+  email: 'test@example.com',
+  phone: '1234567890',
+  handle: 'test-user-handle',
+}
+
+Deno.test('create auth', async () => {
   await cleanAuthTable()
-  const Auth1 = await createAuth(Auth)
-  assertObjectMatch(Auth1, Auth)
+  const user1 = await createUser(user)
+  const auth1 = await createAuth({ userId: user1.id, ...auth })
+  console.log(auth1)
+  assertObjectMatch(auth1, auth)
 })
 
-Deno.test('dont create duplicate Auth', async () => {
-  await cleanAuthTable()
-  const Auth1 = await createAuth(Auth)
-  assertObjectMatch(Auth1, Auth)
-  await assertThrowsAsync(
-    async () => await createAuth(Auth)
-  )
-})
-
-Deno.test('update Auth', async () => {
-  await cleanAuthTable()
-  const Auth1 = await createAuth(Auth)
-  const Auth2 = await updateAuth({...Auth1, first: 'differentname' })
-  assertObjectMatch(Auth2, {...Auth1, first: 'differentname' })
-})
-
-Deno.test('delete Auth', async () => {
-  await cleanAuthTable()
-  const Auth1 = await createAuth(Auth)
-  await deleteAuth({ id: +Auth1.id! })
-  const foundAuth = await getAuth({ id: +Auth1.id! })
-  assertEquals(foundAuth, undefined)
-})
-
-Deno.test('upsert Auth', async () => {
-  await cleanAuthTable()
-  const Auth1 = await upsertAuth(Auth)
-  assertObjectMatch(Auth1, Auth)
-  const Auth2 = await upsertAuth({...Auth1, first: 'differentName'})
-  assertObjectMatch(Auth2, {...Auth, first: 'differentName'})
-})
-
-Deno.test('get Auth properties', async () => {
-  await cleanAuthTable()
-  const Auth1 = await upsertAuth(Auth)
-
-  const property = await createProperty({
-    propertyType: 'sfh',
-    address: '123 abc st',
-    address2: '',
-    city: 'SLC',
-    state: 'UT',
-    country: 'USA',
-    primaryResidence: true,
-    AuthId: +Auth1.id!,
-  })
-
-  const AuthProperties: any = await getAuthProperties({ id: +Auth1.id! })
-
-  assertEquals(AuthProperties.length, 1)
-  assertObjectMatch(property, AuthProperties[0])
-})
+//Deno.test('update auth', async () => {
+//  await cleanAuthTable()
+//  const auth1 = await createAuth(auth)
+//  const auth2 = await updateAuth({...Auth1, first: 'differentname' })
+//  assertObjectMatch(auth2, {...Auth1, first: 'differentname' })
+//})
+//
+//Deno.test('delete auth', async () => {
+//  await cleanAuthTable()
+//  const auth1 = await createAuth(auth)
+//  await deleteAuth({ id: +Auth1.id! })
+//  const foundAuth = await getAuth({ id: +Auth1.id! })
+//  assertEquals(foundAuth, undefined)
+//})
+//
+//Deno.test('upsert auth', async () => {
+//  await cleanAuthTable()
+//  const auth1 = await upsertAuth(auth)
+//  assertObjectMatch(auth1, auth)
+//  const auth2 = await upsertAuth({...Auth1, first: 'differentName'})
+//  assertObjectMatch(auth2, {...Auth, first: 'differentName'})
+//})
+//
+//Deno.test('get auth properties', async () => {
+//  await cleanAuthTable()
+//  const auth1 = await upsertAuth(auth)
+//
+//  const property = await createProperty({
+//    propertyType: 'sfh',
+//    address: '123 abc st',
+//    address2: '',
+//    city: 'SLC',
+//    state: 'UT',
+//    country: 'USA',
+//    primaryResidence: true,
+//    authId: +Auth1.id!,
+//  })
+//
+//  const authProperties: any = await getAuthProperties({ id: +Auth1.id! })
+//
+//  assertEquals(authProperties.length, 1)
+//  assertObjectMatch(property, authProperties[0])
+//})
 
 
-//TODO: test getting Auth password
+//TODO: test getting auth password
 

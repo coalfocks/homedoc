@@ -5,12 +5,14 @@ import {
   Property,
   Area,
   Note,
+  Auth,
 } from './models/index.ts'
 
-const models = [ User, Property, Area, Note, ]
+const models = [ User, Property, Area, Note, Auth ]
 const database = db()
 
 Relationships.belongsTo(Property, User)
+Relationships.belongsTo(Auth, User)
 Relationships.belongsTo(Area, Property)
 Relationships.belongsTo(Note, Area)
 

@@ -10,7 +10,7 @@ import {
 import db from '../../connection.ts'
 
 type AuthType = {
-  password: string,
+  password: string?,
   userId: number,
 }
 
@@ -28,14 +28,14 @@ const getAuth = async (query: AuthType) => {
 
 const createAuth = async (newAuth: AuthType) => {
   const { userId, password } = newAuth
-  const hash = await hash(password)
-  return await Auth.create({ userId, password: hash })
+  const passHash = await hash(password)
+  return await Auth.create({ userId, password: passHash })
 }
 
 const updateAuth = async (newAuth: AuthType) => {
   const { userId, password } = newAuth
-  const hash = await hash(password)
-  const await Auth.where({ userId }).update({ userId, password: hash })
+  const passHash = await hash(password)
+  await Auth.where({ userId }).update({ userId, password: passHash })
   return await getAuth({ userId })
 }
 
@@ -51,7 +51,8 @@ const deleteAuth = async (query: AuthType) => {
 
 const authenticate = async (attemptedAuth: AuthType) => {
   const { handle, password } = attemptedAuth
-  const { password: hash } = getAuth({ userId })
+  //const { password: hash } = getAuth({ userId })
+  const { password: hash } = User.getUserPassword({ userId })
   const authenticated = await compare(password, hash)
   if (!authenticated) throw new Error('Invalid Authentication')
 }
