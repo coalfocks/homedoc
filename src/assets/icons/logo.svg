@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- House shape -->
+  <path d="M24 4L4 20H8V40H40V20H44L24 4Z" fill="#6B4EFF"/>
+  <!-- Document shape -->
+  <path d="M32 24H16V28H32V24Z" fill="white"/>
+  <path d="M32 30H16V34H32V30Z" fill="white"/>
+  <path d="M32 36H16V40H32V36Z" fill="white"/>
+  <!-- Decorative elements -->
+  <circle cx="24" cy="16" r="2" fill="white"/>
+  <path d="M20 16H28" stroke="white" stroke-width="2"/>
+</svg> 
