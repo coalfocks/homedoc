@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { theme } from '../utils/theme';
 
 type IconProps = {
-  name: 'home' | 'area' | 'note' | 'add';
+  name: 'home' | 'area' | 'note' | 'add' | 'user';
   size?: number;
   color?: string;
 };
@@ -14,6 +14,8 @@ const iconPaths = {
   area: 'M3 3H21V21H3V3ZM3 9H21ZM9 3V21',
   note: 'M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2ZM14 2V8H20ZM16 13H8ZM16 17H8ZM10 9H9H8',
   add: 'M12 5V19M5 12H19',
+  user:
+    'M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12ZM4 20V18C4 15.7909 7.58172 14 12 14C16.4183 14 20 15.7909 20 18V20',
 };
 
 export const Icon: React.FC<IconProps> = ({ name, size = 24, color = theme.colors.text.primary }) => {

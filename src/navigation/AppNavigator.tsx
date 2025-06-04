@@ -17,6 +17,8 @@ import EditNoteScreen from '../screens/EditNoteScreen';
 import EditPropertyScreen from '../screens/EditPropertyScreen';
 import EditAreaScreen from '../screens/EditAreaScreen';
 import TransferPropertyScreen from '../screens/TransferPropertyScreen';
+import AccountScreen from '../screens/AccountScreen';
+import PlanManagementScreen from '../screens/PlanManagementScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -27,6 +29,7 @@ export type RootStackParamList = {
   EditProperty: { propertyId: string };
   EditArea: { areaId: string };
   TransferProperty: { propertyId: string };
+  PlanManagement: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -80,6 +83,15 @@ const MainTabs = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Icon name="note" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="user" color={color} size={size} />
           ),
         }}
       />
@@ -159,7 +171,14 @@ export const AppNavigator = () => {
             title: 'Transfer Property',
           }}
         />
+        <Stack.Screen
+          name="PlanManagement"
+          component={PlanManagementScreen}
+          options={{
+            title: 'Plan Management',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
-}; 
+};
