@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from '../components/Icon';
+import { Text } from '@rneui/themed';
+import { supabase } from '../utils/supabaseClient';
 import { theme } from '../utils/theme';
 import { mockUser } from '../mock/data';
 
@@ -54,6 +56,17 @@ const MainTabs = () => {
           fontWeight: 'bold',
           color: theme.colors.primary.contrast,
         },
+        headerRight: () => (
+          <Text
+            onPress={() => supabase.auth.signOut()}
+            style={{
+              color: theme.colors.primary.contrast,
+              marginRight: theme.spacing.md,
+            }}
+          >
+            Sign Out
+          </Text>
+        ),
       }}
     >
       <Tab.Screen
