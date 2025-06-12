@@ -4,8 +4,8 @@ import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useProperty, useAreas } from '../hooks/useData';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
@@ -13,7 +13,24 @@ type PropertyScreenProps = {
 };
 
 const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) => {
-  const property = mockProperties.find((p) => p.id === route.params.propertyId);
+  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
+  const { areas, loading: areasLoading, error: areasError } = useAreas(route.params.propertyId);
+
+  if (propertyLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading property...</Text>
+      </View>
+    );
+  }
+
+  if (propertyError) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {propertyError}</Text>
+      </View>
+    );
+  }
 
   if (!property) {
     return (
@@ -27,83 +44,104 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          {property.image && (
+          {property.image_url && (
             <Image
-              source={{ uri: property.image }}
+              source={{ uri: property.image_url }}
               style={styles.propertyImage}
               resizeMode="cover"
             />
           )}
           <View style={styles.headerContent}>
             <Text style={styles.title}>{property.name}</Text>
-            <Text style={styles.address}>{property.address}</Text>
+            <Text style={styles.address}>
+              {property.address_line_1}
+              {property.address_line_2 && `, ${property.address_line_2}`}
+              {'\n'}{property.city}, {property.state} {property.zip_code}
+            </Text>
             <View style={styles.headerActions}>
               <Button
-                icon={<Icon name="edit" color={theme.colors.text.primary} />}
+                icon={<Icon name="edit" color={theme.colors.text.primary} style={styles.iconButton}/>}
                 type="clear"
                 onPress={() => navigation.navigate('EditProperty', { propertyId: property.id })}
+                buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="swap-horiz" color={theme.colors.text.primary} />}
+                icon={<Icon name="swap-horiz" color={theme.colors.text.primary} style={styles.iconButton}/>}
                 type="clear"
                 onPress={() => navigation.navigate('TransferProperty', { propertyId: property.id })}
+                buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="delete" color={theme.colors.error.main} />}
+                icon={<Icon name="delete" color={theme.colors.error.main} style={styles.iconButton}/>}
                 type="clear"
                 onPress={() => {
                   // In a real app, this would show a confirmation dialog
                   console.log('Delete property pressed');
                 }}
+                buttonStyle={styles.actionButton}
               />
             </View>
           </View>
         </View>
-        <FlatList
-          data={property.areas}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Area', { areaId: item.id })}
-              style={styles.card}
-            >
-              {item.image && (
-                <Image
-                  source={{ uri: item.image }}
-                  style={styles.areaImage}
-                  resizeMode="cover"
-                />
-              )}
-              <View style={styles.cardContent}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.areaTitle}>{item.name}</Text>
-                  <View style={styles.cardActions}>
-                    <Button
-                      icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
-                      type="clear"
-                      onPress={() => {
-                        // In a real app, this would navigate to an edit area screen
-                        console.log('Edit area pressed');
-                      }}
-                    />
-                    <Button
-                      icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
-                      type="clear"
-                      onPress={() => {
-                        // In a real app, this would show a confirmation dialog
-                        console.log('Delete area pressed');
-                      }}
-                    />
+        
+        {areasLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text>Loading areas...</Text>
+          </View>
+        ) : areasError ? (
+          <View style={styles.errorContainer}>
+            <Text>Error loading areas: {areasError}</Text>
+          </View>
+        ) : areas.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No areas added yet. Tap the + button to add an area.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={areas}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Area', { areaId: item.id })}
+                style={styles.card}
+              >
+                {item.image_url && (
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.areaImage}
+                    resizeMode="cover"
+                  />
+                )}
+                <View style={styles.cardContent}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.areaTitle}>{item.name}</Text>
+                    <View style={styles.cardActions}>
+                      <Button
+                        icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                        type="clear"
+                        onPress={() => {
+                          // In a real app, this would navigate to an edit area screen
+                          console.log('Edit area pressed');
+                        }}
+                        buttonStyle={styles.actionButton}
+                      />
+                      <Button
+                        icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                        type="clear"
+                        onPress={() => {
+                          // In a real app, this would show a confirmation dialog
+                          console.log('Delete area pressed');
+                        }}
+                        buttonStyle={styles.actionButton}
+                      />
+                    </View>
                   </View>
+                  <Text style={styles.description}>{item.description}</Text>
                 </View>
-                <Text style={styles.description}>{item.description}</Text>
-                <Text style={styles.noteCount}>
-                  {item.notes.length} {item.notes.length === 1 ? 'Note' : 'Notes'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </ScrollView>
       <FAB
         icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
@@ -141,13 +179,16 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: theme.typography.body1.fontSize,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.slate,
     marginTop: theme.spacing.xs,
   },
   headerActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: theme.spacing.sm,
+  },
+  actionButton: {
+    cursor: 'pointer',
   },
   card: {
     backgroundColor: theme.colors.primary.main,
@@ -190,6 +231,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     bottom: 16,
+  },
+  iconButton: {
+    cursor: 'pointer',
+  },
+  loadingContainer: {
+    padding: theme.spacing.md,
+    alignItems: 'center',
+  },
+  errorContainer: {
+    padding: theme.spacing.md,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    padding: theme.spacing.md,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body1.fontSize,
+    textAlign: 'center',
   },
 });
 
