@@ -62,8 +62,8 @@ export const theme = {
     // Background colors
     background: {
       default: '#1A1F2E', // Dark slate background
-      paper: '#2A2F3E',   // Slightly lighter slate for cards
-      dark: '#0A0F1E',    // Darker slate for contrast
+      paper: '#2A2F3E', // Slightly lighter slate for cards
+      dark: '#0A0F1E', // Darker slate for contrast
     },
     // Text colors
     text: {
@@ -164,7 +164,7 @@ export const theme = {
         width: 0,
         height: 4,
       },
-      shadowOpacity: 0.30,
+      shadowOpacity: 0.3,
       shadowRadius: 4.65,
       elevation: 8,
     },
@@ -195,4 +195,4 @@ export const theme = {
     snackbar: 1400,
     tooltip: 1500,
   },
-}; 
+};

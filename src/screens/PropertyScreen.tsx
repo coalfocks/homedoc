@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -12,7 +19,10 @@ type PropertyScreenProps = {
   route: RouteProp<RootStackParamList, 'Property'>;
 };
 
-const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) => {
+const PropertyScreen: React.FC<PropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const property = mockProperties.find((p) => p.id === route.params.propertyId);
 
   if (!property) {
@@ -41,12 +51,22 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
               <Button
                 icon={<Icon name="edit" color={theme.colors.text.primary} />}
                 type="clear"
-                onPress={() => navigation.navigate('EditProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('EditProperty', {
+                    propertyId: property.id,
+                  })
+                }
               />
               <Button
-                icon={<Icon name="swap-horiz" color={theme.colors.text.primary} />}
+                icon={
+                  <Icon name="swap-horiz" color={theme.colors.text.primary} />
+                }
                 type="clear"
-                onPress={() => navigation.navigate('TransferProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('TransferProperty', {
+                    propertyId: property.id,
+                  })
+                }
               />
               <Button
                 icon={<Icon name="delete" color={theme.colors.error.main} />}
@@ -79,7 +99,13 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                   <Text style={styles.areaTitle}>{item.name}</Text>
                   <View style={styles.cardActions}>
                     <Button
-                      icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                      icon={
+                        <Icon
+                          name="edit"
+                          color={theme.colors.text.primary}
+                          size={16}
+                        />
+                      }
                       type="clear"
                       onPress={() => {
                         // In a real app, this would navigate to an edit area screen
@@ -87,7 +113,13 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                       }}
                     />
                     <Button
-                      icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                      icon={
+                        <Icon
+                          name="delete"
+                          color={theme.colors.error.main}
+                          size={16}
+                        />
+                      }
                       type="clear"
                       onPress={() => {
                         // In a real app, this would show a confirmation dialog
@@ -98,7 +130,8 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                 </View>
                 <Text style={styles.description}>{item.description}</Text>
                 <Text style={styles.noteCount}>
-                  {item.notes.length} {item.notes.length === 1 ? 'Note' : 'Notes'}
+                  {item.notes.length}{' '}
+                  {item.notes.length === 1 ? 'Note' : 'Notes'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -106,7 +139,9 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
         />
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -193,4 +228,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PropertyScreen; 
+export default PropertyScreen;

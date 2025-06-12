@@ -162,4 +162,4 @@ export const AppNavigator = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}; 
+};

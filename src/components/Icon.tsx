@@ -16,7 +16,11 @@ const iconPaths = {
   add: 'M12 5V19M5 12H19',
 };
 
-export const Icon: React.FC<IconProps> = ({ name, size = 24, color = theme.colors.text.primary }) => {
+export const Icon: React.FC<IconProps> = ({
+  name,
+  size = 24,
+  color = theme.colors.text.primary,
+}) => {
   return (
     <View style={styles.container}>
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -37,4 +41,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-}); 
+});

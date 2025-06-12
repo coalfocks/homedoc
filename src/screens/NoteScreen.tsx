@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    aspectRatio: 16/9,
+    aspectRatio: 16 / 9,
     borderRadius: theme.borderRadius.md,
     marginBottom: theme.spacing.sm,
   },
@@ -110,4 +110,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NoteScreen; 
+export default NoteScreen;

@@ -12,7 +12,10 @@ type EditPropertyScreenProps = {
   route: RouteProp<RootStackParamList, 'EditProperty'>;
 };
 
-const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, route }) => {
+const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const property = mockProperties.find((p) => p.id === route.params.propertyId);
 
   const [name, setName] = useState(property?.name || '');
@@ -91,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditPropertyScreen; 
+export default EditPropertyScreen;

@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -12,7 +18,10 @@ type EditNoteScreenProps = {
   route: RouteProp<RootStackParamList, 'EditNote'>;
 };
 
-const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) => {
+const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const note = mockProperties
     .flatMap((p) => p.areas)
     .flatMap((a) => a.notes)
@@ -78,7 +87,10 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity style={styles.addImageButton} onPress={handleAddImage}>
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={handleAddImage}
+            >
               <Text style={styles.addImageText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -178,4 +190,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditNoteScreen; 
+export default EditNoteScreen;

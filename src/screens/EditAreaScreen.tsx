@@ -12,7 +12,10 @@ type EditAreaScreenProps = {
   route: RouteProp<RootStackParamList, 'EditArea'>;
 };
 
-const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) => {
+const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const area = mockProperties
     .flatMap((p) => p.areas)
     .find((a) => a.id === route.params.areaId);
@@ -93,4 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditAreaScreen; 
+export default EditAreaScreen;

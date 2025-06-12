@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { Text, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -19,7 +25,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('Property', { propertyId: item.id })}
+            onPress={() =>
+              navigation.navigate('Property', { propertyId: item.id })
+            }
             style={styles.card}
           >
             {item.image && (
@@ -33,15 +41,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <Text style={styles.title}>{item.name}</Text>
               <Text style={styles.address}>{item.address}</Text>
               <Text style={styles.stats}>
-                {item.areas.length} {item.areas.length === 1 ? 'Area' : 'Areas'} •{' '}
-                {item.areas.reduce((acc, area) => acc + area.notes.length, 0)} Notes
+                {item.areas.length} {item.areas.length === 1 ? 'Area' : 'Areas'}{' '}
+                • {item.areas.reduce((acc, area) => acc + area.notes.length, 0)}{' '}
+                Notes
               </Text>
             </View>
           </TouchableOpacity>
         )}
       />
       <FAB
-        icon={<Icon name="home" color={theme.colors.accent.contrast} size={24} />}
+        icon={
+          <Icon name="home" color={theme.colors.accent.contrast} size={24} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -94,4 +105,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;
