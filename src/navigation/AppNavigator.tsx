@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from '../components/Icon';
+import { Text } from '@rneui/themed';
+import { supabase } from '../utils/supabaseClient';
 import { theme } from '../utils/theme';
 import { mockUser } from '../mock/data';
 
@@ -17,6 +19,7 @@ import EditNoteScreen from '../screens/EditNoteScreen';
 import EditPropertyScreen from '../screens/EditPropertyScreen';
 import EditAreaScreen from '../screens/EditAreaScreen';
 import TransferPropertyScreen from '../screens/TransferPropertyScreen';
+import CreatePropertyScreen from '../screens/CreatePropertyScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -27,6 +30,7 @@ export type RootStackParamList = {
   EditProperty: { propertyId: string };
   EditArea: { areaId: string };
   TransferProperty: { propertyId: string };
+  CreateProperty: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +58,17 @@ const MainTabs = () => {
           fontWeight: 'bold',
           color: theme.colors.primary.contrast,
         },
+        headerRight: () => (
+          <Text
+            onPress={() => supabase.auth.signOut()}
+            style={{
+              color: theme.colors.primary.contrast,
+              marginRight: theme.spacing.md,
+            }}
+          >
+            Sign Out
+          </Text>
+        ),
       }}
     >
       <Tab.Screen
@@ -157,6 +172,13 @@ export const AppNavigator = () => {
           component={TransferPropertyScreen}
           options={{
             title: 'Transfer Property',
+          }}
+        />
+        <Stack.Screen
+          name="CreateProperty"
+          component={CreatePropertyScreen}
+          options={{
+            title: 'Add Property',
           }}
         />
       </Stack.Navigator>

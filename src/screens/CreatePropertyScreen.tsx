@@ -1,56 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Text, Button, Input } from '@rneui/themed';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { Text, Input, Button } from '@rneui/themed';
+import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
-import { useProperty } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
 
-type EditPropertyScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'EditProperty'>;
-  route: RouteProp<RootStackParamList, 'EditProperty'>;
+type CreatePropertyScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'CreateProperty'>;
 };
 
-const ImageWithPlaceholder = ({ uri, style }: { uri: string; style: any }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  return (
-    <View style={[style, styles.imageContainer]}>
-      {isLoading && (
-        <View style={[style, styles.placeholderContainer]}>
-          <ActivityIndicator size="large" color={theme.colors.primary.main} />
-        </View>
-      )}
-      <Image
-        source={{ uri }}
-        style={[style, isLoading ? styles.hidden : styles.visible]}
-        onLoadStart={() => setIsLoading(true)}
-        onLoadEnd={() => setIsLoading(false)}
-        onError={() => {
-          setIsLoading(false);
-          setHasError(true);
-        }}
-      />
-      {hasError && (
-        <View style={[style, styles.placeholderContainer]}>
-          <Icon name="home" color={theme.colors.text.secondary} size={32} />
-          <Text style={styles.errorText}>Failed to load image</Text>
-        </View>
-      )}
-    </View>
-  );
-};
-
-const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, route }) => {
+const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({ navigation }) => {
+  const { theme } = useTheme();
   const { user } = useAuth();
-  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
-  
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
   const [addressLine1, setAddressLine1] = useState('');
@@ -61,19 +27,6 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (property) {
-      setName(property.name || '');
-      setNickname(property.nickname || '');
-      setAddressLine1(property.address_line_1 || '');
-      setAddressLine2(property.address_line_2 || '');
-      setCity(property.city || '');
-      setState(property.state || '');
-      setZipCode(property.zip_code || '');
-      setImage(property.image_url || null);
-    }
-  }, [property]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -111,56 +64,35 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
     }
   };
 
-  if (propertyLoading) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color={theme.colors.primary.main} />
-        <Text style={styles.loadingText}>Loading property...</Text>
-      </View>
-    );
-  }
-
-  if (propertyError) {
-    return (
-      <View style={styles.container}>
-        <Text>Error: {propertyError}</Text>
-      </View>
-    );
-  }
-
-  if (!property) {
-    return (
-      <View style={styles.container}>
-        <Text>Property not found</Text>
-      </View>
-    );
-  }
-
-  const handleSave = async () => {
+  const handleCreateProperty = async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       setError(null);
 
-      let imageUrl = property?.image_url || null;
-      
-      // Upload new image if one was selected and it's different from current
-      if (image && image !== property?.image_url) {
+      let imageUrl = null;
+      if (image) {
         imageUrl = await uploadImage(image);
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('properties')
-        .update({
-          name,
-          nickname,
-          address_line_1: addressLine1,
-          address_line_2: addressLine2,
-          city,
-          state,
-          zip_code: zipCode,
-          image_url: imageUrl,
-        })
-        .eq('id', property.id);
+        .insert([
+          {
+            name,
+            nickname,
+            address_line_1: addressLine1,
+            address_line_2: addressLine2,
+            city,
+            state,
+            zip_code: zipCode,
+            image_url: imageUrl,
+            user_id: user.id,
+          },
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -175,12 +107,9 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
-        <TouchableOpacity 
-          style={[styles.imageUpload, styles.cursorPointer]} 
-          onPress={pickImage}
-        >
+        <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
           {image ? (
-            <ImageWithPlaceholder uri={image} style={styles.imagePreview} />
+            <Image source={{ uri: image }} style={styles.imagePreview} />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Icon name="add" color="#FFFFFF" size={32} />
@@ -195,89 +124,98 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
           onChangeText={setName}
           placeholder="Enter property name"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Nickname (optional)"
           value={nickname}
           onChangeText={setNickname}
           placeholder="Enter a friendly nickname"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Address Line 1"
           value={addressLine1}
           onChangeText={setAddressLine1}
           placeholder="Enter address line 1"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Address Line 2"
           value={addressLine2}
           onChangeText={setAddressLine2}
           placeholder="Enter address line 2"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="City"
           value={city}
           onChangeText={setCity}
           placeholder="Enter city"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="State"
           value={state}
           onChangeText={setState}
           placeholder="Enter state"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Zip Code"
           value={zipCode}
           onChangeText={setZipCode}
           placeholder="Enter zip code"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
-      </View>
-      
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
-      
-      <View style={styles.buttonContainer}>
+
+        {error && (
+          <Text style={styles.errorText}>{error}</Text>
+        )}
+
         <Button
-          title="Save Changes"
-          onPress={handleSave}
+          title="Create Property"
+          onPress={handleCreateProperty}
           loading={loading}
           disabled={loading || !name || !addressLine1 || !city || !state || !zipCode}
-          containerStyle={styles.cursorPointer}
-        />
-        <Button
-          title="Cancel"
-          onPress={() => navigation.goBack()}
-          type="outline"
-          containerStyle={[styles.cancelButton, styles.cursorPointer]}
+          containerStyle={styles.buttonContainer}
+          buttonStyle={[styles.button, (loading || !name || !addressLine1 || !city || !state || !zipCode) && styles.disabledButton]}
+          titleStyle={[styles.buttonText, (loading || !name || !addressLine1 || !city || !state || !zipCode) && styles.disabledButtonText]}
+          disabledStyle={styles.disabledButton}
+          disabledTitleStyle={styles.disabledButtonText}
         />
       </View>
     </ScrollView>
@@ -335,11 +273,15 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     alignSelf: 'center',
   },
-  cursorPointer: {
-    cursor: 'pointer',
+  button: {
+    backgroundColor: theme.colors.primary.main,
+    borderRadius: 8,
+    height: 50,
   },
-  cancelButton: {
-    marginTop: theme.spacing.sm,
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.primary.contrast,
   },
   disabledButton: {
     backgroundColor: theme.colors.background.paper,
@@ -353,37 +295,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-  loadingContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: theme.spacing.md,
-    color: theme.colors.text.primary,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  placeholderContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.background.paper,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-  },
-  subtext: {
-    color: theme.colors.text.secondary,
-    opacity: 0.8,
-  },
 });
 
-export default EditPropertyScreen; 
+export default CreatePropertyScreen; 

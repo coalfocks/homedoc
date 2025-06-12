@@ -7,7 +7,12 @@ export interface User {
 export interface Property {
   id: string;
   name: string;
-  address: string;
+  nickname?: string;
+  address_line_1: string;
+  address_line_2?: string;
+  city: string;
+  state: string;
+  zip_code: string;
   userId: string;
   image?: string;
   areas: Area[];
@@ -42,7 +47,10 @@ export const mockProperties: Property[] = [
   {
     id: '1',
     name: 'Beach House',
-    address: '123 Ocean Drive, Malibu, CA',
+    address_line_1: '123 Ocean Drive',
+    city: 'Malibu',
+    state: 'CA',
+    zip_code: '90265',
     userId: '1',
     image: 'https://picsum.photos/800/600?random=1',
     areas: [
@@ -87,7 +95,10 @@ export const mockProperties: Property[] = [
   {
     id: '2',
     name: 'Mountain Cabin',
-    address: '456 Pine Road, Aspen, CO',
+    address_line_1: '456 Pine Road',
+    city: 'Aspen',
+    state: 'CO',
+    zip_code: '81611',
     userId: '1',
     image: 'https://picsum.photos/800/600?random=4',
     areas: [

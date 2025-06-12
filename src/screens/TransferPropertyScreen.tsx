@@ -80,7 +80,11 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
         <View style={styles.propertyInfo}>
           <Text style={styles.propertyTitle}>Property Details</Text>
           <Text style={styles.propertyName}>{property.name}</Text>
-          <Text style={styles.propertyAddress}>{property.address}</Text>
+          <Text style={styles.propertyAddress}>
+            {property.address_line_1}
+            {property.address_line_2 && `, ${property.address_line_2}`}
+            {'\n'}{property.city}, {property.state} {property.zip_code}
+          </Text>
           <Text style={styles.propertyStats}>
             {property.areas.length} {property.areas.length === 1 ? 'Area' : 'Areas'} •{' '}
             {property.areas.reduce((acc, area) => acc + area.notes.length, 0)} Notes

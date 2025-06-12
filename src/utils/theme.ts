@@ -69,6 +69,7 @@ export const theme = {
     text: {
       primary: '#FFFFFF',
       secondary: '#B0B5C4', // Light gray for secondary text
+      slate: '#1A1F2E',
       disabled: '#6E7280',
       hint: '#6E7280',
     },

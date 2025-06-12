@@ -7,17 +7,51 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Icon } from '../components/Icon';
 import { theme } from '../utils/theme';
 import { useProperties } from '../hooks/useData';
+import { useAuth } from '../contexts/AuthContext';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
 };
 
+const EmptyState = () => (
+  <View style={styles.emptyContainer}>
+    <Icon name="home" color={theme.colors.primary.main} size={64} />
+    <Text style={styles.emptyTitle}>No Properties Yet!</Text>
+    <Text style={styles.emptyText}>
+      Click the + button below to add your first property. 
+      Start documenting your home's journey!
+    </Text>
+  </View>
+);
+
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { theme } = useTheme();
-  // TODO: Replace with actual user ID from auth
-  const { properties, loading, error } = useProperties('current-user-id');
+  const { user, loading: authLoading } = useAuth();
+  const { properties, loading, error, refetch } = useProperties(user?.id);
 
-  if (loading) {
+  const onRefresh = () => {
+    if (user?.id) {
+      refetch();
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>Please sign in to view properties</Text>
+      </View>
+    );
+  }
+
+  if (loading && properties.length === 0) {
     return (
       <View style={styles.container}>
         <Text>Loading properties...</Text>
@@ -38,6 +72,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <FlatList
         data={properties}
         keyExtractor={(item) => item.id}
+        ListEmptyComponent={EmptyState}
+        refreshing={loading}
+        onRefresh={onRefresh}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate('Property', { propertyId: item.id })}
@@ -52,19 +89,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             )}
             <View style={styles.cardContent}>
               <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.address}>{item.address}</Text>
+              <Text style={styles.address}>
+                {item.address_line_1}
+                {item.address_line_2 && `, ${item.address_line_2}`}
+                {'\n'}{item.city}, {item.state} {item.zip_code}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
       />
       <FAB
-        icon={<Icon name="home" color="#FFFFFF" size={24} />}
+        icon={<Icon name="add" color="#FFFFFF" size={24} />}
         placement="right"
-        color={theme.colors.primary.main}
-        onPress={() => {
-          // In a real app, this would navigate to a create property screen
-          console.log('Add property pressed');
-        }}
+        color="#4CAF50"
+        onPress={() => navigation.navigate('CreateProperty')}
         style={styles.fab}
       />
     </View>
@@ -76,34 +114,56 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.default,
   },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    marginTop: 64,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
   card: {
     backgroundColor: theme.colors.background.paper,
-    borderRadius: theme.borderRadius.md,
-    marginHorizontal: theme.spacing.md,
-    marginVertical: theme.spacing.sm,
+    borderRadius: 8,
+    margin: 16,
     overflow: 'hidden',
-    ...theme.shadows.md,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   propertyImage: {
     width: '100%',
     height: 200,
   },
   cardContent: {
-    padding: theme.spacing.md,
+    padding: 16,
   },
   title: {
-    fontSize: theme.typography.h3.fontSize,
+    fontSize: 18,
     fontWeight: 'bold',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
+    marginBottom: 8,
   },
   address: {
-    fontSize: theme.typography.body1.fontSize,
+    fontSize: 14,
     color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.xs,
   },
   fab: {
-    margin: theme.spacing.md,
+    margin: 16,
   },
 });
 
