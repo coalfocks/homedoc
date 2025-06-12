@@ -1,24 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useArea } from '../hooks/useData';
+import { supabase } from '../lib/supabase';
 
 type EditAreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditArea'>;
   route: RouteProp<RootStackParamList, 'EditArea'>;
 };
 
-const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) => {
-  const area = mockProperties
-    .flatMap((p) => p.areas)
-    .find((a) => a.id === route.params.areaId);
+const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const { area, loading, error } = useArea(route.params.areaId);
 
-  const [name, setName] = useState(area?.name || '');
-  const [description, setDescription] = useState(area?.description || '');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (area) {
+      setName(area.name);
+      setDescription(area.description || '');
+    }
+  }, [area]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading area...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
 
   if (!area) {
     return (
@@ -28,10 +55,24 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) =>
     );
   }
 
-  const handleSave = () => {
-    // In a real app, this would update the area in the database
-    console.log('Saving area:', { name, description });
-    navigation.goBack();
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setSaveError(null);
+
+      const { error: updateError } = await supabase
+        .from('areas')
+        .update({ name, description })
+        .eq('id', area.id);
+
+      if (updateError) throw updateError;
+
+      navigation.goBack();
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'An error occurred');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -58,6 +99,8 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) =>
         <Button
           title="Save Changes"
           onPress={handleSave}
+          loading={saving}
+          disabled={saving || !name}
           buttonStyle={{
             backgroundColor: theme.colors.accent,
           }}
@@ -68,6 +111,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) =>
           type="outline"
           containerStyle={styles.cancelButton}
         />
+        {saveError && <Text style={styles.errorText}>{saveError}</Text>}
       </View>
     </ScrollView>
   );
@@ -91,6 +135,10 @@ const styles = StyleSheet.create({
   cancelButton: {
     marginTop: theme.spacing.sm,
   },
+  errorText: {
+    color: theme.colors.error.main,
+    marginTop: theme.spacing.sm,
+  },
 });
 
-export default EditAreaScreen; 
+export default EditAreaScreen;

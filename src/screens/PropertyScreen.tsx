@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -12,9 +19,21 @@ type PropertyScreenProps = {
   route: RouteProp<RootStackParamList, 'Property'>;
 };
 
-const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) => {
-  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
-  const { areas, loading: areasLoading, error: areasError } = useAreas(route.params.propertyId);
+const PropertyScreen: React.FC<PropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const {
+    property,
+    loading: propertyLoading,
+    error: propertyError,
+  } = useProperty(route.params.propertyId);
+  const {
+    areas,
+    loading: areasLoading,
+    error: areasError,
+    refetch: refetchAreas,
+  } = useAreas(route.params.propertyId);
 
   if (propertyLoading) {
     return (
@@ -56,23 +75,50 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
             <Text style={styles.address}>
               {property.address_line_1}
               {property.address_line_2 && `, ${property.address_line_2}`}
-              {'\n'}{property.city}, {property.state} {property.zip_code}
+              {'\n'}
+              {property.city}, {property.state} {property.zip_code}
             </Text>
             <View style={styles.headerActions}>
               <Button
-                icon={<Icon name="edit" color={theme.colors.text.primary} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="edit"
+                    color={theme.colors.text.primary}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
-                onPress={() => navigation.navigate('EditProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('EditProperty', {
+                    propertyId: property.id,
+                  })
+                }
                 buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="swap-horiz" color={theme.colors.text.primary} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="swap-horiz"
+                    color={theme.colors.text.primary}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
-                onPress={() => navigation.navigate('TransferProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('TransferProperty', {
+                    propertyId: property.id,
+                  })
+                }
                 buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="delete" color={theme.colors.error.main} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="delete"
+                    color={theme.colors.error.main}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
                 onPress={() => {
                   // In a real app, this would show a confirmation dialog
@@ -83,7 +129,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
             </View>
           </View>
         </View>
-        
+
         {areasLoading ? (
           <View style={styles.loadingContainer}>
             <Text>Loading areas...</Text>
@@ -94,12 +140,16 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
           </View>
         ) : areas.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No areas added yet. Tap the + button to add an area.</Text>
+            <Text style={styles.emptyText}>
+              No areas added yet. Tap the + button to add an area.
+            </Text>
           </View>
         ) : (
           <FlatList
             data={areas}
             keyExtractor={(item) => item.id}
+            refreshing={areasLoading}
+            onRefresh={refetchAreas}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('Area', { areaId: item.id })}
@@ -117,16 +167,27 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                     <Text style={styles.areaTitle}>{item.name}</Text>
                     <View style={styles.cardActions}>
                       <Button
-                        icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                        icon={
+                          <Icon
+                            name="edit"
+                            color={theme.colors.text.primary}
+                            size={16}
+                          />
+                        }
                         type="clear"
-                        onPress={() => {
-                          // In a real app, this would navigate to an edit area screen
-                          console.log('Edit area pressed');
-                        }}
+                        onPress={() =>
+                          navigation.navigate('EditArea', { areaId: item.id })
+                        }
                         buttonStyle={styles.actionButton}
                       />
                       <Button
-                        icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                        icon={
+                          <Icon
+                            name="delete"
+                            color={theme.colors.error.main}
+                            size={16}
+                          />
+                        }
                         type="clear"
                         onPress={() => {
                           // In a real app, this would show a confirmation dialog
@@ -144,7 +205,9 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
         )}
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -254,4 +317,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PropertyScreen; 
+export default PropertyScreen;
