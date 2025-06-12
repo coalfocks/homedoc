@@ -59,7 +59,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) =>
           title="Save Changes"
           onPress={handleSave}
           buttonStyle={{
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accent.main,
           }}
         />
         <Button
@@ -76,7 +76,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({ navigation, route }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.background.default,
   },
   form: {
     padding: theme.spacing.md,

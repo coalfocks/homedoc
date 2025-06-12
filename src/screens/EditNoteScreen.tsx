@@ -89,7 +89,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
           title="Save Changes"
           onPress={handleSave}
           buttonStyle={{
-            backgroundColor: theme.colors.accent,
+            backgroundColor: theme.colors.accent.main,
           }}
         />
         <Button
@@ -106,7 +106,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.background.default,
   },
   form: {
     padding: theme.spacing.md,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: theme.typography.h3.fontSize,
     fontWeight: 'bold',
-    color: theme.colors.text,
+    color: theme.colors.text.primary,
     marginBottom: theme.spacing.sm,
   },
   imageContainer: {
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
     right: -10,
-    backgroundColor: theme.colors.error,
+    backgroundColor: theme.colors.error.main,
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -154,17 +154,17 @@ const styles = StyleSheet.create({
   addImageButton: {
     width: '48%',
     aspectRatio: 1,
-    backgroundColor: theme.colors.lightGray,
+    backgroundColor: theme.colors.neutral[200],
     borderRadius: theme.borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: theme.colors.gray,
+    borderColor: theme.colors.neutral[500],
     borderStyle: 'dashed',
   },
   addImageText: {
     fontSize: 32,
-    color: theme.colors.gray,
+    color: theme.colors.neutral[500],
   },
   buttonContainer: {
     padding: theme.spacing.md,

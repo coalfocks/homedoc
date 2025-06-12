@@ -9,6 +9,8 @@ HomeDoc is a React Native application that helps you document and manage your pr
 - Create notes with text and images
 - Modern, clean UI with a light purple theme
 - Cross-platform (iOS, Android, and Web)
+- Manage user account details
+- Placeholder billing flow powered by Stripe
 
 ## Getting Started
 

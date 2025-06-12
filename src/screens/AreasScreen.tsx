@@ -6,14 +6,12 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
 import { Icon } from '../components/Icon';
-import { useTheme } from '@rneui/themed';
 
 type AreasScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
 };
 
 const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
-  const { theme } = useTheme();
 
   const allAreas = mockProperties.flatMap(property => 
     property.areas.map(area => ({
