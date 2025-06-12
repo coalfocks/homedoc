@@ -1,11 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useArea, useNotes } from '../hooks/useData';
 
 type AreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Area'>;
@@ -13,9 +20,32 @@ type AreaScreenProps = {
 };
 
 const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
-  const area = mockProperties
-    .flatMap((p) => p.areas)
-    .find((a) => a.id === route.params.areaId);
+  const {
+    area,
+    loading: areaLoading,
+    error: areaError,
+  } = useArea(route.params.areaId);
+  const {
+    notes,
+    loading: notesLoading,
+    error: notesError,
+    refetch: refetchNotes,
+  } = useNotes(route.params.areaId);
+  if (areaLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading area...</Text>
+      </View>
+    );
+  }
+
+  if (areaError) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {areaError}</Text>
+      </View>
+    );
+  }
 
   if (!area) {
     return (
@@ -60,8 +90,10 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
           </View>
         </View>
         <FlatList
-          data={area.notes}
+          data={notes}
           keyExtractor={(item) => item.id}
+          refreshing={notesLoading}
+          onRefresh={refetchNotes}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => navigation.navigate('Note', { noteId: item.id })}
@@ -71,15 +103,26 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                 <Text style={styles.noteTitle}>{item.title}</Text>
                 <View style={styles.cardActions}>
                   <Button
-                    icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                    icon={
+                      <Icon
+                        name="edit"
+                        color={theme.colors.text.primary}
+                        size={16}
+                      />
+                    }
                     type="clear"
-                    onPress={() => {
-                      // In a real app, this would navigate to an edit note screen
-                      console.log('Edit note pressed');
-                    }}
+                    onPress={() =>
+                      navigation.navigate('EditNote', { noteId: item.id })
+                    }
                   />
                   <Button
-                    icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                    icon={
+                      <Icon
+                        name="delete"
+                        color={theme.colors.error.main}
+                        size={16}
+                      />
+                    }
                     type="clear"
                     onPress={() => {
                       // In a real app, this would show a confirmation dialog
@@ -99,7 +142,9 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         />
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -179,4 +224,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AreaScreen; 
+export default AreaScreen;

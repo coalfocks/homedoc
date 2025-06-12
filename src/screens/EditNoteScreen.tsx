@@ -1,26 +1,59 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useNote } from '../hooks/useData';
+import { supabase } from '../lib/supabase';
 
 type EditNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
   route: RouteProp<RootStackParamList, 'EditNote'>;
 };
 
-const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) => {
-  const note = mockProperties
-    .flatMap((p) => p.areas)
-    .flatMap((a) => a.notes)
-    .find((n) => n.id === route.params.noteId);
+const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const { note, loading, error } = useNote(route.params.noteId);
 
-  const [title, setTitle] = useState(note?.title || '');
-  const [content, setContent] = useState(note?.content || '');
-  const [images, setImages] = useState<string[]>(note?.images || []);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+      setImages(note.images || []);
+    }
+  }, [note]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading note...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
 
   if (!note) {
     return (
@@ -30,10 +63,24 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
     );
   }
 
-  const handleSave = () => {
-    // In a real app, this would update the note in the database
-    console.log('Saving note:', { title, content, images });
-    navigation.goBack();
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setSaveError(null);
+
+      const { error: updateError } = await supabase
+        .from('notes')
+        .update({ title, content, images })
+        .eq('id', note.id);
+
+      if (updateError) throw updateError;
+
+      navigation.goBack();
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'An error occurred');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleAddImage = () => {
@@ -78,7 +125,10 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity style={styles.addImageButton} onPress={handleAddImage}>
+            <TouchableOpacity
+              style={styles.addImageButton}
+              onPress={handleAddImage}
+            >
               <Text style={styles.addImageText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -88,6 +138,8 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
         <Button
           title="Save Changes"
           onPress={handleSave}
+          loading={saving}
+          disabled={saving || !title}
           buttonStyle={{
             backgroundColor: theme.colors.accent,
           }}
@@ -98,6 +150,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({ navigation, route }) =>
           type="outline"
           containerStyle={styles.cancelButton}
         />
+        {saveError && <Text style={styles.errorText}>{saveError}</Text>}
       </View>
     </ScrollView>
   );
@@ -176,6 +229,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
   },
+  errorText: {
+    color: theme.colors.error,
+    marginTop: theme.spacing.sm,
+  },
 });
 
-export default EditNoteScreen; 
+export default EditNoteScreen;

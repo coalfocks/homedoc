@@ -3,8 +3,9 @@ import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Text, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useAllNotes } from '../hooks/useData';
+import { useAuth } from '../contexts/AuthContext';
 import { Icon } from '../components/Icon';
 
 type NotesScreenProps = {
@@ -12,45 +13,50 @@ type NotesScreenProps = {
 };
 
 const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
-  const allNotes = mockProperties.flatMap(property => 
-    property.areas.flatMap(area => 
-      area.notes.map(note => ({
-        ...note,
-        areaName: area.name,
-        propertyName: property.name,
-        areaId: area.id,
-        propertyId: property.id,
-      }))
-    )
-  );
+  const { user } = useAuth();
+  const { notes: allNotes, loading, error, refetch } = useAllNotes(user?.id);
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={allNotes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Note', { noteId: item.id })}
-            style={styles.card}
-          >
-            <View style={styles.cardContent}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.location}>
-                {item.propertyName} • {item.areaName}
-              </Text>
-              <Text style={styles.content} numberOfLines={2}>
-                {item.content}
-              </Text>
-              <Text style={styles.date}>
-                {new Date(item.createdAt).toLocaleDateString()}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Text>Loading notes...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.loadingContainer}>
+          <Text>Error: {error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={allNotes}
+          keyExtractor={(item) => item.id}
+          refreshing={loading}
+          onRefresh={refetch}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Note', { noteId: item.id })}
+              style={styles.card}
+            >
+              <View style={styles.cardContent}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.location}>
+                  {item.areas?.properties?.name} • {item.areas?.name}
+                </Text>
+                <Text style={styles.content} numberOfLines={2}>
+                  {item.content}
+                </Text>
+                <Text style={styles.date}>
+                  {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.primary.main}
         onPress={() => {
@@ -105,6 +111,11 @@ const styles = StyleSheet.create({
     right: 16,
     bottom: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
-export default NotesScreen; 
+export default NotesScreen;
