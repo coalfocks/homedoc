@@ -1,20 +1,48 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { useProperty, useAreas } from '../hooks/useData';
+import { mockProperties } from '../mock/data';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
   route: RouteProp<RootStackParamList, 'Property'>;
 };
 
-const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) => {
-  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
-  const { areas, loading: areasLoading, error: areasError } = useAreas(route.params.propertyId);
+const PropertyScreen: React.FC<PropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const {
+    property,
+    loading: propertyLoading,
+    error: propertyError,
+  } = useProperty(route.params.propertyId);
+  const {
+    areas,
+    loading: areasLoading,
+    error: areasError,
+  } = useAreas(route.params.propertyId);
+
+  const mockProperty = mockProperties.find(
+    (p) => p.id === route.params.propertyId,
+  );
+  const allTodos = mockProperty
+    ? mockProperty.areas.flatMap((area) =>
+        area.todos.map((todo) => ({ ...todo, areaName: area.name })),
+      )
+    : [];
 
   if (propertyLoading) {
     return (
@@ -56,23 +84,50 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
             <Text style={styles.address}>
               {property.address_line_1}
               {property.address_line_2 && `, ${property.address_line_2}`}
-              {'\n'}{property.city}, {property.state} {property.zip_code}
+              {'\n'}
+              {property.city}, {property.state} {property.zip_code}
             </Text>
             <View style={styles.headerActions}>
               <Button
-                icon={<Icon name="edit" color={theme.colors.text.primary} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="edit"
+                    color={theme.colors.text.primary}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
-                onPress={() => navigation.navigate('EditProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('EditProperty', {
+                    propertyId: property.id,
+                  })
+                }
                 buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="swap-horiz" color={theme.colors.text.primary} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="swap-horiz"
+                    color={theme.colors.text.primary}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
-                onPress={() => navigation.navigate('TransferProperty', { propertyId: property.id })}
+                onPress={() =>
+                  navigation.navigate('TransferProperty', {
+                    propertyId: property.id,
+                  })
+                }
                 buttonStyle={styles.actionButton}
               />
               <Button
-                icon={<Icon name="delete" color={theme.colors.error.main} style={styles.iconButton}/>}
+                icon={
+                  <Icon
+                    name="delete"
+                    color={theme.colors.error.main}
+                    style={styles.iconButton}
+                  />
+                }
                 type="clear"
                 onPress={() => {
                   // In a real app, this would show a confirmation dialog
@@ -83,7 +138,30 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
             </View>
           </View>
         </View>
-        
+
+        <Text style={styles.sectionTitle}>Todo List</Text>
+        {allTodos.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No tasks for this property.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={allTodos}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.areaTitle}>{item.title}</Text>
+                </View>
+                {item.context && (
+                  <Text style={styles.description}>{item.context}</Text>
+                )}
+                <Text style={styles.noteCount}>Area: {item.areaName}</Text>
+              </View>
+            )}
+          />
+        )}
+
         {areasLoading ? (
           <View style={styles.loadingContainer}>
             <Text>Loading areas...</Text>
@@ -94,7 +172,9 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
           </View>
         ) : areas.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No areas added yet. Tap the + button to add an area.</Text>
+            <Text style={styles.emptyText}>
+              No areas added yet. Tap the + button to add an area.
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -117,7 +197,13 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                     <Text style={styles.areaTitle}>{item.name}</Text>
                     <View style={styles.cardActions}>
                       <Button
-                        icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                        icon={
+                          <Icon
+                            name="edit"
+                            color={theme.colors.text.primary}
+                            size={16}
+                          />
+                        }
                         type="clear"
                         onPress={() => {
                           // In a real app, this would navigate to an edit area screen
@@ -126,7 +212,13 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
                         buttonStyle={styles.actionButton}
                       />
                       <Button
-                        icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                        icon={
+                          <Icon
+                            name="delete"
+                            color={theme.colors.error.main}
+                            size={16}
+                          />
+                        }
                         type="clear"
                         onPress={() => {
                           // In a real app, this would show a confirmation dialog
@@ -144,7 +236,9 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({ navigation, route }) =>
         )}
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -227,6 +321,13 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: theme.typography.caption.fontSize,
   },
+  sectionTitle: {
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginHorizontal: theme.spacing.md,
+    marginTop: theme.spacing.md,
+  },
   fab: {
     position: 'absolute',
     right: 16,
@@ -254,4 +355,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PropertyScreen; 
+export default PropertyScreen;

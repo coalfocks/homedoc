@@ -12,16 +12,16 @@ type NotesScreenProps = {
 };
 
 const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
-  const allNotes = mockProperties.flatMap(property => 
-    property.areas.flatMap(area => 
-      area.notes.map(note => ({
+  const allNotes = mockProperties.flatMap((property) =>
+    property.areas.flatMap((area) =>
+      area.notes.map((note) => ({
         ...note,
         areaName: area.name,
         propertyName: property.name,
         areaId: area.id,
         propertyId: property.id,
-      }))
-    )
+      })),
+    ),
   );
 
   return (
@@ -50,7 +50,9 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
         )}
       />
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.primary.main}
         onPress={() => {
@@ -107,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotesScreen; 
+export default NotesScreen;

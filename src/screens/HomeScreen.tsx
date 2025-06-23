@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { Text, FAB } from '@rneui/themed';
 import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,8 +24,8 @@ const EmptyState = () => (
     <Icon name="home" color={theme.colors.primary.main} size={64} />
     <Text style={styles.emptyTitle}>No Properties Yet!</Text>
     <Text style={styles.emptyText}>
-      Click the + button below to add your first property. 
-      Start documenting your home's journey!
+      Click the + button below to add your first property. Start documenting
+      your home's journey!
     </Text>
   </View>
 );
@@ -77,7 +83,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         onRefresh={onRefresh}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('Property', { propertyId: item.id })}
+            onPress={() =>
+              navigation.navigate('Property', { propertyId: item.id })
+            }
             style={styles.card}
           >
             {item.image_url && (
@@ -92,7 +100,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <Text style={styles.address}>
                 {item.address_line_1}
                 {item.address_line_2 && `, ${item.address_line_2}`}
-                {'\n'}{item.city}, {item.state} {item.zip_code}
+                {'\n'}
+                {item.city}, {item.state} {item.zip_code}
               </Text>
             </View>
           </TouchableOpacity>
@@ -167,4 +176,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

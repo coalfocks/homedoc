@@ -40,4 +40,16 @@ export type Note = {
   area_id: string;
   created_at: string;
   updated_at: string;
-}; 
+};
+
+export type Todo = {
+  id: string;
+  title: string;
+  context?: string;
+  quotes?: string;
+  pricing?: string;
+  plan?: string;
+  area_id: string;
+  created_at: string;
+  updated_at: string;
+};
