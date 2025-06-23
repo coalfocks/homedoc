@@ -4,8 +4,8 @@ import { Text, Button } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { mockProperties } from '../mock/data';
 import { theme } from '../utils/theme';
+import { useNote } from '../hooks/useData';
 
 type NoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Note'>;
@@ -13,10 +13,23 @@ type NoteScreenProps = {
 };
 
 const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
-  const note = mockProperties
-    .flatMap((p) => p.areas)
-    .flatMap((a) => a.notes)
-    .find((n) => n.id === route.params.noteId);
+  const { note, loading, error } = useNote(route.params.noteId);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading note...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
 
   if (!note) {
     return (
@@ -31,10 +44,10 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
       <View style={styles.header}>
         <Text style={styles.title}>{note.title}</Text>
         <Text style={styles.date}>
-          Created: {new Date(note.createdAt).toLocaleDateString()}
+          Created: {new Date(note.created_at).toLocaleDateString()}
         </Text>
         <Text style={styles.date}>
-          Updated: {new Date(note.updatedAt).toLocaleDateString()}
+          Updated: {new Date(note.updated_at).toLocaleDateString()}
         </Text>
       </View>
       <View style={styles.content}>
@@ -101,7 +114,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    aspectRatio: 16/9,
+    aspectRatio: 16 / 9,
     borderRadius: theme.borderRadius.md,
     marginBottom: theme.spacing.sm,
   },
@@ -110,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NoteScreen; 
+export default NoteScreen;
