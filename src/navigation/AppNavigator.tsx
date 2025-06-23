@@ -20,6 +20,8 @@ import EditPropertyScreen from '../screens/EditPropertyScreen';
 import EditAreaScreen from '../screens/EditAreaScreen';
 import TransferPropertyScreen from '../screens/TransferPropertyScreen';
 import CreatePropertyScreen from '../screens/CreatePropertyScreen';
+import CreateAreaScreen from '../screens/CreateAreaScreen';
+import CreateNoteScreen from '../screens/CreateNoteScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -31,6 +33,8 @@ export type RootStackParamList = {
   EditArea: { areaId: string };
   TransferProperty: { propertyId: string };
   CreateProperty: undefined;
+  CreateArea: { propertyId: string };
+  CreateNote: { areaId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -179,6 +183,20 @@ export const AppNavigator = () => {
           component={CreatePropertyScreen}
           options={{
             title: 'Add Property',
+          }}
+        />
+        <Stack.Screen
+          name="CreateArea"
+          component={CreateAreaScreen}
+          options={{
+            title: 'Add Area',
+          }}
+        />
+        <Stack.Screen
+          name="CreateNote"
+          component={CreateNoteScreen}
+          options={{
+            title: 'Add Note',
           }}
         />
       </Stack.Navigator>

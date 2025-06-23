@@ -1,45 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
-import { Text, Button, Input } from '@rneui/themed';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { Text, Input, Button } from '@rneui/themed';
+import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
-import { useNote } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
+import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
 
-type EditNoteScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
-  route: RouteProp<RootStackParamList, 'EditNote'>;
+type CreateNoteScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'CreateNote'>;
+  route: RouteProp<RootStackParamList, 'CreateNote'>;
 };
 
-const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
-  navigation,
-  route,
-}) => {
-  const { note, loading, error } = useNote(route.params.noteId);
-
+const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }) => {
+  const { theme } = useTheme();
+  const { areaId } = route.params;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (note) {
-      setTitle(note.title);
-      setContent(note.content || '');
-      setImages(note.images || []);
-    }
-  }, [note]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -57,25 +40,21 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
   const uploadImages = async (uris: string[]) => {
     try {
       const uploadPromises = uris.map(async (uri, index) => {
-        // Only upload if it's a local URI (not already uploaded)
-        if (uri.startsWith('file://') || uri.startsWith('content://')) {
-          const response = await fetch(uri);
-          const blob = await response.blob();
-          const filename = `notes/${note?.area_id}/${Date.now()}_${index}.jpg`;
-          
-          const { data, error } = await supabase.storage
-            .from('images')
-            .upload(filename, blob);
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const filename = `notes/${areaId}/${Date.now()}_${index}.jpg`;
+        
+        const { data, error } = await supabase.storage
+          .from('images')
+          .upload(filename, blob);
 
-          if (error) throw error;
+        if (error) throw error;
 
-          const { data: { publicUrl } } = supabase.storage
-            .from('images')
-            .getPublicUrl(filename);
+        const { data: { publicUrl } } = supabase.storage
+          .from('images')
+          .getPublicUrl(filename);
 
-          return publicUrl;
-        }
-        return uri; // Return existing URL as-is
+        return publicUrl;
       });
 
       return await Promise.all(uploadPromises);
@@ -85,49 +64,36 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading note...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
-
-  if (!note) {
-    return (
-      <View style={styles.container}>
-        <Text>Note not found</Text>
-      </View>
-    );
-  }
-
-  const handleSave = async () => {
+  const handleCreateNote = async () => {
     try {
-      setSaving(true);
-      setSaveError(null);
+      setLoading(true);
+      setError(null);
 
-      let imageUrls = await uploadImages(images);
+      let imageUrls: string[] = [];
+      if (images.length > 0) {
+        imageUrls = await uploadImages(images);
+      }
 
-      const { error: updateError } = await supabase
+      const { data, error } = await supabase
         .from('notes')
-        .update({ title, content, images: imageUrls })
-        .eq('id', note.id);
+        .insert([
+          {
+            title,
+            content,
+            images: imageUrls,
+            area_id: areaId,
+          },
+        ])
+        .select()
+        .single();
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       navigation.goBack();
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : 'An error occurred');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
@@ -139,15 +105,17 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <Input
-          label="Title"
+          label="Note Title"
           value={title}
           onChangeText={setTitle}
           placeholder="Enter note title"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Content"
           value={content}
@@ -160,6 +128,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
           inputStyle={[styles.input, styles.textArea]}
           labelStyle={styles.label}
         />
+
         <View style={styles.imageSection}>
           <Text style={styles.sectionTitle}>Images</Text>
           <View style={styles.imageContainer}>
@@ -183,27 +152,21 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
             </TouchableOpacity>
           </View>
         </View>
-        
-        {saveError && <Text style={styles.errorText}>{saveError}</Text>}
-        
+
+        {error && (
+          <Text style={styles.errorText}>{error}</Text>
+        )}
+
         <Button
-          title="Save Changes"
-          onPress={handleSave}
-          loading={saving}
-          disabled={saving || !title}
+          title="Create Note"
+          onPress={handleCreateNote}
+          loading={loading}
+          disabled={loading || !title}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (saving || !title) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (saving || !title) && styles.disabledButtonText]}
+          buttonStyle={[styles.button, (loading || !title) && styles.disabledButton]}
+          titleStyle={[styles.buttonText, (loading || !title) && styles.disabledButtonText]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
-        />
-        <Button
-          title="Cancel"
-          onPress={() => navigation.goBack()}
-          type="outline"
-          containerStyle={styles.cancelButton}
-          buttonStyle={styles.cancelButtonStyle}
-          titleStyle={styles.cancelButtonText}
         />
       </View>
     </ScrollView>
@@ -317,22 +280,6 @@ const styles = StyleSheet.create({
   disabledButtonText: {
     color: theme.colors.text.disabled,
   },
-  cancelButton: {
-    marginTop: 12,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  cancelButtonStyle: {
-    borderColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
-  },
-  cancelButtonText: {
-    color: theme.colors.primary.main,
-    fontSize: 16,
-    fontWeight: '600',
-  },
   errorText: {
     color: '#FF3B30',
     marginBottom: 16,
@@ -340,4 +287,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditNoteScreen;
+export default CreateNoteScreen; 

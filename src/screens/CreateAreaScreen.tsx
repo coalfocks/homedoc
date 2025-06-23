@@ -1,39 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Text, Button, Input } from '@rneui/themed';
+import { Text, Input, Button } from '@rneui/themed';
+import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
-import { useArea } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
+import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
 
-type EditAreaScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'EditArea'>;
-  route: RouteProp<RootStackParamList, 'EditArea'>;
+type CreateAreaScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'CreateArea'>;
+  route: RouteProp<RootStackParamList, 'CreateArea'>;
 };
 
-const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
-  navigation,
-  route,
-}) => {
-  const { area, loading, error } = useArea(route.params.areaId);
-
+const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({ navigation, route }) => {
+  const { theme } = useTheme();
+  const { propertyId } = route.params;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (area) {
-      setName(area.name);
-      setDescription(area.description || '');
-      setImage(area.image_url || null);
-    }
-  }, [area]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -52,7 +41,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-      const filename = `areas/${area?.property_id}/${Date.now()}.jpg`;
+      const filename = `areas/${propertyId}/${Date.now()}.jpg`;
       
       const { data, error } = await supabase.storage
         .from('images')
@@ -71,58 +60,36 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading area...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
-
-  if (!area) {
-    return (
-      <View style={styles.container}>
-        <Text>Area not found</Text>
-      </View>
-    );
-  }
-
-  const handleSave = async () => {
+  const handleCreateArea = async () => {
     try {
-      setSaving(true);
-      setSaveError(null);
+      setLoading(true);
+      setError(null);
 
-      let imageUrl = area?.image_url || null;
-      
-      // Upload new image if one was selected and it's different from current
-      if (image && image !== area?.image_url) {
+      let imageUrl = null;
+      if (image) {
         imageUrl = await uploadImage(image);
       }
 
-      const { error: updateError } = await supabase
+      const { data, error } = await supabase
         .from('areas')
-        .update({ 
-          name, 
-          description,
-          image_url: imageUrl,
-        })
-        .eq('id', area.id);
+        .insert([
+          {
+            name,
+            description,
+            property_id: propertyId,
+            image_url: imageUrl,
+          },
+        ])
+        .select()
+        .single();
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       navigation.goBack();
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : 'An error occurred');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
@@ -144,12 +111,14 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
           label="Area Name"
           value={name}
           onChangeText={setName}
-          placeholder="Enter area name"
+          placeholder="Enter area name (e.g., Kitchen, Master Bedroom)"
           placeholderTextColor="#666"
+          autoCapitalize="words"
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
           labelStyle={styles.label}
         />
+
         <Input
           label="Description"
           value={description}
@@ -162,27 +131,21 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
           inputStyle={[styles.input, styles.textArea]}
           labelStyle={styles.label}
         />
-        
-        {saveError && <Text style={styles.errorText}>{saveError}</Text>}
-        
+
+        {error && (
+          <Text style={styles.errorText}>{error}</Text>
+        )}
+
         <Button
-          title="Save Changes"
-          onPress={handleSave}
-          loading={saving}
-          disabled={saving || !name}
+          title="Create Area"
+          onPress={handleCreateArea}
+          loading={loading}
+          disabled={loading || !name}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (saving || !name) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (saving || !name) && styles.disabledButtonText]}
+          buttonStyle={[styles.button, (loading || !name) && styles.disabledButton]}
+          titleStyle={[styles.buttonText, (loading || !name) && styles.disabledButtonText]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
-        />
-        <Button
-          title="Cancel"
-          onPress={() => navigation.goBack()}
-          type="outline"
-          containerStyle={styles.cancelButton}
-          buttonStyle={styles.cancelButtonStyle}
-          titleStyle={styles.cancelButtonText}
         />
       </View>
     </ScrollView>
@@ -261,22 +224,6 @@ const styles = StyleSheet.create({
   disabledButtonText: {
     color: theme.colors.text.disabled,
   },
-  cancelButton: {
-    marginTop: 12,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  cancelButtonStyle: {
-    borderColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
-  },
-  cancelButtonText: {
-    color: theme.colors.primary.main,
-    fontSize: 16,
-    fontWeight: '600',
-  },
   errorText: {
     color: '#FF3B30',
     marginBottom: 16,
@@ -284,4 +231,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditAreaScreen;
+export default CreateAreaScreen; 
