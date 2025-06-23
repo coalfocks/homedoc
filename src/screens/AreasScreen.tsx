@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, FAB, Card } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -15,26 +22,42 @@ type AreasScreenProps = {
 const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
   const { theme } = useTheme();
 
-  const allAreas = mockProperties.flatMap(property => 
-    property.areas.map(area => ({
+  const allAreas = mockProperties.flatMap((property) =>
+    property.areas.map((area) => ({
       ...area,
       propertyName: property.name,
       propertyId: property.id,
-    }))
+    })),
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background.default }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background.default },
+      ]}
+    >
       <ScrollView style={styles.scrollView}>
-        <Card containerStyle={[styles.card, { backgroundColor: theme.colors.background.paper }]}>
-          <Card.Title style={{ color: theme.colors.text.primary }}>Areas</Card.Title>
-          <Text style={[styles.emptyText, { color: theme.colors.text.secondary }]}>
+        <Card
+          containerStyle={[
+            styles.card,
+            { backgroundColor: theme.colors.background.paper },
+          ]}
+        >
+          <Card.Title style={{ color: theme.colors.text.primary }}>
+            Areas
+          </Card.Title>
+          <Text
+            style={[styles.emptyText, { color: theme.colors.text.secondary }]}
+          >
             No areas added yet. Tap the + button to add an area.
           </Text>
         </Card>
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.primary.main}
         onPress={() => {
@@ -74,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AreasScreen; 
+export default AreasScreen;

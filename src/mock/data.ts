@@ -25,6 +25,7 @@ export interface Area {
   propertyId: string;
   image?: string;
   notes: Note[];
+  todos: Todo[];
 }
 
 export interface Note {
@@ -32,6 +33,18 @@ export interface Note {
   title: string;
   content: string;
   images: string[];
+  createdAt: string;
+  updatedAt: string;
+  areaId: string;
+}
+
+export interface Todo {
+  id: string;
+  title: string;
+  context?: string;
+  quotes?: string;
+  pricing?: string;
+  plan?: string;
   createdAt: string;
   updatedAt: string;
   areaId: string;
@@ -71,6 +84,18 @@ export const mockProperties: Property[] = [
             areaId: '1',
           },
         ],
+        todos: [
+          {
+            id: 't1',
+            title: 'Replace carpet',
+            context: 'Carpet is worn from years of use',
+            pricing: '$1200 estimated',
+            plan: 'Get quotes from local installers',
+            createdAt: '2024-03-19T12:00:00Z',
+            updatedAt: '2024-03-19T12:00:00Z',
+            areaId: '1',
+          },
+        ],
       },
       {
         id: '2',
@@ -86,6 +111,19 @@ export const mockProperties: Property[] = [
             images: ['https://picsum.photos/200/300'],
             createdAt: '2024-03-20T11:00:00Z',
             updatedAt: '2024-03-20T11:00:00Z',
+            areaId: '2',
+          },
+        ],
+        todos: [
+          {
+            id: 't2',
+            title: 'Upgrade fridge',
+            context: 'Current fridge is old and loud',
+            quotes: 'Quote1 $1000, Quote2 $1200',
+            pricing: '$1000 - $1200',
+            plan: 'Compare energy ratings and decide',
+            createdAt: '2024-03-20T12:00:00Z',
+            updatedAt: '2024-03-20T12:00:00Z',
             areaId: '2',
           },
         ],
@@ -119,7 +157,19 @@ export const mockProperties: Property[] = [
             areaId: '3',
           },
         ],
+        todos: [
+          {
+            id: 't3',
+            title: 'Buy patio furniture',
+            context: 'Need seating for six people',
+            pricing: '$600 budget',
+            plan: 'Check summer sales',
+            createdAt: '2024-03-21T09:00:00Z',
+            updatedAt: '2024-03-21T09:00:00Z',
+            areaId: '3',
+          },
+        ],
       },
     ],
   },
-]; 
+];

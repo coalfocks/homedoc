@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -71,7 +78,13 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                 <Text style={styles.noteTitle}>{item.title}</Text>
                 <View style={styles.cardActions}>
                   <Button
-                    icon={<Icon name="edit" color={theme.colors.text.primary} size={16} />}
+                    icon={
+                      <Icon
+                        name="edit"
+                        color={theme.colors.text.primary}
+                        size={16}
+                      />
+                    }
                     type="clear"
                     onPress={() => {
                       // In a real app, this would navigate to an edit note screen
@@ -79,7 +92,13 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                     }}
                   />
                   <Button
-                    icon={<Icon name="delete" color={theme.colors.error.main} size={16} />}
+                    icon={
+                      <Icon
+                        name="delete"
+                        color={theme.colors.error.main}
+                        size={16}
+                      />
+                    }
                     type="clear"
                     onPress={() => {
                       // In a real app, this would show a confirmation dialog
@@ -97,9 +116,32 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
             </TouchableOpacity>
           )}
         />
+        <Text style={styles.sectionTitle}>Todo List</Text>
+        <FlatList
+          data={area.todos}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.noteTitle}>{item.title}</Text>
+              </View>
+              {item.context && (
+                <Text style={styles.content} numberOfLines={2}>
+                  {item.context}
+                </Text>
+              )}
+              {item.pricing && (
+                <Text style={styles.content}>{item.pricing}</Text>
+              )}
+              {item.plan && <Text style={styles.content}>{item.plan}</Text>}
+            </View>
+          )}
+        />
       </ScrollView>
       <FAB
-        icon={<Icon name="add" size={24} color={theme.colors.background.paper} />}
+        icon={
+          <Icon name="add" size={24} color={theme.colors.background.paper} />
+        }
         placement="right"
         color={theme.colors.accent.main}
         onPress={() => {
@@ -164,6 +206,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.text.primary,
   },
+  sectionTitle: {
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginHorizontal: theme.spacing.md,
+    marginTop: theme.spacing.md,
+  },
   content: {
     color: theme.colors.text.secondary,
     marginBottom: theme.spacing.xs,
@@ -179,4 +228,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AreaScreen; 
+export default AreaScreen;

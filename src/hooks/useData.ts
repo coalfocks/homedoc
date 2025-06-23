@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, Property, Area, Note } from '../lib/supabase';
+import { supabase, Property, Area, Note, Todo } from '../lib/supabase';
 
 export const useProperties = (userId: string | undefined) => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -98,6 +98,34 @@ export const useNotes = (areaId: string) => {
   return { notes, loading, error };
 };
 
+export const useTodos = (areaId: string) => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('todos')
+          .select('*')
+          .eq('area_id', areaId);
+
+        if (error) throw error;
+        setTodos(data || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTodos();
+  }, [areaId]);
+
+  return { todos, loading, error };
+};
+
 export const useProperty = (propertyId: string | undefined) => {
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,4 +166,4 @@ export const useProperty = (propertyId: string | undefined) => {
   };
 
   return { property, loading, error, refetch };
-}; 
+};

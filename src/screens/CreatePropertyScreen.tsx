@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
 import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,7 +20,9 @@ type CreatePropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateProperty'>;
 };
 
-const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({ navigation }) => {
+const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
+  navigation,
+}) => {
   const { theme } = useTheme();
   const { user } = useAuth();
   const [name, setName] = useState('');
@@ -46,16 +54,16 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({ navigation 
       const response = await fetch(uri);
       const blob = await response.blob();
       const filename = `${user?.id}/${Date.now()}.jpg`;
-      
+
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filename, blob);
 
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filename);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('images').getPublicUrl(filename);
 
       return publicUrl;
     } catch (error) {
@@ -66,7 +74,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({ navigation 
 
   const handleCreateProperty = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -202,18 +210,36 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({ navigation 
           labelStyle={styles.label}
         />
 
-        {error && (
-          <Text style={styles.errorText}>{error}</Text>
-        )}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
         <Button
           title="Create Property"
           onPress={handleCreateProperty}
           loading={loading}
-          disabled={loading || !name || !addressLine1 || !city || !state || !zipCode}
+          disabled={
+            loading || !name || !addressLine1 || !city || !state || !zipCode
+          }
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (loading || !name || !addressLine1 || !city || !state || !zipCode) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (loading || !name || !addressLine1 || !city || !state || !zipCode) && styles.disabledButtonText]}
+          buttonStyle={[
+            styles.button,
+            (loading ||
+              !name ||
+              !addressLine1 ||
+              !city ||
+              !state ||
+              !zipCode) &&
+              styles.disabledButton,
+          ]}
+          titleStyle={[
+            styles.buttonText,
+            (loading ||
+              !name ||
+              !addressLine1 ||
+              !city ||
+              !state ||
+              !zipCode) &&
+              styles.disabledButtonText,
+          ]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
         />
@@ -297,4 +323,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreatePropertyScreen; 
+export default CreatePropertyScreen;

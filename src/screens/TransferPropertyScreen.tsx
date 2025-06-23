@@ -12,7 +12,10 @@ type TransferPropertyScreenProps = {
   route: RouteProp<RootStackParamList, 'TransferProperty'>;
 };
 
-const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigation, route }) => {
+const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const property = mockProperties.find((p) => p.id === route.params.propertyId);
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +44,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
         propertyId: property.id,
         recipientEmail: email,
       });
-      
+
       Alert.alert(
         'Transfer Initiated',
         'A transfer request has been sent to the recipient. The property will be transferred once they accept.',
@@ -50,7 +53,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
             text: 'OK',
             onPress: () => navigation.goBack(),
           },
-        ]
+        ],
       );
     } catch (error) {
       Alert.alert('Error', 'Failed to initiate transfer. Please try again.');
@@ -63,10 +66,10 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
     <ScrollView style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.warning}>
-          Warning: Transferring this property will give the recipient full access to all areas and notes.
-          This action cannot be undone.
+          Warning: Transferring this property will give the recipient full
+          access to all areas and notes. This action cannot be undone.
         </Text>
-        
+
         <Input
           label="Recipient Email"
           value={email}
@@ -83,11 +86,14 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
           <Text style={styles.propertyAddress}>
             {property.address_line_1}
             {property.address_line_2 && `, ${property.address_line_2}`}
-            {'\n'}{property.city}, {property.state} {property.zip_code}
+            {'\n'}
+            {property.city}, {property.state} {property.zip_code}
           </Text>
           <Text style={styles.propertyStats}>
-            {property.areas.length} {property.areas.length === 1 ? 'Area' : 'Areas'} •{' '}
-            {property.areas.reduce((acc, area) => acc + area.notes.length, 0)} Notes
+            {property.areas.length}{' '}
+            {property.areas.length === 1 ? 'Area' : 'Areas'} •{' '}
+            {property.areas.reduce((acc, area) => acc + area.notes.length, 0)}{' '}
+            Notes
           </Text>
         </View>
       </View>
@@ -164,4 +170,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TransferPropertyScreen; 
+export default TransferPropertyScreen;
