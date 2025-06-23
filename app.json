@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "y",
+      "bundleIdentifier": "com.coalfocks.homedoc",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
