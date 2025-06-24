@@ -20,6 +20,7 @@ import EditPropertyScreen from '../screens/EditPropertyScreen';
 import EditAreaScreen from '../screens/EditAreaScreen';
 import TransferPropertyScreen from '../screens/TransferPropertyScreen';
 import CreatePropertyScreen from '../screens/CreatePropertyScreen';
+import RequestQuoteScreen from '../screens/RequestQuoteScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -31,6 +32,7 @@ export type RootStackParamList = {
   EditArea: { areaId: string };
   TransferProperty: { propertyId: string };
   CreateProperty: undefined;
+  RequestQuote: { todoId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -179,6 +181,13 @@ export const AppNavigator = () => {
           component={CreatePropertyScreen}
           options={{
             title: 'Add Property',
+          }}
+        />
+        <Stack.Screen
+          name="RequestQuote"
+          component={RequestQuoteScreen}
+          options={{
+            title: 'Request Quotes',
           }}
         />
       </Stack.Navigator>
