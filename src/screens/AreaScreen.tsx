@@ -134,6 +134,14 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                 <Text style={styles.content}>{item.pricing}</Text>
               )}
               {item.plan && <Text style={styles.content}>{item.plan}</Text>}
+              <Button
+                title="Get Quotes"
+                type="outline"
+                onPress={() =>
+                  navigation.navigate('RequestQuote', { todoId: item.id })
+                }
+                buttonStyle={styles.quoteButton}
+              />
             </View>
           )}
         />
@@ -220,6 +228,9 @@ const styles = StyleSheet.create({
   date: {
     color: theme.colors.text.primary,
     fontSize: theme.typography.caption.fontSize,
+  },
+  quoteButton: {
+    marginTop: theme.spacing.sm,
   },
   fab: {
     position: 'absolute',
