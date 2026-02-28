@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Text, Button, Icon, FAB } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -128,21 +129,33 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                   />
                 }
                 type="clear"
-                onPress={async () => {
-                  // In a production app, you would show a confirmation dialog here
-                  try {
-                    const { error } = await supabase
-                      .from('properties')
-                      .delete()
-                      .eq('id', property.id);
-                    
-                    if (error) throw error;
-                    
-                    // Navigate back to the home screen after successful deletion
-                    navigation.navigate('Main');
-                  } catch (error) {
-                    console.error('Error deleting property:', error);
-                  }
+                onPress={() => {
+                  Alert.alert(
+                    'Delete Property',
+                    `Are you sure you want to delete "${property.name}"? This will also delete all areas and notes. This action cannot be undone.`,
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            const { error } = await supabase
+                              .from('properties')
+                              .delete()
+                              .eq('id', property.id);
+                            
+                            if (error) throw error;
+                            
+                            navigation.navigate('Main');
+                          } catch (error) {
+                            console.error('Error deleting property:', error);
+                            Alert.alert('Error', 'Failed to delete property. Please try again.');
+                          }
+                        },
+                      },
+                    ]
+                  );
                 }}
                 buttonStyle={styles.actionButton}
               />
@@ -210,19 +223,32 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                           />
                         }
                         type="clear"
-                        onPress={async () => {
-                          // In a production app, you would show a confirmation dialog here
-                          try {
-                            const { error } = await supabase
-                              .from('areas')
-                              .delete()
-                              .eq('id', item.id);
-                            
-                            if (error) throw error;
-                            refetchAreas();
-                          } catch (error) {
-                            console.error('Error deleting area:', error);
-                          }
+                        onPress={() => {
+                          Alert.alert(
+                            'Delete Area',
+                            `Are you sure you want to delete "${item.name}"? This will also delete all notes in this area. This action cannot be undone.`,
+                            [
+                              { text: 'Cancel', style: 'cancel' },
+                              {
+                                text: 'Delete',
+                                style: 'destructive',
+                                onPress: async () => {
+                                  try {
+                                    const { error } = await supabase
+                                      .from('areas')
+                                      .delete()
+                                      .eq('id', item.id);
+                                    
+                                    if (error) throw error;
+                                    refetchAreas();
+                                  } catch (error) {
+                                    console.error('Error deleting area:', error);
+                                    Alert.alert('Error', 'Failed to delete area. Please try again.');
+                                  }
+                                },
+                              },
+                            ]
+                          );
                         }}
                         buttonStyle={[styles.actionButton, styles.iconButton]}
                       />
