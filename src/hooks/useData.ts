@@ -1,333 +1,134 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase, Property, Area, Note } from '../lib/supabase';
 
-export const useProperties = (userId: string | undefined) => {
-  const [properties, setProperties] = useState<Property[]>([]);
+/**
+ * Generic hook for Supabase queries with loading/error state.
+ * @param queryFn - async function returning { data, error }
+ * @param deps - dependency array; re-fetches when these change
+ */
+function useSupabaseQuery<T>(
+  queryFn: () => PromiseLike<{ data: T | null; error: any }>,
+  deps: any[],
+): { data: T; loading: boolean; error: string | null; refetch: () => void } {
+  const [data, setData] = useState<T>(null as unknown as T);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProperties = async () => {
-    if (!userId) {
-      setProperties([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) throw error;
-      setProperties(data || []);
+      const result = await queryFn();
+      if (result.error) throw result.error;
+      setData((result.data ?? null) as T);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 
   useEffect(() => {
-    fetchProperties();
-  }, [userId]);
+    fetchData();
+  }, [fetchData]);
 
-  const refetch = () => {
-    fetchProperties();
-  };
+  return { data, loading, error, refetch: fetchData };
+}
 
-  return { properties, loading, error, refetch };
+// ── Collection hooks ──────────────────────────────────────────────
+
+export const useProperties = (userId: string | undefined) => {
+  const result = useSupabaseQuery<Property[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Property[], error: null });
+      return supabase.from('properties').select('*').eq('user_id', userId);
+    },
+    [userId],
+  );
+  return { properties: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
 export const useAreas = (propertyId: string | undefined) => {
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchAreas = async () => {
-    if (!propertyId) {
-      setAreas([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('areas')
-        .select('*')
-        .eq('property_id', propertyId);
-
-      if (error) throw error;
-      setAreas(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAreas();
-  }, [propertyId]);
-
-  const refetch = () => {
-    fetchAreas();
-  };
-
-  return { areas, loading, error, refetch };
+  const result = useSupabaseQuery<Area[]>(
+    () => {
+      if (!propertyId) return Promise.resolve({ data: [] as Area[], error: null });
+      return supabase.from('areas').select('*').eq('property_id', propertyId);
+    },
+    [propertyId],
+  );
+  return { areas: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
 export const useNotes = (areaId: string | undefined) => {
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchNotes = async () => {
-    if (!areaId) {
-      setNotes([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('area_id', areaId);
-
-      if (error) throw error;
-      setNotes(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotes();
-  }, [areaId]);
-
-  const refetch = () => {
-    fetchNotes();
-  };
-
-  return { notes, loading, error, refetch };
+  const result = useSupabaseQuery<Note[]>(
+    () => {
+      if (!areaId) return Promise.resolve({ data: [] as Note[], error: null });
+      return supabase.from('notes').select('*').eq('area_id', areaId);
+    },
+    [areaId],
+  );
+  return { notes: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
+// ── Single-item hooks ─────────────────────────────────────────────
+
 export const useProperty = (propertyId: string | undefined) => {
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchProperty = async () => {
-    if (!propertyId) {
-      setProperty(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .eq('id', propertyId)
-        .single();
-
-      if (error) throw error;
-      setProperty(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProperty();
-  }, [propertyId]);
-
-  const refetch = () => {
-    fetchProperty();
-  };
-
-  return { property, loading, error, refetch };
+  const result = useSupabaseQuery<Property | null>(
+    () => {
+      if (!propertyId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('properties').select('*').eq('id', propertyId).single();
+    },
+    [propertyId],
+  );
+  return { property: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
 export const useArea = (areaId: string | undefined) => {
-  const [area, setArea] = useState<Area | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchArea = async () => {
-    if (!areaId) {
-      setArea(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('areas')
-        .select('*')
-        .eq('id', areaId)
-        .single();
-
-      if (error) throw error;
-      setArea(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchArea();
-  }, [areaId]);
-
-  const refetch = () => {
-    fetchArea();
-  };
-
-  return { area, loading, error, refetch };
+  const result = useSupabaseQuery<Area | null>(
+    () => {
+      if (!areaId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('areas').select('*').eq('id', areaId).single();
+    },
+    [areaId],
+  );
+  return { area: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
 export const useNote = (noteId: string | undefined) => {
-  const [note, setNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchNote = async () => {
-    if (!noteId) {
-      setNote(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('id', noteId)
-        .single();
-
-      if (error) throw error;
-      setNote(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNote();
-  }, [noteId]);
-
-  const refetch = () => {
-    fetchNote();
-  };
-
-  return { note, loading, error, refetch };
+  const result = useSupabaseQuery<Note | null>(
+    () => {
+      if (!noteId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('notes').select('*').eq('id', noteId).single();
+    },
+    [noteId],
+  );
+  return { note: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
+// ── Cross-property hooks ──────────────────────────────────────────
+
 export const useAllAreas = (userId: string | undefined) => {
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchAreas = async () => {
-    if (!userId) {
-      setAreas([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('areas')
-        .select('*, properties!inner(name, id)')
-        .eq('properties.user_id', userId);
-
-      if (error) throw error;
-      setAreas((data as any) || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAreas();
-  }, [userId]);
-
-  const refetch = () => {
-    fetchAreas();
-  };
-
-  return { areas, loading, error, refetch };
+  const result = useSupabaseQuery<Area[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Area[], error: null });
+      return supabase.from('areas').select('*, properties!inner(name, id)').eq('properties.user_id', userId);
+    },
+    [userId],
+  );
+  return { areas: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
 
 export const useAllNotes = (userId: string | undefined) => {
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchNotes = async () => {
-    if (!userId) {
-      setNotes([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
+  const result = useSupabaseQuery<Note[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Note[], error: null });
+      return supabase
         .from('notes')
         .select('*, areas!inner(property_id), areas(properties!inner(user_id))')
         .eq('areas.properties.user_id', userId);
-
-      if (error) throw error;
-      setNotes((data as any) || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotes();
-  }, [userId]);
-
-  const refetch = () => {
-    fetchNotes();
-  };
-
-  return { notes, loading, error, refetch };
+    },
+    [userId],
+  );
+  return { notes: result.data, loading: result.loading, error: result.error, refetch: result.refetch };
 };
