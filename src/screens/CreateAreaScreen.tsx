@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
 import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,7 +21,10 @@ type CreateAreaScreenProps = {
   route: RouteProp<RootStackParamList, 'CreateArea'>;
 };
 
-const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({ navigation, route }) => {
+const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { theme } = useTheme();
   const { propertyId } = route.params;
   const [name, setName] = useState('');
@@ -42,16 +51,16 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({ navigation, route }
       const response = await fetch(uri);
       const blob = await response.blob();
       const filename = `areas/${propertyId}/${Date.now()}.jpg`;
-      
+
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filename, blob);
 
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filename);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('images').getPublicUrl(filename);
 
       return publicUrl;
     } catch (error) {
@@ -132,9 +141,7 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({ navigation, route }
           labelStyle={styles.label}
         />
 
-        {error && (
-          <Text style={styles.errorText}>{error}</Text>
-        )}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
         <Button
           title="Create Area"
@@ -142,8 +149,14 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({ navigation, route }
           loading={loading}
           disabled={loading || !name}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (loading || !name) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (loading || !name) && styles.disabledButtonText]}
+          buttonStyle={[
+            styles.button,
+            (loading || !name) && styles.disabledButton,
+          ]}
+          titleStyle={[
+            styles.buttonText,
+            (loading || !name) && styles.disabledButtonText,
+          ]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
         />
@@ -231,4 +244,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateAreaScreen; 
+export default CreateAreaScreen;

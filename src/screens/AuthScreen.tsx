@@ -58,17 +58,20 @@ const AuthScreen: React.FC = () => {
         <View style={styles.content}>
           <View style={styles.header}>
             <Logo size={64} color={theme.colors.primary.main} />
-            <Text h3 style={styles.title}>Check Your Email</Text>
+            <Text h3 style={styles.title}>
+              Check Your Email
+            </Text>
             <Text style={styles.subtitle}>
               We've sent a confirmation link to{'\n'}
               <Text style={styles.emailText}>{email}</Text>
             </Text>
           </View>
-          
+
           <View style={styles.confirmationContent}>
             <ActivityIndicator size="large" color={theme.colors.primary.main} />
             <Text style={styles.confirmationText}>
-              Please check your email and click the confirmation link to complete your registration.
+              Please check your email and click the confirmation link to
+              complete your registration.
             </Text>
             <Button
               title="Back to Sign In"
@@ -95,10 +98,9 @@ const AuthScreen: React.FC = () => {
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </Text>
           <Text style={styles.subtitle}>
-            {isSignUp 
+            {isSignUp
               ? 'Sign up to start documenting your home'
-              : 'Sign in to access your home documentation'
-            }
+              : 'Sign in to access your home documentation'}
           </Text>
         </View>
 
@@ -109,7 +111,9 @@ const AuthScreen: React.FC = () => {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Icon name="email" size={20} color={theme.colors.text.primary} />}
+            leftIcon={
+              <Icon name="email" size={20} color={theme.colors.text.primary} />
+            }
             leftIconContainerStyle={{ marginRight: 10 }}
             containerStyle={styles.inputContainer}
             inputStyle={[styles.input, { color: theme.colors.text.primary }]}
@@ -120,16 +124,18 @@ const AuthScreen: React.FC = () => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            leftIcon={<Icon name="lock" size={20} color={theme.colors.text.primary} />}
+            leftIcon={
+              <Icon name="lock" size={20} color={theme.colors.text.primary} />
+            }
             leftIconContainerStyle={{ marginRight: 10 }}
             containerStyle={styles.inputContainer}
             inputStyle={[styles.input, { color: theme.colors.text.primary }]}
             placeholderTextColor={theme.colors.text.secondary}
           />
-          
-          <Button 
-            title={isSignUp ? "Sign Up" : "Sign In"} 
-            onPress={handleEmailAuth} 
+
+          <Button
+            title={isSignUp ? 'Sign Up' : 'Sign In'}
+            onPress={handleEmailAuth}
             loading={loading}
             buttonStyle={styles.primaryButton}
             containerStyle={styles.buttonContainer}
@@ -155,7 +161,11 @@ const AuthScreen: React.FC = () => {
           />
 
           <Button
-            title={isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+            title={
+              isSignUp
+                ? 'Already have an account? Sign In'
+                : "Don't have an account? Sign Up"
+            }
             type="clear"
             onPress={() => setIsSignUp(!isSignUp)}
             titleStyle={styles.linkButtonText}

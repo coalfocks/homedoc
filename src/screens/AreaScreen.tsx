@@ -37,7 +37,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       refetchNotes();
-    }, [route.params.areaId])
+    }, [route.params.areaId]),
   );
 
   if (areaLoading) {
@@ -143,7 +143,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                           .from('notes')
                           .delete()
                           .eq('id', item.id);
-                        
+
                         if (error) throw error;
                         refetchNotes();
                       } catch (error) {

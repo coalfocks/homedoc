@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -47,10 +54,17 @@ const ImageWithPlaceholder = ({ uri, style }: { uri: string; style: any }) => {
   );
 };
 
-const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, route }) => {
+const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { user } = useAuth();
-  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
-  
+  const {
+    property,
+    loading: propertyLoading,
+    error: propertyError,
+  } = useProperty(route.params.propertyId);
+
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
   const [addressLine1, setAddressLine1] = useState('');
@@ -93,16 +107,16 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
       const response = await fetch(uri);
       const blob = await response.blob();
       const filename = `${user?.id}/${Date.now()}.jpg`;
-      
+
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filename, blob);
 
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filename);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('images').getPublicUrl(filename);
 
       return publicUrl;
     } catch (error) {
@@ -142,7 +156,7 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
       setError(null);
 
       let imageUrl = property?.image_url || null;
-      
+
       // Upload new image if one was selected and it's different from current
       if (image && image !== property?.image_url) {
         imageUrl = await uploadImage(image);
@@ -175,8 +189,8 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
-        <TouchableOpacity 
-          style={[styles.imageUpload, styles.cursorPointer]} 
+        <TouchableOpacity
+          style={[styles.imageUpload, styles.cursorPointer]}
           onPress={pickImage}
         >
           {image ? (
@@ -260,17 +274,17 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({ navigation, rou
           labelStyle={styles.label}
         />
       </View>
-      
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
-      
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
       <View style={styles.buttonContainer}>
         <Button
           title="Save Changes"
           onPress={handleSave}
           loading={loading}
-          disabled={loading || !name || !addressLine1 || !city || !state || !zipCode}
+          disabled={
+            loading || !name || !addressLine1 || !city || !state || !zipCode
+          }
           containerStyle={styles.cursorPointer}
         />
         <Button
@@ -386,4 +400,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditPropertyScreen; 
+export default EditPropertyScreen;

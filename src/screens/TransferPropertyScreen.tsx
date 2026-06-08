@@ -12,8 +12,15 @@ type TransferPropertyScreenProps = {
   route: RouteProp<RootStackParamList, 'TransferProperty'>;
 };
 
-const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigation, route }) => {
-  const { property, loading: propertyLoading, error: propertyError } = useProperty(route.params.propertyId);
+const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const {
+    property,
+    loading: propertyLoading,
+    error: propertyError,
+  } = useProperty(route.params.propertyId);
   const { areas, loading: areasLoading } = useAreas(route.params.propertyId);
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +61,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
       // 2. Create transfer request in database
       // 3. Send notification to recipient
       // For now, just show a coming soon message
-      
+
       Alert.alert(
         'Coming Soon',
         'Property transfer functionality will be available soon. For now, you can share property details manually.',
@@ -63,7 +70,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
             text: 'OK',
             onPress: () => navigation.goBack(),
           },
-        ]
+        ],
       );
     } catch (error) {
       Alert.alert('Error', 'Failed to initiate transfer. Please try again.');
@@ -79,10 +86,10 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
     <ScrollView style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.warning}>
-          Warning: Transferring this property will give the recipient full access to all areas and notes.
-          This action cannot be undone.
+          Warning: Transferring this property will give the recipient full
+          access to all areas and notes. This action cannot be undone.
         </Text>
-        
+
         <Input
           label="Recipient Email"
           value={email}
@@ -105,7 +112,8 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({ navigat
           <Text style={styles.propertyAddress}>
             {property.address_line_1}
             {property.address_line_2 && `\n${property.address_line_2}`}
-            {'\n'}{property.city}, {property.state} {property.zip_code}
+            {'\n'}
+            {property.city}, {property.state} {property.zip_code}
           </Text>
           <Text style={styles.propertyStats}>
             {areas?.length || 0} {areas?.length === 1 ? 'Area' : 'Areas'}

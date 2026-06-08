@@ -41,7 +41,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   useFocusEffect(
     useCallback(() => {
       refetchAreas();
-    }, [route.params.propertyId])
+    }, [route.params.propertyId]),
   );
 
   if (propertyLoading) {
@@ -144,17 +144,20 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                               .from('properties')
                               .delete()
                               .eq('id', property.id);
-                            
+
                             if (error) throw error;
-                            
+
                             navigation.navigate('Main');
                           } catch (error) {
                             console.error('Error deleting property:', error);
-                            Alert.alert('Error', 'Failed to delete property. Please try again.');
+                            Alert.alert(
+                              'Error',
+                              'Failed to delete property. Please try again.',
+                            );
                           }
                         },
                       },
-                    ]
+                    ],
                   );
                 }}
                 buttonStyle={styles.actionButton}
@@ -238,16 +241,22 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                                       .from('areas')
                                       .delete()
                                       .eq('id', item.id);
-                                    
+
                                     if (error) throw error;
                                     refetchAreas();
                                   } catch (error) {
-                                    console.error('Error deleting area:', error);
-                                    Alert.alert('Error', 'Failed to delete area. Please try again.');
+                                    console.error(
+                                      'Error deleting area:',
+                                      error,
+                                    );
+                                    Alert.alert(
+                                      'Error',
+                                      'Failed to delete area. Please try again.',
+                                    );
                                   }
                                 },
                               },
-                            ]
+                            ],
                           );
                         }}
                         buttonStyle={[styles.actionButton, styles.iconButton]}
@@ -267,7 +276,9 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         }
         placement="right"
         color={theme.colors.accent.main}
-        onPress={() => navigation.navigate('CreateArea', { propertyId: property.id })}
+        onPress={() =>
+          navigation.navigate('CreateArea', { propertyId: property.id })
+        }
         style={styles.fab}
       />
     </View>

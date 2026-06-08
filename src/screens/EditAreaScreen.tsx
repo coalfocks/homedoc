@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -53,16 +59,16 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
       const response = await fetch(uri);
       const blob = await response.blob();
       const filename = `areas/${area?.property_id}/${Date.now()}.jpg`;
-      
+
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filename, blob);
 
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filename);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('images').getPublicUrl(filename);
 
       return publicUrl;
     } catch (error) {
@@ -101,7 +107,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
       setSaveError(null);
 
       let imageUrl = area?.image_url || null;
-      
+
       // Upload new image if one was selected and it's different from current
       if (image && image !== area?.image_url) {
         imageUrl = await uploadImage(image);
@@ -109,8 +115,8 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
 
       const { error: updateError } = await supabase
         .from('areas')
-        .update({ 
-          name, 
+        .update({
+          name,
           description,
           image_url: imageUrl,
         })
@@ -162,17 +168,23 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
           inputStyle={[styles.input, styles.textArea]}
           labelStyle={styles.label}
         />
-        
+
         {saveError && <Text style={styles.errorText}>{saveError}</Text>}
-        
+
         <Button
           title="Save Changes"
           onPress={handleSave}
           loading={saving}
           disabled={saving || !name}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (saving || !name) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (saving || !name) && styles.disabledButtonText]}
+          buttonStyle={[
+            styles.button,
+            (saving || !name) && styles.disabledButton,
+          ]}
+          titleStyle={[
+            styles.buttonText,
+            (saving || !name) && styles.disabledButtonText,
+          ]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
         />

@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
 import { useTheme } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,7 +21,10 @@ type CreateNoteScreenProps = {
   route: RouteProp<RootStackParamList, 'CreateNote'>;
 };
 
-const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }) => {
+const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
+  navigation,
+  route,
+}) => {
   const { theme } = useTheme();
   const { areaId } = route.params;
   const [title, setTitle] = useState('');
@@ -32,7 +41,7 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }
     });
 
     if (!result.canceled) {
-      const newImages = result.assets.map(asset => asset.uri);
+      const newImages = result.assets.map((asset) => asset.uri);
       setImages([...images, ...newImages]);
     }
   };
@@ -43,16 +52,16 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }
         const response = await fetch(uri);
         const blob = await response.blob();
         const filename = `notes/${areaId}/${Date.now()}_${index}.jpg`;
-        
+
         const { data, error } = await supabase.storage
           .from('images')
           .upload(filename, blob);
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('images')
-          .getPublicUrl(filename);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('images').getPublicUrl(filename);
 
         return publicUrl;
       });
@@ -143,19 +152,14 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity
-              style={styles.addImageButton}
-              onPress={pickImage}
-            >
+            <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
               <Icon name="add" color="#FFFFFF" size={32} />
               <Text style={styles.addImageText}>Add Images</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {error && (
-          <Text style={styles.errorText}>{error}</Text>
-        )}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
         <Button
           title="Create Note"
@@ -163,8 +167,14 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({ navigation, route }
           loading={loading}
           disabled={loading || !title}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (loading || !title) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (loading || !title) && styles.disabledButtonText]}
+          buttonStyle={[
+            styles.button,
+            (loading || !title) && styles.disabledButton,
+          ]}
+          titleStyle={[
+            styles.buttonText,
+            (loading || !title) && styles.disabledButtonText,
+          ]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
         />
@@ -287,4 +297,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateNoteScreen; 
+export default CreateNoteScreen;

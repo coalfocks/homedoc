@@ -49,7 +49,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     });
 
     if (!result.canceled) {
-      const newImages = result.assets.map(asset => asset.uri);
+      const newImages = result.assets.map((asset) => asset.uri);
       setImages([...images, ...newImages]);
     }
   };
@@ -62,16 +62,16 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
           const response = await fetch(uri);
           const blob = await response.blob();
           const filename = `notes/${note?.area_id}/${Date.now()}_${index}.jpg`;
-          
+
           const { data, error } = await supabase.storage
             .from('images')
             .upload(filename, blob);
 
           if (error) throw error;
 
-          const { data: { publicUrl } } = supabase.storage
-            .from('images')
-            .getPublicUrl(filename);
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('images').getPublicUrl(filename);
 
           return publicUrl;
         }
@@ -174,26 +174,29 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
                 </TouchableOpacity>
               </View>
             ))}
-            <TouchableOpacity
-              style={styles.addImageButton}
-              onPress={pickImage}
-            >
+            <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
               <Icon name="add" color="#FFFFFF" size={32} />
               <Text style={styles.addImageText}>Add Images</Text>
             </TouchableOpacity>
           </View>
         </View>
-        
+
         {saveError && <Text style={styles.errorText}>{saveError}</Text>}
-        
+
         <Button
           title="Save Changes"
           onPress={handleSave}
           loading={saving}
           disabled={saving || !title}
           containerStyle={styles.buttonContainer}
-          buttonStyle={[styles.button, (saving || !title) && styles.disabledButton]}
-          titleStyle={[styles.buttonText, (saving || !title) && styles.disabledButtonText]}
+          buttonStyle={[
+            styles.button,
+            (saving || !title) && styles.disabledButton,
+          ]}
+          titleStyle={[
+            styles.buttonText,
+            (saving || !title) && styles.disabledButtonText,
+          ]}
           disabledStyle={styles.disabledButton}
           disabledTitleStyle={styles.disabledButtonText}
         />

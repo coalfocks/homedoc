@@ -23,22 +23,26 @@ HomeDoc is a React Native application that helps you document and manage your pr
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/homedoc.git
 cd homedoc
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm start
 ```
 
 4. Run on your preferred platform:
+
 - Press `i` for iOS simulator
 - Press `a` for Android emulator
 - Press `w` for web browser
@@ -59,6 +63,7 @@ src/
 ## Development
 
 The app is built with:
+
 - React Native
 - Expo
 - TypeScript
@@ -75,4 +80,4 @@ The app is built with:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
