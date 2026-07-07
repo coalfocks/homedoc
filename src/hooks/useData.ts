@@ -146,7 +146,9 @@ export const useAllNotes = (userId: string | undefined) => {
     if (!userId) return Promise.resolve({ data: [] as Note[], error: null });
     return supabase
       .from('notes')
-      .select('*, areas!inner(property_id), areas(properties!inner(user_id))')
+      .select(
+        '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+      )
       .eq('areas.properties.user_id', userId);
   }, [userId]);
   return {

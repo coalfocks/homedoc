@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import * as Linking from 'expo-linking';
 import { supabase } from '../lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
 
@@ -8,6 +9,7 @@ type AuthContextType = {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -23,12 +25,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const handleAuthRedirect = async (url: string | null) => {
+      if (!url || !url.includes('#')) {
+        return;
+      }
+
+      const fragment = url.split('#')[1];
+      const params = new URLSearchParams(fragment);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (!accessToken || !refreshToken) {
+        return;
+      }
+
+      const { error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (error) {
+        console.error('Failed to restore auth session from redirect:', error);
+      }
+    };
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
+
+    Linking.getInitialURL()
+      .then(handleAuthRedirect)
+      .catch((error) => {
+        console.error('Failed to read initial auth redirect URL:', error);
+      });
 
     // Listen for auth changes
     const {
@@ -39,7 +71,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    const urlSubscription = Linking.addEventListener('url', ({ url }) => {
+      handleAuthRedirect(url).catch((error) => {
+        console.error('Failed to handle auth redirect URL:', error);
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      urlSubscription.remove();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -55,6 +96,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (error) throw error;
   };
 
+  const signInWithMagicLink = async (email: string) => {
+    const redirectTo = Linking.createURL('auth/callback');
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+    if (error) throw error;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -63,6 +115,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: Linking.createURL('auth/callback'),
+      },
     });
     if (error) throw error;
   };
@@ -70,6 +125,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signInWithApple = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
+      options: {
+        redirectTo: Linking.createURL('auth/callback'),
+      },
     });
     if (error) throw error;
   };
@@ -82,6 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         signIn,
         signUp,
+        signInWithMagicLink,
         signOut,
         signInWithGoogle,
         signInWithApple,

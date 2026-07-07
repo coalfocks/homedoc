@@ -47,6 +47,18 @@ npm start
 - Press `a` for Android emulator
 - Press `w` for web browser
 
+## iPhone Builds
+
+If an installed iPhone build opens with:
+
+`No script URL provided. Make sure the packager is running or you have embedded a JS bundle in your application bundle.`
+
+that means you installed a dev client build without Metro running.
+
+- Use `npm run build:ios:device` for a shareable/internal device build.
+- Use `npm run build:ios:testflight` for a TestFlight build.
+- Only use the `devclient` EAS profile when you intentionally want a developer build and will launch Metro with `npm run start:dev-client`.
+
 ## Project Structure
 
 ```

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { Logo } from '../components/Logo';
 import { theme } from '../utils/theme';
@@ -9,20 +9,26 @@ type SplashScreenProps = {
 };
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
-  const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const liftAnim = useRef(new Animated.Value(16)).current;
+  const scaleAnim = useRef(new Animated.Value(0.94)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: theme.animation.duration.standard,
+        duration: theme.animation.duration.complex,
+        useNativeDriver: true,
+      }),
+      Animated.timing(liftAnim, {
+        toValue: 0,
+        duration: theme.animation.duration.complex,
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
-        tension: 10,
-        friction: 3,
+        tension: 20,
+        friction: 7,
         useNativeDriver: true,
       }),
     ]).start();
@@ -32,28 +38,34 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         toValue: 0,
         duration: theme.animation.duration.standard,
         useNativeDriver: true,
-      }).start(() => {
-        onFinish();
-      });
-    }, 2000);
+      }).start(onFinish);
+    }, 1800);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [fadeAnim, liftAnim, onFinish, scaleAnim]);
 
   return (
     <View style={styles.container}>
+      <View style={styles.topWash} />
+      <View style={styles.bottomWash} />
       <Animated.View
         style={[
-          styles.content,
+          styles.card,
           {
             opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
+            transform: [{ translateY: liftAnim }, { scale: scaleAnim }],
           },
         ]}
       >
-        <Logo size={120} color={theme.colors.primary.main} />
+        <View style={styles.logoWrap}>
+          <Logo size={84} color={theme.colors.primary.main} />
+        </View>
+        <Text style={styles.eyebrow}>HOME RECORDS, ORGANIZED</Text>
         <Text style={styles.title}>HomeDoc</Text>
-        <Text style={styles.subtitle}>Your Home Documentation</Text>
+        <Text style={styles.subtitle}>
+          Document every room, photo, warranty, and repair without turning your
+          camera roll into a junk drawer.
+        </Text>
       </Animated.View>
     </View>
   );
@@ -62,23 +74,69 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.default,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: theme.colors.background.default,
+    padding: theme.spacing.lg,
   },
-  content: {
+  topWash: {
+    position: 'absolute',
+    top: -100,
+    right: -50,
+    width: 240,
+    height: 240,
+    borderRadius: 999,
+    backgroundColor: 'rgba(201, 122, 43, 0.12)',
+  },
+  bottomWash: {
+    position: 'absolute',
+    bottom: -110,
+    left: -50,
+    width: 260,
+    height: 260,
+    borderRadius: 999,
+    backgroundColor: 'rgba(31, 77, 107, 0.10)',
+  },
+  card: {
+    width: '100%',
+    maxWidth: 420,
     alignItems: 'center',
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.xxl,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.84)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    ...theme.shadows.lg,
+  },
+  logoWrap: {
+    width: 124,
+    height: 124,
+    borderRadius: 62,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    marginBottom: theme.spacing.lg,
+  },
+  eyebrow: {
+    color: theme.colors.secondary.dark,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginBottom: theme.spacing.xs,
   },
   title: {
+    color: theme.colors.text.primary,
     fontSize: theme.typography.h1.fontSize,
-    fontWeight: 'bold',
-    color: theme.colors.primary.main,
-    marginTop: theme.spacing.lg,
+    lineHeight: theme.typography.h1.lineHeight,
+    fontWeight: '800',
   },
   subtitle: {
-    fontSize: theme.typography.body1.fontSize,
+    marginTop: theme.spacing.md,
     color: theme.colors.text.secondary,
-    marginTop: theme.spacing.xs,
+    fontSize: theme.typography.body1.fontSize,
+    lineHeight: theme.typography.body1.lineHeight,
+    textAlign: 'center',
   },
 });
 

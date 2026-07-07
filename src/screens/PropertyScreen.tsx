@@ -1,20 +1,20 @@
-import React, { useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Alert,
-} from 'react-native';
-import { Text, Button, Icon, FAB } from '@rneui/themed';
+import React from 'react';
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
-import { useProperty, useAreas } from '../hooks/useData';
+import { useAreas, useProperty } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
+import {
+  EmptyStateCard,
+  FloatingAction,
+  MetricPill,
+  PageHeader,
+  Screen,
+  SectionTitle,
+} from '../components/AppChrome';
+import { theme } from '../utils/theme';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
@@ -25,360 +25,282 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   navigation,
   route,
 }) => {
-  const {
-    property,
-    loading: propertyLoading,
-    error: propertyError,
-  } = useProperty(route.params.propertyId);
-  const {
-    areas,
-    loading: areasLoading,
-    error: areasError,
-    refetch: refetchAreas,
-  } = useAreas(route.params.propertyId);
+  const { property, loading, error } = useProperty(route.params.propertyId);
+  const { areas, refetch: refetchAreas } = useAreas(route.params.propertyId);
 
-  // Refresh areas when the screen comes into focus (e.g., after creating a new area)
-  useFocusEffect(
-    useCallback(() => {
-      refetchAreas();
-    }, [route.params.propertyId]),
-  );
-
-  if (propertyLoading) {
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading property...</Text>
-      </View>
+      <Screen>
+        <PageHeader
+          eyebrow="PROPERTY DETAIL"
+          title="Loading property"
+          subtitle="Pulling rooms, notes, and photos together."
+        />
+      </Screen>
     );
   }
 
-  if (propertyError) {
+  if (error || !property) {
     return (
-      <View style={styles.container}>
-        <Text>Error: {propertyError}</Text>
-      </View>
+      <Screen>
+        <EmptyStateCard
+          icon="home"
+          title="Property not available"
+          description={error || 'This property could not be found.'}
+        />
+      </Screen>
     );
   }
 
-  if (!property) {
-    return (
-      <View style={styles.container}>
-        <Text>Property not found</Text>
-      </View>
+  const confirmDeleteProperty = () => {
+    Alert.alert(
+      'Delete property',
+      `Delete "${property.name}" and everything attached to it? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const { error: deleteError } = await supabase
+              .from('properties')
+              .delete()
+              .eq('id', property.id);
+
+            if (!deleteError) {
+              navigation.navigate('Main');
+            }
+          },
+        },
+      ],
     );
-  }
+  };
+
+  const heroTitle = property.nickname || property.name;
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.header}>
-          {property.image_url && (
-            <Image
-              source={{ uri: property.image_url }}
-              style={styles.propertyImage}
-              resizeMode="cover"
-            />
-          )}
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>{property.name}</Text>
-            <Text style={styles.address}>
-              {property.address_line_1}
-              {property.address_line_2 && `, ${property.address_line_2}`}
-              {'\n'}
-              {property.city}, {property.state} {property.zip_code}
-            </Text>
-            <View style={styles.headerActions}>
-              <Button
-                icon={
-                  <Icon
-                    name="edit"
-                    color={theme.colors.text.primary}
-                    style={styles.iconButton}
-                  />
-                }
-                type="clear"
-                onPress={() =>
-                  navigation.navigate('EditProperty', {
-                    propertyId: property.id,
-                  })
-                }
-                buttonStyle={styles.actionButton}
-              />
-              <Button
-                icon={
-                  <Icon
-                    name="swap-horiz"
-                    color={theme.colors.text.primary}
-                    style={styles.iconButton}
-                  />
-                }
-                type="clear"
-                onPress={() =>
-                  navigation.navigate('TransferProperty', {
-                    propertyId: property.id,
-                  })
-                }
-                buttonStyle={styles.actionButton}
-              />
-              <Button
-                icon={
-                  <Icon
-                    name="delete"
-                    color={theme.colors.error.main}
-                    style={styles.iconButton}
-                  />
-                }
-                type="clear"
-                onPress={() => {
-                  Alert.alert(
-                    'Delete Property',
-                    `Are you sure you want to delete "${property.name}"? This will also delete all areas and notes. This action cannot be undone.`,
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: async () => {
-                          try {
-                            const { error } = await supabase
-                              .from('properties')
-                              .delete()
-                              .eq('id', property.id);
-
-                            if (error) throw error;
-
-                            navigation.navigate('Main');
-                          } catch (error) {
-                            console.error('Error deleting property:', error);
-                            Alert.alert(
-                              'Error',
-                              'Failed to delete property. Please try again.',
-                            );
-                          }
-                        },
-                      },
-                    ],
-                  );
-                }}
-                buttonStyle={styles.actionButton}
-              />
-            </View>
-          </View>
-        </View>
-
-        {areasLoading ? (
-          <View style={styles.loadingContainer}>
-            <Text>Loading areas...</Text>
-          </View>
-        ) : areasError ? (
-          <View style={styles.errorContainer}>
-            <Text>Error loading areas: {areasError}</Text>
-          </View>
-        ) : areas.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              No areas added yet. Tap the + button to add an area.
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={areas}
-            keyExtractor={(item) => item.id}
-            refreshing={areasLoading}
-            onRefresh={refetchAreas}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Area', { areaId: item.id })}
-                style={styles.card}
-              >
-                {item.image_url && (
-                  <Image
-                    source={{ uri: item.image_url }}
-                    style={styles.areaImage}
-                    resizeMode="cover"
-                  />
-                )}
-                <View style={styles.cardContent}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.areaTitle}>{item.name}</Text>
-                    <View style={[styles.cardActions, styles.headerContent]}>
-                      <Button
-                        icon={
-                          <Icon
-                            name="edit"
-                            color={theme.colors.text.primary}
-                            size={16}
-                            style={styles.iconButton}
-                          />
-                        }
-                        type="clear"
-                        onPress={() =>
-                          navigation.navigate('EditArea', { areaId: item.id })
-                        }
-                        buttonStyle={[styles.actionButton, styles.iconButton]}
-                      />
-                      <Button
-                        icon={
-                          <Icon
-                            name="delete"
-                            color={theme.colors.error.main}
-                            size={16}
-                          />
-                        }
-                        type="clear"
-                        onPress={() => {
-                          Alert.alert(
-                            'Delete Area',
-                            `Are you sure you want to delete "${item.name}"? This will also delete all notes in this area. This action cannot be undone.`,
-                            [
-                              { text: 'Cancel', style: 'cancel' },
-                              {
-                                text: 'Delete',
-                                style: 'destructive',
-                                onPress: async () => {
-                                  try {
-                                    const { error } = await supabase
-                                      .from('areas')
-                                      .delete()
-                                      .eq('id', item.id);
-
-                                    if (error) throw error;
-                                    refetchAreas();
-                                  } catch (error) {
-                                    console.error(
-                                      'Error deleting area:',
-                                      error,
-                                    );
-                                    Alert.alert(
-                                      'Error',
-                                      'Failed to delete area. Please try again.',
-                                    );
-                                  }
-                                },
-                              },
-                            ],
-                          );
-                        }}
-                        buttonStyle={[styles.actionButton, styles.iconButton]}
-                      />
-                    </View>
-                  </View>
-                  <Text style={styles.description}>{item.description}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-      </ScrollView>
-      <FAB
-        icon={
-          <Icon name="add" size={24} color={theme.colors.background.paper} />
+    <Screen scroll contentContainerStyle={styles.content}>
+      <PageHeader
+        eyebrow="PROPERTY DETAIL"
+        title={heroTitle}
+        subtitle={`${property.address_line_1}${property.address_line_2 ? `, ${property.address_line_2}` : ''}\n${property.city}, ${property.state} ${property.zip_code}`}
+        actionLabel="Edit"
+        onActionPress={() =>
+          navigation.navigate('EditProperty', { propertyId: property.id })
         }
-        placement="right"
-        color={theme.colors.accent.main}
+      />
+
+      {property.image_url ? (
+        <Image
+          source={{ uri: property.image_url }}
+          style={styles.heroImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.heroFallback}>
+          <Text style={styles.heroFallbackText}>
+            {heroTitle.slice(0, 1).toUpperCase()}
+          </Text>
+        </View>
+      )}
+
+      <View style={styles.metricRow}>
+        <MetricPill label="Areas" value={areas.length.toString()} />
+      </View>
+
+      <View style={styles.actionStrip}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() =>
+            navigation.navigate('TransferProperty', { propertyId: property.id })
+          }
+        >
+          <Text style={styles.actionButtonText}>Transfer</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={confirmDeleteProperty}
+        >
+          <Text style={styles.deleteButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+
+      <SectionTitle
+        title="Areas in this property"
+        subtitle="Build a reliable inventory of rooms, systems, and spaces."
+      />
+
+      {areas.length === 0 ? (
+        <EmptyStateCard
+          icon="area"
+          title="No areas yet"
+          description="Add the key spaces first: kitchen, utility room, bathrooms, garage, attic, whatever will matter later."
+          actionLabel="Add the first area"
+          onActionPress={() =>
+            navigation.navigate('CreateArea', { propertyId: property.id })
+          }
+        />
+      ) : (
+        <View style={styles.list}>
+          {areas.map((item: any) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() => navigation.navigate('Area', { areaId: item.id })}
+              style={styles.card}
+            >
+              {item.image_url ? (
+                <Image
+                  source={{ uri: item.image_url }}
+                  style={styles.areaImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.areaFallback}>
+                  <Text style={styles.areaFallbackText}>
+                    {item.name?.slice(0, 1)?.toUpperCase() || 'A'}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.cardBody}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.cardTitle}>{item.name}</Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('EditArea', { areaId: item.id })
+                    }
+                  >
+                    <Text style={styles.cardAction}>Edit</Text>
+                  </TouchableOpacity>
+                </View>
+                {item.description ? (
+                  <Text style={styles.cardDescription} numberOfLines={2}>
+                    {item.description}
+                  </Text>
+                ) : (
+                  <Text style={styles.cardDescriptionMuted}>
+                    Add a description so future-you knows what belongs here.
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <FloatingAction
+        label="Add area"
         onPress={() =>
           navigation.navigate('CreateArea', { propertyId: property.id })
         }
-        style={styles.fab}
       />
-    </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.default,
+  content: {
+    paddingBottom: 140,
   },
-  header: {
-    backgroundColor: theme.colors.primary.main,
-  },
-  propertyImage: {
+  heroImage: {
     width: '100%',
-    height: 250,
+    height: 220,
+    borderRadius: theme.borderRadius.xl,
+    marginBottom: theme.spacing.lg,
   },
-  headerContent: {
-    padding: theme.spacing.md,
+  heroFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 220,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.primary.light,
+    marginBottom: theme.spacing.lg,
   },
-  title: {
-    fontSize: theme.typography.h2.fontSize,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
+  heroFallbackText: {
+    color: theme.colors.primary.contrast,
+    fontSize: 48,
+    fontWeight: '800',
   },
-  address: {
-    fontSize: theme.typography.body1.fontSize,
-    color: theme.colors.text.slate,
-    marginTop: theme.spacing.xs,
-  },
-  headerActions: {
+  metricRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  actionStrip: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xl,
   },
   actionButton: {
-    cursor: 'pointer',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+  },
+  actionButtonText: {
+    color: theme.colors.primary.dark,
+    fontWeight: '700',
+  },
+  deleteButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(200, 85, 61, 0.10)',
+  },
+  deleteButtonText: {
+    color: theme.colors.error.dark,
+    fontWeight: '700',
+  },
+  list: {
+    gap: theme.spacing.md,
   },
   card: {
-    backgroundColor: theme.colors.primary.main,
-    borderRadius: theme.borderRadius.md,
-    marginHorizontal: theme.spacing.md,
-    marginVertical: theme.spacing.sm,
     overflow: 'hidden',
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
     ...theme.shadows.md,
   },
   areaImage: {
     width: '100%',
-    height: 150,
+    height: 140,
   },
-  cardContent: {
+  areaFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 140,
+    backgroundColor: 'rgba(63, 127, 104, 0.14)',
+  },
+  areaFallbackText: {
+    color: theme.colors.accent.dark,
+    fontSize: 32,
+    fontWeight: '800',
+  },
+  cardBody: {
     padding: theme.spacing.md,
   },
-  cardHeader: {
+  cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: theme.spacing.md,
     marginBottom: theme.spacing.xs,
   },
-  cardActions: {
-    flexDirection: 'row',
-  },
-  areaTitle: {
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: 'bold',
+  cardTitle: {
     color: theme.colors.text.primary,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '700',
   },
-  description: {
+  cardAction: {
+    color: theme.colors.primary.main,
+    fontWeight: '700',
+  },
+  cardDescription: {
     color: theme.colors.text.slate,
-    marginBottom: theme.spacing.xs,
+    lineHeight: theme.typography.body2.lineHeight,
   },
-  noteCount: {
-    color: theme.colors.text.primary,
-    fontSize: theme.typography.caption.fontSize,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
-  },
-  iconButton: {
-    cursor: 'pointer',
-  },
-  loadingContainer: {
-    padding: theme.spacing.md,
-    alignItems: 'center',
-  },
-  errorContainer: {
-    padding: theme.spacing.md,
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    padding: theme.spacing.md,
-    alignItems: 'center',
-  },
-  emptyText: {
+  cardDescriptionMuted: {
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.body1.fontSize,
-    textAlign: 'center',
+    lineHeight: theme.typography.body2.lineHeight,
   },
 });
 

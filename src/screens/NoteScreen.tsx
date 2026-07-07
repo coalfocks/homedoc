@@ -1,125 +1,126 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Text, Button } from '@rneui/themed';
+import { Image, StyleSheet, View } from 'react-native';
+import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
 import { useNote } from '../hooks/useData';
+import {
+  EmptyStateCard,
+  PageHeader,
+  Screen,
+  SectionTitle,
+} from '../components/AppChrome';
+import { theme } from '../utils/theme';
 
 type NoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Note'>;
   route: RouteProp<RootStackParamList, 'Note'>;
 };
 
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
 const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
   const { note, loading, error } = useNote(route.params.noteId);
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading note...</Text>
-      </View>
+      <Screen>
+        <PageHeader
+          eyebrow="NOTE DETAIL"
+          title="Loading note"
+          subtitle="Pulling the full record and images."
+        />
+      </Screen>
     );
   }
 
-  if (error) {
+  if (error || !note) {
     return (
-      <View style={styles.container}>
-        <Text>Error: {error}</Text>
-      </View>
-    );
-  }
-
-  if (!note) {
-    return (
-      <View style={styles.container}>
-        <Text>Note not found</Text>
-      </View>
+      <Screen>
+        <EmptyStateCard
+          icon="note"
+          title="Note not available"
+          description={error || 'This note could not be found.'}
+        />
+      </Screen>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{note.title}</Text>
-        <Text style={styles.date}>
-          Created: {new Date(note.created_at).toLocaleDateString()}
-        </Text>
-        <Text style={styles.date}>
-          Updated: {new Date(note.updated_at).toLocaleDateString()}
-        </Text>
+    <Screen scroll contentContainerStyle={styles.content}>
+      <PageHeader
+        eyebrow="NOTE DETAIL"
+        title={note.title}
+        subtitle={`Created ${formatDate(note.created_at)} • Updated ${formatDate(note.updated_at)}`}
+        actionLabel="Edit"
+        onActionPress={() =>
+          navigation.navigate('EditNote', { noteId: note.id })
+        }
+      />
+
+      <View style={styles.bodyCard}>
+        <Text style={styles.bodyText}>{note.content}</Text>
       </View>
-      <View style={styles.content}>
-        <Text style={styles.text}>{note.content}</Text>
-        {note.images.length > 0 && (
-          <View style={styles.imageContainer}>
+
+      {note.images.length > 0 ? (
+        <>
+          <SectionTitle
+            title="Attached images"
+            subtitle="Reference shots tied directly to this note."
+          />
+          <View style={styles.imageGrid}>
             {note.images.map((image, index) => (
               <Image
-                key={index}
+                key={`${image}-${index}`}
                 source={{ uri: image }}
                 style={styles.image}
                 resizeMode="cover"
               />
             ))}
           </View>
-        )}
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Edit Note"
-          onPress={() => navigation.navigate('EditNote', { noteId: note.id })}
-          buttonStyle={{
-            backgroundColor: theme.colors.accent.main,
-          }}
+        </>
+      ) : (
+        <EmptyStateCard
+          icon="note"
+          title="No images attached"
+          description="This note is text-only for now. Add photos from edit mode if the visual context matters."
         />
-      </View>
-    </ScrollView>
+      )}
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.default,
-  },
-  header: {
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.primary.main,
-  },
-  title: {
-    fontSize: theme.typography.h2.fontSize,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.sm,
-  },
-  date: {
-    color: theme.colors.text.primary,
-    fontSize: theme.typography.caption.fontSize,
-    marginBottom: theme.spacing.xs,
-  },
   content: {
-    padding: theme.spacing.md,
+    paddingBottom: 100,
   },
-  text: {
-    fontSize: theme.typography.body1.fontSize,
+  bodyCard: {
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    ...theme.shadows.md,
+    marginBottom: theme.spacing.xl,
+  },
+  bodyText: {
     color: theme.colors.text.primary,
-    lineHeight: 24,
+    fontSize: theme.typography.body1.fontSize,
+    lineHeight: theme.typography.body1.lineHeight,
   },
-  imageContainer: {
-    marginTop: theme.spacing.md,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.sm,
+  imageGrid: {
+    gap: theme.spacing.md,
   },
   image: {
     width: '100%',
-    aspectRatio: 16 / 9,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-  },
-  buttonContainer: {
-    padding: theme.spacing.md,
+    height: 210,
+    borderRadius: theme.borderRadius.xl,
   },
 });
 

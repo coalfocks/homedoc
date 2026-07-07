@@ -1,120 +1,163 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Text, FAB } from '@rneui/themed';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { theme } from '../utils/theme';
 import { useAllNotes } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
-import { Icon } from '../components/Icon';
+import {
+  EmptyStateCard,
+  MetricPill,
+  PageHeader,
+  Screen,
+  SectionTitle,
+  StatusBanner,
+} from '../components/AppChrome';
+import { theme } from '../utils/theme';
 
 type NotesScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
 };
 
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
 const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
-  const { notes: allNotes, loading, error, refetch } = useAllNotes(user?.id);
+  const { notes, loading, error } = useAllNotes(user?.id);
 
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <Text>Loading notes...</Text>
+    <Screen scroll contentContainerStyle={styles.content}>
+      <PageHeader
+        eyebrow="THE PAPER TRAIL"
+        title="Notes"
+        subtitle="Maintenance records, measurements, reminders, and the tiny details you’ll absolutely forget six months from now."
+      />
+
+      <View style={styles.metricRow}>
+        <MetricPill label="Saved notes" value={notes.length.toString()} />
+      </View>
+
+      <StatusBanner
+        title="Create notes from inside an area"
+        body="Notes belong to a specific room or zone, so this screen is a library view, not the place new notes start."
+      />
+
+      <SectionTitle
+        title="Recent notes"
+        subtitle="Open any entry to review the full detail and attached images."
+      />
+
+      {loading ? null : error ? (
+        <View style={styles.noticeCard}>
+          <Text style={styles.noticeTitle}>Couldn’t load notes</Text>
+          <Text style={styles.noticeBody}>{error}</Text>
         </View>
-      ) : error ? (
-        <View style={styles.loadingContainer}>
-          <Text>Error: {error}</Text>
-        </View>
+      ) : notes.length === 0 ? (
+        <EmptyStateCard
+          icon="note"
+          title="No notes yet"
+          description="Once you add notes inside an area, they’ll show up here as a clean timeline."
+        />
       ) : (
-        <FlatList
-          data={allNotes}
-          keyExtractor={(item) => item.id}
-          refreshing={loading}
-          onRefresh={refetch}
-          renderItem={({ item }) => (
+        <View style={styles.list}>
+          {notes.map((item: any) => (
             <TouchableOpacity
+              key={item.id}
               onPress={() => navigation.navigate('Note', { noteId: item.id })}
               style={styles.card}
             >
-              <View style={styles.cardContent}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.location}>
-                  {item.areas?.properties?.name} • {item.areas?.name}
-                </Text>
-                <Text style={styles.content} numberOfLines={2}>
-                  {item.content}
-                </Text>
-                <Text style={styles.date}>
-                  {new Date(item.created_at).toLocaleDateString()}
+              <View style={styles.cardTop}>
+                <View style={styles.cardTitleWrap}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardLocation}>
+                    {item.areas?.properties?.name || 'Property'}
+                    {' • '}
+                    {item.areas?.name || 'Area'}
+                  </Text>
+                </View>
+                <Text style={styles.cardDate}>
+                  {formatDate(item.created_at)}
                 </Text>
               </View>
+              <Text style={styles.cardContent} numberOfLines={3}>
+                {item.content}
+              </Text>
             </TouchableOpacity>
-          )}
-        />
+          ))}
+        </View>
       )}
-      <FAB
-        icon={
-          <Icon name="add" size={24} color={theme.colors.background.paper} />
-        }
-        placement="right"
-        color={theme.colors.primary.main}
-        onPress={() => {
-          // In a real app, this would navigate to a create note screen
-          console.log('Add note pressed');
-        }}
-        style={styles.fab}
-      />
-    </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.default,
+  content: {
+    paddingBottom: 100,
+  },
+  metricRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.lg,
+  },
+  noticeCard: {
+    marginBottom: theme.spacing.lg,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(200, 85, 61, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(200, 85, 61, 0.18)',
+  },
+  noticeTitle: {
+    color: theme.colors.error.dark,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  noticeBody: {
+    color: theme.colors.text.slate,
+  },
+  list: {
+    gap: theme.spacing.md,
   },
   card: {
-    backgroundColor: theme.colors.background.paper,
-    borderRadius: theme.borderRadius.md,
-    marginHorizontal: theme.spacing.md,
-    marginVertical: theme.spacing.sm,
-    overflow: 'hidden',
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
     ...theme.shadows.md,
   },
-  cardContent: {
-    padding: theme.spacing.md,
+  cardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
-  title: {
-    fontSize: theme.typography.h3.fontSize,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  location: {
-    fontSize: theme.typography.body2.fontSize,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.xs,
-  },
-  content: {
-    fontSize: theme.typography.body1.fontSize,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.xs,
-  },
-  date: {
-    fontSize: theme.typography.caption.fontSize,
-    color: theme.colors.text.secondary,
-    opacity: 0.8,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
-  },
-  loadingContainer: {
+  cardTitleWrap: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  cardTitle: {
+    color: theme.colors.text.primary,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '700',
+  },
+  cardLocation: {
+    marginTop: 4,
+    color: theme.colors.primary.main,
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: '600',
+  },
+  cardDate: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+  },
+  cardContent: {
+    color: theme.colors.text.slate,
+    lineHeight: theme.typography.body1.lineHeight,
   },
 });
 

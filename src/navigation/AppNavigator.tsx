@@ -1,14 +1,13 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Icon } from '../components/Icon';
 import { Text } from '@rneui/themed';
+import { Icon } from '../components/Icon';
 import { supabase } from '../utils/supabaseClient';
 import { theme } from '../utils/theme';
-import { mockUser } from '../mock/data';
 
-// Screens
 import HomeScreen from '../screens/HomeScreen';
 import AreasScreen from '../screens/AreasScreen';
 import NotesScreen from '../screens/NotesScreen';
@@ -40,164 +39,151 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
-const MainTabs = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary.main,
-        tabBarInactiveTintColor: theme.colors.text.secondary,
-        tabBarStyle: {
-          backgroundColor: theme.colors.background.default,
-          borderTopColor: theme.colors.neutral[200],
-          paddingBottom: theme.spacing.xs,
-          paddingTop: theme.spacing.xs,
-          height: 60,
-        },
-        headerStyle: {
-          backgroundColor: theme.colors.primary.main,
-        },
-        headerTintColor: theme.colors.primary.contrast,
-        headerTitleStyle: {
-          fontSize: theme.typography.h3.fontSize,
-          fontWeight: 'bold',
-          color: theme.colors.primary.contrast,
-        },
-        headerRight: () => (
+const sharedHeader = {
+  headerStyle: {
+    backgroundColor: theme.colors.background.elevated,
+  },
+  headerShadowVisible: false,
+  headerTintColor: theme.colors.text.primary,
+  headerTitleStyle: {
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '700' as const,
+    color: theme.colors.text.primary,
+  },
+  headerBackTitleVisible: false,
+};
+
+const MainTabs = () => (
+  <Tab.Navigator
+    screenOptions={{
+      tabBarActiveTintColor: theme.colors.primary.main,
+      tabBarInactiveTintColor: theme.colors.text.secondary,
+      tabBarLabelStyle: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 4,
+      },
+      tabBarStyle: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderTopColor: theme.colors.border.subtle,
+        height: 68,
+        paddingTop: 8,
+      },
+      sceneStyle: {
+        backgroundColor: theme.colors.background.default,
+      },
+      headerStyle: {
+        backgroundColor: theme.colors.background.default,
+      },
+      headerShadowVisible: false,
+      headerTitleStyle: {
+        fontSize: theme.typography.h4.fontSize,
+        fontWeight: '700',
+        color: theme.colors.text.primary,
+      },
+      headerRight: () => (
+        <TouchableOpacity onPress={() => supabase.auth.signOut()}>
           <Text
-            onPress={() => supabase.auth.signOut()}
             style={{
-              color: theme.colors.primary.contrast,
+              color: theme.colors.primary.main,
+              fontWeight: '700',
               marginRight: theme.spacing.md,
             }}
           >
-            Sign Out
+            Sign out
           </Text>
+        </TouchableOpacity>
+      ),
+    }}
+  >
+    <Tab.Screen
+      name="Properties"
+      component={HomeScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="home" color={color} size={size} />
         ),
       }}
-    >
-      <Tab.Screen
-        name="Properties"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Areas"
-        component={AreasScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="area" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notes"
-        component={NotesScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="note" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
+    />
+    <Tab.Screen
+      name="Areas"
+      component={AreasScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="area" color={color} size={size} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Notes"
+      component={NotesScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="note" color={color} size={size} />
+        ),
+      }}
+    />
+  </Tab.Navigator>
+);
 
 export const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.primary.main,
-          },
-          headerTintColor: theme.colors.primary.contrast,
-          headerTitleStyle: {
-            fontSize: theme.typography.h3.fontSize,
-            fontWeight: 'bold',
-            color: theme.colors.primary.contrast,
-          },
-        }}
-      >
+      <Stack.Navigator screenOptions={sharedHeader}>
         <Stack.Screen
           name="Main"
           component={MainTabs}
-          options={{
-            headerShown: false,
-          }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Property"
           component={PropertyScreen}
-          options={({ route }) => ({
-            title: 'Property Details',
-          })}
+          options={{ title: 'Property' }}
         />
         <Stack.Screen
           name="Area"
           component={AreaScreen}
-          options={({ route }) => ({
-            title: 'Area Details',
-          })}
+          options={{ title: 'Area' }}
         />
         <Stack.Screen
           name="Note"
           component={NoteScreen}
-          options={({ route }) => ({
-            title: 'Note Details',
-          })}
+          options={{ title: 'Note' }}
         />
         <Stack.Screen
           name="EditNote"
           component={EditNoteScreen}
-          options={{
-            title: 'Edit Note',
-          }}
+          options={{ title: 'Edit Note' }}
         />
         <Stack.Screen
           name="EditProperty"
           component={EditPropertyScreen}
-          options={{
-            title: 'Edit Property',
-          }}
+          options={{ title: 'Edit Property' }}
         />
         <Stack.Screen
           name="EditArea"
           component={EditAreaScreen}
-          options={{
-            title: 'Edit Area',
-          }}
+          options={{ title: 'Edit Area' }}
         />
         <Stack.Screen
           name="TransferProperty"
           component={TransferPropertyScreen}
-          options={{
-            title: 'Transfer Property',
-          }}
+          options={{ title: 'Transfer Property' }}
         />
         <Stack.Screen
           name="CreateProperty"
           component={CreatePropertyScreen}
-          options={{
-            title: 'Add Property',
-          }}
+          options={{ title: 'Add Property' }}
         />
         <Stack.Screen
           name="CreateArea"
           component={CreateAreaScreen}
-          options={{
-            title: 'Add Area',
-          }}
+          options={{ title: 'Add Area' }}
         />
         <Stack.Screen
           name="CreateNote"
           component={CreateNoteScreen}
-          options={{
-            title: 'Add Note',
-          }}
+          options={{ title: 'Add Note' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

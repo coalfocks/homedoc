@@ -1,178 +1,242 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import { Text, FAB } from '@rneui/themed';
-import { useTheme } from '@rneui/themed';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { Icon } from '../components/Icon';
-import { theme } from '../utils/theme';
 import { useProperties } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  EmptyStateCard,
+  FloatingAction,
+  MetricPill,
+  PageHeader,
+  Screen,
+  SectionTitle,
+} from '../components/AppChrome';
+import { theme } from '../utils/theme';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
 };
 
-const EmptyState = () => (
-  <View style={styles.emptyContainer}>
-    <Icon name="home" color={theme.colors.primary.main} size={64} />
-    <Text style={styles.emptyTitle}>No Properties Yet!</Text>
-    <Text style={styles.emptyText}>
-      Click the + button below to add your first property. Start documenting
-      your home's journey!
-    </Text>
-  </View>
-);
-
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { theme } = useTheme();
   const { user, loading: authLoading } = useAuth();
   const { properties, loading, error, refetch } = useProperties(user?.id);
 
-  const onRefresh = () => {
-    if (user?.id) {
-      refetch();
-    }
-  };
+  const totalAreas = properties.reduce(
+    (sum, property: any) => sum + (property.area_count ?? 0),
+    0,
+  );
 
-  if (authLoading) {
+  if (authLoading || (loading && properties.length === 0)) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
+      <Screen>
+        <PageHeader
+          eyebrow="YOUR HOME BASE"
+          title="Properties"
+          subtitle="Loading your homes and the records attached to them."
+        />
+      </Screen>
     );
   }
 
   if (!user) {
     return (
-      <View style={styles.container}>
-        <Text>Please sign in to view properties</Text>
-      </View>
-    );
-  }
-
-  if (loading && properties.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading properties...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text>Error: {error}</Text>
-      </View>
+      <Screen>
+        <EmptyStateCard
+          icon="home"
+          title="Sign in to open your homes"
+          description="HomeDoc keeps each address, room, and note tied to your account so nothing gets lost."
+        />
+      </Screen>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={properties}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={EmptyState}
-        refreshing={loading}
-        onRefresh={onRefresh}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Property', { propertyId: item.id })
-            }
-            style={styles.card}
-          >
-            {item.image_url && (
-              <Image
-                source={{ uri: item.image_url }}
-                style={styles.propertyImage}
-                resizeMode="cover"
-              />
-            )}
-            <View style={styles.cardContent}>
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.address}>
-                {item.address_line_1}
-                {item.address_line_2 && `, ${item.address_line_2}`}
-                {'\n'}
-                {item.city}, {item.state} {item.zip_code}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
+    <Screen scroll contentContainerStyle={styles.content}>
+      <PageHeader
+        eyebrow="YOUR HOME BASE"
+        title="Properties"
+        subtitle="The homes you manage, with room-by-room records ready whenever something breaks."
       />
-      <FAB
-        icon={<Icon name="add" color="#FFFFFF" size={24} />}
-        placement="right"
-        color="#4CAF50"
+
+      <View style={styles.metricRow}>
+        <MetricPill
+          label="Properties"
+          value={properties.length.toString().padStart(2, '0')}
+        />
+        <MetricPill
+          label="Known areas"
+          value={totalAreas.toString().padStart(2, '0')}
+        />
+      </View>
+
+      {error ? (
+        <View style={styles.noticeCard}>
+          <Text style={styles.noticeTitle}>We hit a sync snag</Text>
+          <Text style={styles.noticeBody}>{error}</Text>
+        </View>
+      ) : null}
+
+      <SectionTitle
+        title="Your places"
+        subtitle="Open a property to manage rooms, maintenance notes, and photos."
+      />
+
+      {properties.length === 0 ? (
+        <EmptyStateCard
+          icon="home"
+          title="No properties yet"
+          description="Start with the main house, rental, or cabin you actually need to remember details for."
+          actionLabel="Add your first property"
+          onActionPress={() => navigation.navigate('CreateProperty')}
+        />
+      ) : (
+        <View style={styles.list}>
+          {properties.map((item: any) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() =>
+                navigation.navigate('Property', { propertyId: item.id })
+              }
+              style={styles.card}
+            >
+              {item.image_url ? (
+                <Image
+                  source={{ uri: item.image_url }}
+                  style={styles.propertyImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.imageFallback}>
+                  <Text style={styles.imageFallbackText}>
+                    {item.name?.slice(0, 1)?.toUpperCase() || 'H'}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.cardBody}>
+                <View style={styles.cardTopRow}>
+                  <View style={styles.cardTitleWrap}>
+                    <Text style={styles.cardTitle}>
+                      {item.nickname || item.name}
+                    </Text>
+                    {item.nickname ? (
+                      <Text style={styles.cardSubtitle}>{item.name}</Text>
+                    ) : null}
+                  </View>
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>Property</Text>
+                  </View>
+                </View>
+                <Text style={styles.address}>
+                  {item.address_line_1}
+                  {item.address_line_2 ? `, ${item.address_line_2}` : ''}
+                </Text>
+                <Text style={styles.address}>
+                  {item.city}, {item.state} {item.zip_code}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <FloatingAction
+        label="Add property"
         onPress={() => navigation.navigate('CreateProperty')}
-        style={styles.fab}
       />
-    </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background.default,
+  content: {
+    paddingBottom: 140,
   },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    marginTop: 64,
+  metricRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xl,
   },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginTop: 16,
-    marginBottom: 8,
+  noticeCard: {
+    marginBottom: theme.spacing.lg,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(200, 85, 61, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(200, 85, 61, 0.18)',
   },
-  emptyText: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 24,
+  noticeTitle: {
+    color: theme.colors.error.dark,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  noticeBody: {
+    color: theme.colors.text.slate,
+  },
+  list: {
+    gap: theme.spacing.md,
   },
   card: {
-    backgroundColor: theme.colors.background.paper,
-    borderRadius: 8,
-    margin: 16,
     overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    ...theme.shadows.md,
   },
   propertyImage: {
     width: '100%',
-    height: 200,
+    height: 190,
   },
-  cardContent: {
-    padding: 16,
+  imageFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 190,
+    backgroundColor: theme.colors.primary.light,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  imageFallbackText: {
+    color: theme.colors.primary.contrast,
+    fontSize: 40,
+    fontWeight: '800',
+  },
+  cardBody: {
+    padding: theme.spacing.lg,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+  },
+  cardTitleWrap: {
+    flex: 1,
+  },
+  cardTitle: {
     color: theme.colors.text.primary,
-    marginBottom: 8,
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: '700',
   },
-  address: {
-    fontSize: 14,
+  cardSubtitle: {
+    marginTop: 2,
     color: theme.colors.text.secondary,
   },
-  fab: {
-    margin: 16,
+  badge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+  },
+  badgeText: {
+    color: theme.colors.primary.dark,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  address: {
+    color: theme.colors.text.slate,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
   },
 });
 
