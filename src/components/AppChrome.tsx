@@ -91,7 +91,7 @@ export const MetricPill: React.FC<MetricPillProps> = ({ label, value }) => (
 );
 
 type EmptyStateCardProps = {
-  icon: 'home' | 'area' | 'note';
+  icon: 'home' | 'area' | 'note' | 'todo';
   title: string;
   description: string;
   actionLabel?: string;
@@ -160,6 +160,70 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ title, body }) => (
     <Text style={styles.bannerBody}>{body}</Text>
   </View>
 );
+
+type PriorityBadgeProps = {
+  priority: 'low' | 'medium' | 'high';
+};
+
+export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority }) => {
+  const config = {
+    low: {
+      bg: 'rgba(46, 111, 149, 0.12)',
+      color: theme.colors.info.dark,
+      label: 'Low',
+    },
+    medium: {
+      bg: 'rgba(217, 164, 65, 0.14)',
+      color: theme.colors.warning.dark,
+      label: 'Medium',
+    },
+    high: {
+      bg: 'rgba(200, 85, 61, 0.12)',
+      color: theme.colors.error.dark,
+      label: 'High',
+    },
+  };
+  const c = config[priority];
+  return (
+    <View style={[styles.priorityBadge, { backgroundColor: c.bg }]}>
+      <Text style={[styles.priorityBadgeText, { color: c.color }]}>
+        {c.label}
+      </Text>
+    </View>
+  );
+};
+
+type StatusBadgeProps = {
+  status: 'pending' | 'in_progress' | 'done';
+};
+
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  const config = {
+    pending: {
+      bg: 'rgba(107, 114, 128, 0.12)',
+      color: '#4B5563',
+      label: 'Pending',
+    },
+    in_progress: {
+      bg: 'rgba(217, 164, 65, 0.14)',
+      color: theme.colors.warning.dark,
+      label: 'In Progress',
+    },
+    done: {
+      bg: 'rgba(47, 133, 90, 0.12)',
+      color: theme.colors.success.dark,
+      label: 'Done',
+    },
+  };
+  const c = config[status];
+  return (
+    <View style={[styles.statusBadge, { backgroundColor: c.bg }]}>
+      <Text style={[styles.statusBadgeText, { color: c.color }]}>
+        {c.label}
+      </Text>
+    </View>
+  );
+};
 
 const BackgroundWash = () => (
   <>
@@ -351,5 +415,27 @@ const styles = StyleSheet.create({
   bannerBody: {
     color: theme.colors.text.slate,
     lineHeight: 20,
+  },
+  priorityBadge: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 4,
+    borderRadius: theme.borderRadius.pill,
+    alignSelf: 'flex-start',
+  },
+  priorityBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  statusBadge: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 4,
+    borderRadius: theme.borderRadius.pill,
+    alignSelf: 'flex-start',
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

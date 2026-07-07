@@ -11,29 +11,38 @@ import { theme } from '../utils/theme';
 import HomeScreen from '../screens/HomeScreen';
 import AreasScreen from '../screens/AreasScreen';
 import NotesScreen from '../screens/NotesScreen';
+import TodosScreen from '../screens/TodosScreen';
 import PropertyScreen from '../screens/PropertyScreen';
 import AreaScreen from '../screens/AreaScreen';
+import AreaTodosScreen from '../screens/AreaTodosScreen';
 import NoteScreen from '../screens/NoteScreen';
+import TodoScreen from '../screens/TodoScreen';
 import EditNoteScreen from '../screens/EditNoteScreen';
+import EditTodoScreen from '../screens/EditTodoScreen';
 import EditPropertyScreen from '../screens/EditPropertyScreen';
 import EditAreaScreen from '../screens/EditAreaScreen';
 import TransferPropertyScreen from '../screens/TransferPropertyScreen';
 import CreatePropertyScreen from '../screens/CreatePropertyScreen';
 import CreateAreaScreen from '../screens/CreateAreaScreen';
 import CreateNoteScreen from '../screens/CreateNoteScreen';
+import CreateTodoScreen from '../screens/CreateTodoScreen';
 
 export type RootStackParamList = {
   Main: undefined;
   Property: { propertyId: string };
   Area: { areaId: string };
+  AreaTodos: { areaId: string };
   Note: { noteId: string };
+  Todo: { todoId: string };
   EditNote: { noteId: string };
+  EditTodo: { todoId: string };
   EditProperty: { propertyId: string };
   EditArea: { areaId: string };
   TransferProperty: { propertyId: string };
   CreateProperty: undefined;
   CreateArea: { propertyId: string };
   CreateNote: { areaId: string };
+  CreateTodo: { areaId?: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -123,6 +132,15 @@ const MainTabs = () => (
         ),
       }}
     />
+    <Tab.Screen
+      name="Todos"
+      component={TodosScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="todo" color={color} size={size} />
+        ),
+      }}
+    />
   </Tab.Navigator>
 );
 
@@ -146,14 +164,29 @@ export const AppNavigator = () => {
           options={{ title: 'Area' }}
         />
         <Stack.Screen
+          name="AreaTodos"
+          component={AreaTodosScreen}
+          options={{ title: 'Area Todos' }}
+        />
+        <Stack.Screen
           name="Note"
           component={NoteScreen}
           options={{ title: 'Note' }}
         />
         <Stack.Screen
+          name="Todo"
+          component={TodoScreen}
+          options={{ title: 'Todo' }}
+        />
+        <Stack.Screen
           name="EditNote"
           component={EditNoteScreen}
           options={{ title: 'Edit Note' }}
+        />
+        <Stack.Screen
+          name="EditTodo"
+          component={EditTodoScreen}
+          options={{ title: 'Edit Todo' }}
         />
         <Stack.Screen
           name="EditProperty"
@@ -184,6 +217,11 @@ export const AppNavigator = () => {
           name="CreateNote"
           component={CreateNoteScreen}
           options={{ title: 'Add Note' }}
+        />
+        <Stack.Screen
+          name="CreateTodo"
+          component={CreateTodoScreen}
+          options={{ title: 'Add Todo' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -41,3 +41,14 @@ export type Note = {
   created_at: string;
   updated_at: string;
 };
+
+export type Todo = {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'done';
+  priority: 'low' | 'medium' | 'high';
+  area_id: string;
+  created_at: string;
+  updated_at: string;
+};

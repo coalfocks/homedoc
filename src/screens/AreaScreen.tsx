@@ -4,13 +4,14 @@ import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useArea, useNotes } from '../hooks/useData';
+import { useArea, useNotes, useTodos } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import {
   EmptyStateCard,
   FloatingAction,
   MetricPill,
   PageHeader,
+  PriorityBadge,
   Screen,
   SectionTitle,
 } from '../components/AppChrome';
@@ -31,6 +32,7 @@ const formatDate = (value: string) =>
 const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   const { area, loading, error } = useArea(route.params.areaId);
   const { notes, refetch: refetchNotes } = useNotes(route.params.areaId);
+  const { todos } = useTodos(route.params.areaId);
 
   if (loading) {
     return (
@@ -111,11 +113,69 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
 
       <View style={styles.metricRow}>
         <MetricPill label="Notes" value={notes.length.toString()} />
+        <MetricPill
+          label="Todos"
+          value={`${todos.filter((t) => t.status !== 'done').length}/${todos.length}`}
+        />
       </View>
 
       <TouchableOpacity style={styles.deleteButton} onPress={confirmDeleteArea}>
         <Text style={styles.deleteButtonText}>Delete area</Text>
       </TouchableOpacity>
+
+      {/* ── Todos section ── */}
+      <SectionTitle
+        title="Todos in this area"
+        subtitle="Tasks, repairs, and improvements tracked here."
+      />
+
+      {todos.filter((t) => t.status !== 'done').length === 0 ? (
+        <EmptyStateCard
+          icon="todo"
+          title="No pending todos"
+          description="Everything's done. Add a new task when something needs attention."
+          actionLabel="Add todo"
+          onActionPress={() =>
+            navigation.navigate('CreateTodo', { areaId: area.id })
+          }
+        />
+      ) : (
+        <View style={styles.list}>
+          {todos
+            .filter((t) => t.status !== 'done')
+            .slice(0, 3)
+            .map((todo) => (
+              <TouchableOpacity
+                key={todo.id}
+                onPress={() =>
+                  navigation.navigate('Todo', { todoId: todo.id })
+                }
+                style={styles.todoCard}
+              >
+                <View style={styles.todoCardTop}>
+                  <Text style={styles.todoCardTitle} numberOfLines={1}>
+                    {todo.title}
+                  </Text>
+                  <PriorityBadge priority={todo.priority} />
+                </View>
+                {todo.description ? (
+                  <Text style={styles.todoCardDesc} numberOfLines={2}>
+                    {todo.description}
+                  </Text>
+                ) : null}
+              </TouchableOpacity>
+            ))}
+          {todos.filter((t) => t.status !== 'done').length > 3 ? (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('AreaTodos', { areaId: area.id })
+              }
+            >
+              <Text style={styles.viewAllLink}>View all todos →</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      )}
 
       <SectionTitle
         title="Notes in this area"
@@ -242,6 +302,38 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
+  },
+  todoCard: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.82)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    ...theme.shadows.sm,
+  },
+  todoCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: 4,
+  },
+  todoCardTitle: {
+    flex: 1,
+    color: theme.colors.text.primary,
+    fontSize: theme.typography.body1.fontSize,
+    fontWeight: '700',
+  },
+  todoCardDesc: {
+    color: theme.colors.text.slate,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
+  },
+  viewAllLink: {
+    color: theme.colors.primary.main,
+    fontWeight: '700',
+    marginTop: theme.spacing.sm,
+    textAlign: 'center',
   },
 });
 

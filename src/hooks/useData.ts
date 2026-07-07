@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, Property, Area, Note } from '../lib/supabase';
+import { supabase, Property, Area, Note, Todo } from '../lib/supabase';
 
 /**
  * Generic hook for Supabase queries with loading/error state.
@@ -123,6 +123,34 @@ export const useNote = (noteId: string | undefined) => {
   };
 };
 
+// ── Todo hooks ───────────────────────────────────────────────────
+
+export const useTodos = (areaId: string | undefined) => {
+  const result = useSupabaseQuery<Todo[]>(() => {
+    if (!areaId) return Promise.resolve({ data: [] as Todo[], error: null });
+    return supabase.from('todos').select('*').eq('area_id', areaId);
+  }, [areaId]);
+  return {
+    todos: result.data,
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch,
+  };
+};
+
+export const useTodo = (todoId: string | undefined) => {
+  const result = useSupabaseQuery<Todo | null>(() => {
+    if (!todoId) return Promise.resolve({ data: null, error: null });
+    return supabase.from('todos').select('*').eq('id', todoId).single();
+  }, [todoId]);
+  return {
+    todo: result.data,
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch,
+  };
+};
+
 // ── Cross-property hooks ──────────────────────────────────────────
 
 export const useAllAreas = (userId: string | undefined) => {
@@ -153,6 +181,24 @@ export const useAllNotes = (userId: string | undefined) => {
   }, [userId]);
   return {
     notes: result.data,
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch,
+  };
+};
+
+export const useTodosByProperty = (userId: string | undefined) => {
+  const result = useSupabaseQuery<Todo[]>(() => {
+    if (!userId) return Promise.resolve({ data: [] as Todo[], error: null });
+    return supabase
+      .from('todos')
+      .select(
+        '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+      )
+      .eq('areas.properties.user_id', userId);
+  }, [userId]);
+  return {
+    todos: result.data,
     loading: result.loading,
     error: result.error,
     refetch: result.refetch,
