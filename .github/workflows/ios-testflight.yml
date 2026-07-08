@@ -1,12 +1,10 @@
-name: Deploy
+name: iOS TestFlight
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,13 +21,15 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Build and deploy
-        run: |
-          # eas build --platform all --non-interactive --no-wait
-          # eas deploy --platform all --non-interactive
-          npx expo export --platform=web
-          eas deploy --non-interactive
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test -- --runInBand
+
+      - name: Build and submit iOS
+        run: eas build --platform ios --profile production --non-interactive --auto-submit --no-wait
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
-          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }} 
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
