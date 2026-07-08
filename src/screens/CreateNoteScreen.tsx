@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   input: {
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     fontSize: 16,
     paddingHorizontal: 16,
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   label: {
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     fontSize: 16,
     marginBottom: 8,
   },
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     marginBottom: 12,
     paddingHorizontal: 16,
   },
@@ -254,17 +254,17 @@ const styles = StyleSheet.create({
   addImageButton: {
     width: '47%',
     aspectRatio: 1,
-    backgroundColor: theme.colors.background.paper,
+    backgroundColor: theme.colors.background.elevated,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: theme.colors.background.paper,
+    borderColor: theme.colors.border.strong,
     borderStyle: 'dashed',
   },
   addImageText: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     marginTop: 8,
   },
   buttonContainer: {

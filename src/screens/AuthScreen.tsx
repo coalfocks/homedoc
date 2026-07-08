@@ -26,7 +26,7 @@ const AuthScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>('magic');
+  const [authMode, setAuthMode] = useState<AuthMode>('password');
   const [isSignUp, setIsSignUp] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
@@ -49,7 +49,6 @@ const AuthScreen: React.FC = () => {
       setLoading(true);
       if (isSignUp) {
         await signUp(normalizedEmail, password);
-        setMagicLinkSent(true);
       } else {
         await signIn(normalizedEmail, password);
       }

@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.background.paper,
+    backgroundColor: theme.colors.primary.main,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -284,12 +284,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   input: {
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     fontSize: 16,
     paddingHorizontal: 16,
   },
   label: {
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     fontSize: 16,
     marginBottom: 8,
   },

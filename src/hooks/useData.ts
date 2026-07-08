@@ -9,8 +9,9 @@ import { supabase, Property, Area, Note, Todo } from '../lib/supabase';
 function useSupabaseQuery<T>(
   queryFn: () => PromiseLike<{ data: T | null; error: any }>,
   deps: any[],
+  initialData: T,
 ): { data: T; loading: boolean; error: string | null; refetch: () => void } {
-  const [data, setData] = useState<T>(null as unknown as T);
+  const [data, setData] = useState<T>(initialData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +21,7 @@ function useSupabaseQuery<T>(
       setError(null);
       const result = await queryFn();
       if (result.error) throw result.error;
-      setData((result.data ?? null) as T);
+      setData((result.data ?? initialData) as T);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -42,7 +43,7 @@ export const useProperties = (userId: string | undefined) => {
     if (!userId)
       return Promise.resolve({ data: [] as Property[], error: null });
     return supabase.from('properties').select('*').eq('user_id', userId);
-  }, [userId]);
+  }, [userId], []);
   return {
     properties: result.data,
     loading: result.loading,
@@ -56,7 +57,7 @@ export const useAreas = (propertyId: string | undefined) => {
     if (!propertyId)
       return Promise.resolve({ data: [] as Area[], error: null });
     return supabase.from('areas').select('*').eq('property_id', propertyId);
-  }, [propertyId]);
+  }, [propertyId], []);
   return {
     areas: result.data,
     loading: result.loading,
@@ -69,7 +70,7 @@ export const useNotes = (areaId: string | undefined) => {
   const result = useSupabaseQuery<Note[]>(() => {
     if (!areaId) return Promise.resolve({ data: [] as Note[], error: null });
     return supabase.from('notes').select('*').eq('area_id', areaId);
-  }, [areaId]);
+  }, [areaId], []);
   return {
     notes: result.data,
     loading: result.loading,
@@ -88,7 +89,7 @@ export const useProperty = (propertyId: string | undefined) => {
       .select('*')
       .eq('id', propertyId)
       .single();
-  }, [propertyId]);
+  }, [propertyId], null);
   return {
     property: result.data,
     loading: result.loading,
@@ -101,7 +102,7 @@ export const useArea = (areaId: string | undefined) => {
   const result = useSupabaseQuery<Area | null>(() => {
     if (!areaId) return Promise.resolve({ data: null, error: null });
     return supabase.from('areas').select('*').eq('id', areaId).single();
-  }, [areaId]);
+  }, [areaId], null);
   return {
     area: result.data,
     loading: result.loading,
@@ -114,7 +115,7 @@ export const useNote = (noteId: string | undefined) => {
   const result = useSupabaseQuery<Note | null>(() => {
     if (!noteId) return Promise.resolve({ data: null, error: null });
     return supabase.from('notes').select('*').eq('id', noteId).single();
-  }, [noteId]);
+  }, [noteId], null);
   return {
     note: result.data,
     loading: result.loading,
@@ -129,7 +130,7 @@ export const useTodos = (areaId: string | undefined) => {
   const result = useSupabaseQuery<Todo[]>(() => {
     if (!areaId) return Promise.resolve({ data: [] as Todo[], error: null });
     return supabase.from('todos').select('*').eq('area_id', areaId);
-  }, [areaId]);
+  }, [areaId], []);
   return {
     todos: result.data,
     loading: result.loading,
@@ -142,7 +143,7 @@ export const useTodo = (todoId: string | undefined) => {
   const result = useSupabaseQuery<Todo | null>(() => {
     if (!todoId) return Promise.resolve({ data: null, error: null });
     return supabase.from('todos').select('*').eq('id', todoId).single();
-  }, [todoId]);
+  }, [todoId], null);
   return {
     todo: result.data,
     loading: result.loading,
@@ -160,7 +161,7 @@ export const useAllAreas = (userId: string | undefined) => {
       .from('areas')
       .select('*, properties!inner(name, id)')
       .eq('properties.user_id', userId);
-  }, [userId]);
+  }, [userId], []);
   return {
     areas: result.data,
     loading: result.loading,
@@ -178,7 +179,7 @@ export const useAllNotes = (userId: string | undefined) => {
         '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
       )
       .eq('areas.properties.user_id', userId);
-  }, [userId]);
+  }, [userId], []);
   return {
     notes: result.data,
     loading: result.loading,
@@ -196,7 +197,7 @@ export const useTodosByProperty = (userId: string | undefined) => {
         '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
       )
       .eq('areas.properties.user_id', userId);
-  }, [userId]);
+  }, [userId], []);
   return {
     todos: result.data,
     loading: result.loading,
