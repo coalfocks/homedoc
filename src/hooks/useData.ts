@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { supabase, Property, Area, Note, Todo } from '../lib/supabase';
 
 /**
@@ -29,9 +30,11 @@ function useSupabaseQuery<T>(
     }
   }, deps);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   return { data, loading, error, refetch: fetchData };
 }
@@ -39,11 +42,15 @@ function useSupabaseQuery<T>(
 // ── Collection hooks ──────────────────────────────────────────────
 
 export const useProperties = (userId: string | undefined) => {
-  const result = useSupabaseQuery<Property[]>(() => {
-    if (!userId)
-      return Promise.resolve({ data: [] as Property[], error: null });
-    return supabase.from('properties').select('*').eq('user_id', userId);
-  }, [userId], []);
+  const result = useSupabaseQuery<Property[]>(
+    () => {
+      if (!userId)
+        return Promise.resolve({ data: [] as Property[], error: null });
+      return supabase.from('properties').select('*').eq('user_id', userId);
+    },
+    [userId],
+    [],
+  );
   return {
     properties: result.data,
     loading: result.loading,
@@ -53,11 +60,15 @@ export const useProperties = (userId: string | undefined) => {
 };
 
 export const useAreas = (propertyId: string | undefined) => {
-  const result = useSupabaseQuery<Area[]>(() => {
-    if (!propertyId)
-      return Promise.resolve({ data: [] as Area[], error: null });
-    return supabase.from('areas').select('*').eq('property_id', propertyId);
-  }, [propertyId], []);
+  const result = useSupabaseQuery<Area[]>(
+    () => {
+      if (!propertyId)
+        return Promise.resolve({ data: [] as Area[], error: null });
+      return supabase.from('areas').select('*').eq('property_id', propertyId);
+    },
+    [propertyId],
+    [],
+  );
   return {
     areas: result.data,
     loading: result.loading,
@@ -67,10 +78,14 @@ export const useAreas = (propertyId: string | undefined) => {
 };
 
 export const useNotes = (areaId: string | undefined) => {
-  const result = useSupabaseQuery<Note[]>(() => {
-    if (!areaId) return Promise.resolve({ data: [] as Note[], error: null });
-    return supabase.from('notes').select('*').eq('area_id', areaId);
-  }, [areaId], []);
+  const result = useSupabaseQuery<Note[]>(
+    () => {
+      if (!areaId) return Promise.resolve({ data: [] as Note[], error: null });
+      return supabase.from('notes').select('*').eq('area_id', areaId);
+    },
+    [areaId],
+    [],
+  );
   return {
     notes: result.data,
     loading: result.loading,
@@ -82,14 +97,18 @@ export const useNotes = (areaId: string | undefined) => {
 // ── Single-item hooks ─────────────────────────────────────────────
 
 export const useProperty = (propertyId: string | undefined) => {
-  const result = useSupabaseQuery<Property | null>(() => {
-    if (!propertyId) return Promise.resolve({ data: null, error: null });
-    return supabase
-      .from('properties')
-      .select('*')
-      .eq('id', propertyId)
-      .single();
-  }, [propertyId], null);
+  const result = useSupabaseQuery<Property | null>(
+    () => {
+      if (!propertyId) return Promise.resolve({ data: null, error: null });
+      return supabase
+        .from('properties')
+        .select('*')
+        .eq('id', propertyId)
+        .single();
+    },
+    [propertyId],
+    null,
+  );
   return {
     property: result.data,
     loading: result.loading,
@@ -99,10 +118,14 @@ export const useProperty = (propertyId: string | undefined) => {
 };
 
 export const useArea = (areaId: string | undefined) => {
-  const result = useSupabaseQuery<Area | null>(() => {
-    if (!areaId) return Promise.resolve({ data: null, error: null });
-    return supabase.from('areas').select('*').eq('id', areaId).single();
-  }, [areaId], null);
+  const result = useSupabaseQuery<Area | null>(
+    () => {
+      if (!areaId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('areas').select('*').eq('id', areaId).single();
+    },
+    [areaId],
+    null,
+  );
   return {
     area: result.data,
     loading: result.loading,
@@ -112,10 +135,14 @@ export const useArea = (areaId: string | undefined) => {
 };
 
 export const useNote = (noteId: string | undefined) => {
-  const result = useSupabaseQuery<Note | null>(() => {
-    if (!noteId) return Promise.resolve({ data: null, error: null });
-    return supabase.from('notes').select('*').eq('id', noteId).single();
-  }, [noteId], null);
+  const result = useSupabaseQuery<Note | null>(
+    () => {
+      if (!noteId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('notes').select('*').eq('id', noteId).single();
+    },
+    [noteId],
+    null,
+  );
   return {
     note: result.data,
     loading: result.loading,
@@ -127,10 +154,14 @@ export const useNote = (noteId: string | undefined) => {
 // ── Todo hooks ───────────────────────────────────────────────────
 
 export const useTodos = (areaId: string | undefined) => {
-  const result = useSupabaseQuery<Todo[]>(() => {
-    if (!areaId) return Promise.resolve({ data: [] as Todo[], error: null });
-    return supabase.from('todos').select('*').eq('area_id', areaId);
-  }, [areaId], []);
+  const result = useSupabaseQuery<Todo[]>(
+    () => {
+      if (!areaId) return Promise.resolve({ data: [] as Todo[], error: null });
+      return supabase.from('todos').select('*').eq('area_id', areaId);
+    },
+    [areaId],
+    [],
+  );
   return {
     todos: result.data,
     loading: result.loading,
@@ -140,10 +171,14 @@ export const useTodos = (areaId: string | undefined) => {
 };
 
 export const useTodo = (todoId: string | undefined) => {
-  const result = useSupabaseQuery<Todo | null>(() => {
-    if (!todoId) return Promise.resolve({ data: null, error: null });
-    return supabase.from('todos').select('*').eq('id', todoId).single();
-  }, [todoId], null);
+  const result = useSupabaseQuery<Todo | null>(
+    () => {
+      if (!todoId) return Promise.resolve({ data: null, error: null });
+      return supabase.from('todos').select('*').eq('id', todoId).single();
+    },
+    [todoId],
+    null,
+  );
   return {
     todo: result.data,
     loading: result.loading,
@@ -155,13 +190,17 @@ export const useTodo = (todoId: string | undefined) => {
 // ── Cross-property hooks ──────────────────────────────────────────
 
 export const useAllAreas = (userId: string | undefined) => {
-  const result = useSupabaseQuery<Area[]>(() => {
-    if (!userId) return Promise.resolve({ data: [] as Area[], error: null });
-    return supabase
-      .from('areas')
-      .select('*, properties!inner(name, id)')
-      .eq('properties.user_id', userId);
-  }, [userId], []);
+  const result = useSupabaseQuery<Area[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Area[], error: null });
+      return supabase
+        .from('areas')
+        .select('*, properties!inner(name, id)')
+        .eq('properties.user_id', userId);
+    },
+    [userId],
+    [],
+  );
   return {
     areas: result.data,
     loading: result.loading,
@@ -171,15 +210,19 @@ export const useAllAreas = (userId: string | undefined) => {
 };
 
 export const useAllNotes = (userId: string | undefined) => {
-  const result = useSupabaseQuery<Note[]>(() => {
-    if (!userId) return Promise.resolve({ data: [] as Note[], error: null });
-    return supabase
-      .from('notes')
-      .select(
-        '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
-      )
-      .eq('areas.properties.user_id', userId);
-  }, [userId], []);
+  const result = useSupabaseQuery<Note[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Note[], error: null });
+      return supabase
+        .from('notes')
+        .select(
+          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+        )
+        .eq('areas.properties.user_id', userId);
+    },
+    [userId],
+    [],
+  );
   return {
     notes: result.data,
     loading: result.loading,
@@ -189,15 +232,19 @@ export const useAllNotes = (userId: string | undefined) => {
 };
 
 export const useTodosByProperty = (userId: string | undefined) => {
-  const result = useSupabaseQuery<Todo[]>(() => {
-    if (!userId) return Promise.resolve({ data: [] as Todo[], error: null });
-    return supabase
-      .from('todos')
-      .select(
-        '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
-      )
-      .eq('areas.properties.user_id', userId);
-  }, [userId], []);
+  const result = useSupabaseQuery<Todo[]>(
+    () => {
+      if (!userId) return Promise.resolve({ data: [] as Todo[], error: null });
+      return supabase
+        .from('todos')
+        .select(
+          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+        )
+        .eq('areas.properties.user_id', userId);
+    },
+    [userId],
+    [],
+  );
   return {
     todos: result.data,
     loading: result.loading,
