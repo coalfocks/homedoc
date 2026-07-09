@@ -7,7 +7,8 @@ HomeDoc uses Expo EAS for TestFlight builds.
 1. Push app changes to `main`.
 2. Run the GitHub Actions workflow `iOS TestFlight`.
 3. The workflow restores local iOS signing credentials from GitHub Actions secrets.
-4. EAS builds with the `production` profile, waits for completion, and auto-submits to App Store Connect.
+4. EAS builds with the `production` profile and waits for completion.
+5. The workflow submits that exact EAS build ID to App Store Connect with verbose submit logs.
 
 The `production` profile in `eas.json` intentionally uses:
 
@@ -92,6 +93,8 @@ SDK version issue. This app was built with the iOS 18.5 SDK. All iOS and iPadOS 
 ```
 
 The fix is the pinned Xcode 26 EAS image in `eas.json`.
+
+The workflow intentionally runs build and submit as separate commands. `eas build --auto-submit --wait` can collapse submit failures into a generic "Try again later" message, while the separate `eas submit --id <build-id> --verbose --verbose-fastlane` command preserves useful App Store Connect upload logs.
 
 Expo's remote builder also needs the repository `.npmrc`:
 

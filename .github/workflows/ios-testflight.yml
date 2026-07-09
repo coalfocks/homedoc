@@ -67,20 +67,28 @@ jobs:
         run: |
           set +e
           set -o pipefail
-          eas build --platform ios --profile production --non-interactive --auto-submit --wait 2>&1 | tee eas-build-output.log
+          eas build --platform ios --profile production --non-interactive --wait 2>&1 | tee eas-build-output.log
           status=${PIPESTATUS[0]}
+          build_url=$(grep -Eo 'https://expo.dev/accounts/[^ ]+/builds/[a-f0-9-]+' eas-build-output.log | tail -1)
+          build_id="${build_url##*/}"
 
           if [ "$status" -ne 0 ]; then
-            build_url=$(grep -Eo 'https://expo.dev/accounts/[^ ]+/builds/[a-f0-9-]+' eas-build-output.log | tail -1)
             if [ -n "$build_url" ]; then
               build_id="${build_url##*/}"
               echo "EAS build id: $build_id"
               eas build:view "$build_id" --json > eas-build-view.json || true
               node -e "(async()=>{const fs=require('fs');if(!fs.existsSync('eas-build-view.json'))process.exit(0);const build=JSON.parse(fs.readFileSync('eas-build-view.json','utf8'));const logUrl=build.logFiles&&build.logFiles[0];if(!logUrl){console.log('No EAS log file URL found.');process.exit(0);}const response=await fetch(logUrl);const body=await response.text();const lines=body.trim().split(/\\r?\\n/);console.log('--- EAS remote build log tail ---');console.log(lines.slice(-260).join('\\n'));})().catch(e=>console.log('Failed to fetch EAS remote log: '+e.message));"
             fi
+            exit "$status"
           fi
 
-          exit "$status"
+          if [ -z "$build_url" ] || [ "$build_id" = "$build_url" ]; then
+            echo "Could not find EAS build URL in output."
+            exit 1
+          fi
+
+          echo "Submitting EAS build id: $build_id"
+          eas submit --platform ios --profile production --id "$build_id" --non-interactive --wait --verbose --verbose-fastlane
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
