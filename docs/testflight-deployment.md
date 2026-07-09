@@ -59,11 +59,11 @@ If signing breaks again:
 
 1. SSH into Bert Jr.
 2. Create a fresh Apple Distribution certificate and App Store provisioning profile for `com.coalfocks.homedoc`.
-3. Export the distribution certificate as a password-protected p12.
+3. Export the distribution certificate as a password-protected p12 using Apple-compatible legacy encryption. OpenSSL 3's default p12 encryption can be readable by OpenSSL but fail macOS `security import` inside EAS.
 4. From the Linux workspace, pipe the files back from Bert Jr into GitHub secrets:
 
 ```bash
-ssh bertjr 'base64 -i ~/projects/homedoc/ios/certs/dist-cert.p12' | gh secret set IOS_DIST_CERT_P12_BASE64 --repo coalfocks/homedoc
+ssh bertjr 'base64 -i ~/projects/homedoc/ios/certs/homedoc-dist-legacy.p12' | gh secret set IOS_DIST_CERT_P12_BASE64 --repo coalfocks/homedoc
 ssh bertjr 'base64 -i ~/projects/homedoc/ios/certs/profile.mobileprovision' | gh secret set IOS_PROVISIONING_PROFILE_BASE64 --repo coalfocks/homedoc
 printf '%s' '<p12-password>' | gh secret set IOS_DIST_CERT_PASSWORD --repo coalfocks/homedoc
 ```
