@@ -17,6 +17,12 @@ The `production` profile in `eas.json` intentionally uses:
 
 This bypasses stale remote credentials on Expo's servers.
 
+The submit profile includes the App Store Connect app ID:
+
+```json
+"ascAppId": "6779373725"
+```
+
 ## Required GitHub Secrets
 
 - `EAS_TOKEN`
