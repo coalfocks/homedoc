@@ -34,6 +34,28 @@ jobs:
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
 
+      - name: Restore iOS signing credentials
+        run: |
+          mkdir -p ios/certs
+          printf '%s' "$IOS_DIST_CERT_P12_BASE64" | base64 --decode > ios/certs/dist-cert.p12
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ios/certs/profile.mobileprovision
+          cat > credentials.json <<JSON
+          {
+            "ios": {
+              "provisioningProfilePath": "ios/certs/profile.mobileprovision",
+              "distributionCertificate": {
+                "path": "ios/certs/dist-cert.p12",
+                "password": "$IOS_DIST_CERT_PASSWORD"
+              }
+            }
+          }
+          JSON
+          chmod 600 credentials.json ios/certs/dist-cert.p12 ios/certs/profile.mobileprovision
+        env:
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+
       - name: Build and submit iOS
         run: eas build --platform ios --profile production --non-interactive --auto-submit --no-wait
         env:
