@@ -5,6 +5,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -80,12 +82,17 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.section}>
-        <Text style={styles.label}>Title</Text>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.section}>
+          <Text style={styles.label}>Title</Text>
         <Input
           value={title}
           onChangeText={setTitle}
@@ -221,7 +228,8 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
         disabledStyle={styles.disabledButton}
         disabledTitleStyle={styles.disabledButtonText}
       />
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

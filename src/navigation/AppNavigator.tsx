@@ -147,7 +147,13 @@ const MainTabs = () => (
 export const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={sharedHeader}>
+      <Stack.Navigator
+      screenOptions={{
+        ...sharedHeader,
+        animation: 'none',
+        presentation: 'card',
+      }}
+    >
         <Stack.Screen
           name="Main"
           component={MainTabs}

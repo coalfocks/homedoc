@@ -7,8 +7,8 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTodos, useArea } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import {
+  AddButton,
   EmptyStateCard,
-  FloatingAction,
   MetricPill,
   PageHeader,
   PriorityBadge,
@@ -110,6 +110,11 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
 
       <SectionTitle title="Tasks" />
 
+      <AddButton
+        label="Add todo"
+        onPress={() => navigation.navigate('CreateTodo', { areaId })}
+      />
+
       {loading ? null : error ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeTitle}>Couldn't load todos</Text>
@@ -201,10 +206,6 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
         </View>
       )}
 
-      <FloatingAction
-        label="Add todo"
-        onPress={() => navigation.navigate('CreateTodo', { areaId })}
-      />
     </Screen>
   );
 };

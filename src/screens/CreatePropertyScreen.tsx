@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   scrollContent: {
-    paddingBottom: 48,
+    paddingBottom: 120,
   },
   imageUpload: {
     width: '100%',

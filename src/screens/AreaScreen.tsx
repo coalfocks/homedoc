@@ -7,8 +7,8 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useArea, useNotes, useTodos } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import {
+  AddButton,
   EmptyStateCard,
-  FloatingAction,
   MetricPill,
   PageHeader,
   PriorityBadge,
@@ -129,6 +129,13 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         subtitle="Tasks, repairs, and improvements tracked here."
       />
 
+      <AddButton
+        label="Add todo"
+        onPress={() =>
+          navigation.navigate('CreateTodo', { areaId: area.id })
+        }
+      />
+
       {todos.filter((t) => t.status !== 'done').length === 0 ? (
         <EmptyStateCard
           icon="todo"
@@ -182,6 +189,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         subtitle="Keep receipts, measurements, to-dos, and maintenance history in one place."
       />
 
+      <AddButton
+        label="Add note"
+        onPress={() => navigation.navigate('CreateNote', { areaId: area.id })}
+      />
+
       {notes.length === 0 ? (
         <EmptyStateCard
           icon="note"
@@ -219,10 +231,6 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         </View>
       )}
 
-      <FloatingAction
-        label="Add note"
-        onPress={() => navigation.navigate('CreateNote', { areaId: area.id })}
-      />
     </Screen>
   );
 };

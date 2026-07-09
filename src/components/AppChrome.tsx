@@ -25,7 +25,7 @@ export const Screen: React.FC<ScreenProps> = ({
 }) => {
   if (scroll) {
     return (
-      <View style={[styles.screen, style]}>
+      <View style={[styles.screen, style]} removeClippedSubviews>
         <BackgroundWash />
         <ScrollView
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
@@ -38,7 +38,7 @@ export const Screen: React.FC<ScreenProps> = ({
   }
 
   return (
-    <View style={[styles.screen, style]}>
+    <View style={[styles.screen, style]} removeClippedSubviews>
       <BackgroundWash />
       <View style={[styles.content, contentContainerStyle]}>{children}</View>
     </View>
@@ -227,10 +227,43 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
 const BackgroundWash = () => (
   <>
-    <View style={styles.washTop} />
-    <View style={styles.washBottom} />
+    <View style={styles.washTop} pointerEvents="none" />
+    <View style={styles.washBottom} pointerEvents="none" />
   </>
 );
+
+type AddButtonProps = {
+  label: string;
+  onPress: () => void;
+};
+
+export const AddButton: React.FC<AddButtonProps> = ({ label, onPress }) => (
+  <TouchableOpacity style={addButtonStyles.container} onPress={onPress} activeOpacity={0.8}>
+    <Icon name="add" size={18} color={theme.colors.primary.main} />
+    <Text style={addButtonStyles.label}>{label}</Text>
+  </TouchableOpacity>
+);
+
+const addButtonStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(31, 77, 107, 0.06)',
+    borderWidth: 1.5,
+    borderColor: theme.colors.primary.main,
+    borderStyle: 'dashed',
+    marginBottom: theme.spacing.md,
+  },
+  label: {
+    color: theme.colors.primary.main,
+    fontWeight: '700',
+    fontSize: 15,
+  },
+});
 
 const styles = StyleSheet.create({
   screen: {

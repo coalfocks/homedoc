@@ -7,8 +7,8 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAreas, useProperty } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import {
+  AddButton,
   EmptyStateCard,
-  FloatingAction,
   MetricPill,
   PageHeader,
   Screen,
@@ -130,6 +130,13 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         subtitle="Build a reliable inventory of rooms, systems, and spaces."
       />
 
+      <AddButton
+        label="Add area"
+        onPress={() =>
+          navigation.navigate('CreateArea', { propertyId: property.id })
+        }
+      />
+
       {areas.length === 0 ? (
         <EmptyStateCard
           icon="area"
@@ -187,12 +194,6 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         </View>
       )}
 
-      <FloatingAction
-        label="Add area"
-        onPress={() =>
-          navigation.navigate('CreateArea', { propertyId: property.id })
-        }
-      />
     </Screen>
   );
 };

@@ -6,8 +6,8 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useProperties } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import {
+  AddButton,
   EmptyStateCard,
-  FloatingAction,
   MetricPill,
   PageHeader,
   Screen,
@@ -83,6 +83,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         subtitle="Open a property to manage rooms, maintenance notes, and photos."
       />
 
+      <AddButton
+        label="Add property"
+        onPress={() => navigation.navigate('CreateProperty')}
+      />
+
       {properties.length === 0 ? (
         <EmptyStateCard
           icon="home"
@@ -141,10 +146,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       )}
 
-      <FloatingAction
-        label="Add property"
-        onPress={() => navigation.navigate('CreateProperty')}
-      />
     </Screen>
   );
 };
