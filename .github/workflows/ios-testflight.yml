@@ -58,7 +58,7 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
 
       - name: Build and submit iOS
-        run: eas build --platform ios --profile production --non-interactive --auto-submit --no-wait
+        run: eas build --platform ios --profile production --non-interactive --auto-submit --wait
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}

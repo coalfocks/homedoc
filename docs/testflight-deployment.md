@@ -7,7 +7,7 @@ HomeDoc uses Expo EAS for TestFlight builds.
 1. Push app changes to `main`.
 2. Run the GitHub Actions workflow `iOS TestFlight`.
 3. The workflow restores local iOS signing credentials from GitHub Actions secrets.
-4. EAS builds with the `production` profile and auto-submits to App Store Connect.
+4. EAS builds with the `production` profile, waits for completion, and auto-submits to App Store Connect.
 
 The `production` profile in `eas.json` intentionally uses:
 
