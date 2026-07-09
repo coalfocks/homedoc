@@ -29,8 +29,9 @@ jobs:
 
       - name: Write App Store Connect API key
         run: |
-          printf '%s' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
-          chmod 600 "$RUNNER_TEMP/AuthKey.p8"
+          mkdir -p ios/certs
+          printf '%s' "$ASC_API_KEY_P8" > ios/certs/AuthKey.p8
+          chmod 600 ios/certs/AuthKey.p8
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
 
@@ -60,9 +61,5 @@ jobs:
         run: eas build --platform ios --profile production --non-interactive --auto-submit --no-wait
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
-          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
-          EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
