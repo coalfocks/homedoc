@@ -9,7 +9,12 @@ import {
   View,
 } from 'react-native';
 import { Text as RNEText } from '@rneui/themed';
-import { GeneratedPlan, supabase } from '../lib/supabase';
+import {
+  GeneratedPlan,
+  supabase,
+  supabaseAnonKey,
+  supabaseUrl,
+} from '../lib/supabase';
 import { theme } from '../utils/theme';
 
 type PlanPanelProps = {
@@ -41,13 +46,13 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
     try {
       const { data: session } = await supabase.auth.getSession();
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/plan-todo`,
+        `${supabaseUrl}/functions/v1/plan-todo`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.session?.access_token}`,
-            apikey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+            apikey: supabaseAnonKey,
           },
           body: JSON.stringify({ todoId, phase: 'questions' }),
         },
@@ -74,13 +79,13 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
         answer: answers[i] || '',
       }));
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/plan-todo`,
+        `${supabaseUrl}/functions/v1/plan-todo`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.session?.access_token}`,
-            apikey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+            apikey: supabaseAnonKey,
           },
           body: JSON.stringify({
             todoId,

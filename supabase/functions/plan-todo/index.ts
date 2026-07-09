@@ -1,3 +1,4 @@
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import OpenAI from "https://esm.sh/openai@4.55.0";
 
@@ -20,6 +21,7 @@ interface Area {
   id: string;
   name: string;
   description: string | null;
+  properties?: Property | null;
 }
 
 interface Property {
@@ -71,6 +73,7 @@ serve(async (req: Request) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const openaiKey = Deno.env.get("OPENAI_API_KEY")!;
 
     const authHeader = req.headers.get("Authorization");
@@ -85,8 +88,8 @@ serve(async (req: Request) => {
       return jsonError(400, "todoId and phase are required");
     }
 
-    // Create user-scoped client
-    const userClient = createClient(supabaseUrl, supabaseKey, {
+    // Create a user-scoped client so RLS verifies this user owns the todo.
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
@@ -129,7 +132,7 @@ Priority: ${todo.priority}
 Location: ${property?.city || ""}, ${property?.state || ""}`;
 
     if (phase === "questions") {
-      // Set status
+      // Set status after the RLS-protected read has verified ownership.
       const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
         .from("todos")

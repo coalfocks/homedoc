@@ -3,10 +3,10 @@ import Constants from 'expo-constants';
 
 // Initialize the Supabase client
 const extra = Constants.expoConfig?.extra ?? {};
-const supabaseUrl =
+export const supabaseUrl =
   process.env.EXPO_PUBLIC_SUPABASE_URL ||
   (typeof extra.supabaseUrl === 'string' ? extra.supabaseUrl : '');
-const supabaseAnonKey =
+export const supabaseAnonKey =
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
   (typeof extra.supabaseAnonKey === 'string' ? extra.supabaseAnonKey : '');
 
