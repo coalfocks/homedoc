@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import {
   AddButton,
   EmptyStateCard,
+  LoadingStateCard,
   MetricPill,
   PageHeader,
   PriorityBadge,
@@ -115,7 +116,9 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
         onPress={() => navigation.navigate('CreateTodo', { areaId })}
       />
 
-      {loading ? null : error ? (
+      {loading ? (
+        <LoadingStateCard title="Loading tasks..." />
+      ) : error ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeTitle}>Couldn't load todos</Text>
           <Text style={styles.noticeBody}>{error}</Text>

@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Keyboard,
   StyleSheet,
   View,
 } from 'react-native';
@@ -178,6 +179,8 @@ const AuthScreen: React.FC = () => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={Keyboard.dismiss}
         >
           <View style={styles.header}>
             <Logo size={72} color={theme.colors.primary.main} />

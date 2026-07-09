@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Keyboard,
   Image,
   TouchableOpacity,
 } from 'react-native';
@@ -136,7 +137,12 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={Keyboard.dismiss}
+    >
       <View style={styles.content}>
         <Input
           label="Title"

@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Keyboard,
   TouchableOpacity,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -90,6 +91,8 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={Keyboard.dismiss}
       >
         <View style={styles.section}>
           <Text style={styles.label}>Title</Text>

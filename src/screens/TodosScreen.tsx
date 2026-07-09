@@ -7,6 +7,7 @@ import { useTodosByProperty } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import {
   EmptyStateCard,
+  LoadingStateCard,
   MetricPill,
   PageHeader,
   PriorityBadge,
@@ -93,7 +94,9 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
 
       <SectionTitle title="All todos" subtitle="Grouped by area." />
 
-      {loading ? null : error ? (
+      {loading ? (
+        <LoadingStateCard title="Loading todos..." />
+      ) : error ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeTitle}>Couldn't load todos</Text>
           <Text style={styles.noticeBody}>{error}</Text>

@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Keyboard,
   Image,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -121,6 +122,8 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
         style={styles.container}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={Keyboard.dismiss}
       >
         <Input
           label="Note Title"

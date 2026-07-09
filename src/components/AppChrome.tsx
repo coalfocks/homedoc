@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  ActivityIndicator,
+  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -30,6 +32,9 @@ export const Screen: React.FC<ScreenProps> = ({
         <ScrollView
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={Keyboard.dismiss}
         >
           {children}
         </ScrollView>
@@ -116,6 +121,19 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
         <Text style={styles.emptyButtonText}>{actionLabel}</Text>
       </TouchableOpacity>
     ) : null}
+  </View>
+);
+
+type LoadingStateCardProps = {
+  title?: string;
+};
+
+export const LoadingStateCard: React.FC<LoadingStateCardProps> = ({
+  title = 'Loading...',
+}) => (
+  <View style={styles.loadingCard}>
+    <ActivityIndicator size="small" color={theme.colors.primary.main} />
+    <Text style={styles.loadingText}>{title}</Text>
   </View>
 );
 
@@ -402,6 +420,22 @@ const styles = StyleSheet.create({
   emptyButtonText: {
     color: theme.colors.primary.contrast,
     fontWeight: '700',
+  },
+  loadingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.86)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    marginBottom: theme.spacing.lg,
+  },
+  loadingText: {
+    color: theme.colors.text.secondary,
+    fontSize: 14,
+    fontWeight: '600',
   },
   sectionTitleWrap: {
     marginBottom: theme.spacing.md,

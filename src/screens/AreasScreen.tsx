@@ -7,6 +7,7 @@ import { useAllAreas } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import {
   EmptyStateCard,
+  LoadingStateCard,
   MetricPill,
   PageHeader,
   Screen,
@@ -45,7 +46,9 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
         subtitle="Jump straight into any room without remembering which property it belongs to."
       />
 
-      {loading ? null : error ? (
+      {loading ? (
+        <LoadingStateCard title="Loading areas..." />
+      ) : error ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeTitle}>Couldn’t load areas</Text>
           <Text style={styles.noticeBody}>{error}</Text>

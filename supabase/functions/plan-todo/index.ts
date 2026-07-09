@@ -212,7 +212,7 @@ Return a JSON object with this exact structure:
   "checkpoints": ["Milestone 1", "Milestone 2"]
 }
 
-Be specific, practical, and realistic. Prices should reflect US averages. If this is a rental or the user shouldn't do it themselves, say so in warnings.`,
+Be specific, practical, and realistic. Prices should reflect US averages. When a common product can be recommended, include a direct purchaseUrl from a mainstream US retailer or manufacturer. Only include links that are likely to be stable and relevant; otherwise omit purchaseUrl. If this is a rental or the user shouldn't do it themselves, say so in warnings.`,
           },
           {
             role: 'user',

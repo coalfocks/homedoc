@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Keyboard,
   Image,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -123,6 +124,8 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={Keyboard.dismiss}
       >
         <View style={styles.content}>
           <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>

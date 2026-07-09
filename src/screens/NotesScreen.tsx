@@ -7,6 +7,7 @@ import { useAllNotes } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import {
   EmptyStateCard,
+  LoadingStateCard,
   MetricPill,
   PageHeader,
   Screen,
@@ -52,7 +53,9 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
         subtitle="Open any entry to review the full detail and attached images."
       />
 
-      {loading ? null : error ? (
+      {loading ? (
+        <LoadingStateCard title="Loading notes..." />
+      ) : error ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeTitle}>Couldn’t load notes</Text>
           <Text style={styles.noticeBody}>{error}</Text>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
+  Linking,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -136,7 +138,13 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
           Answer a few questions and I'll build a detailed plan.
         </RNEText>
         {error && <RNEText style={styles.errorText}>{error}</RNEText>}
-        <ScrollView scrollEnabled={false} style={styles.questionsList}>
+        <ScrollView
+          scrollEnabled={false}
+          style={styles.questionsList}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={Keyboard.dismiss}
+        >
           {questions.map((q, i) => (
             <View key={i} style={styles.questionItem}>
               <RNEText style={styles.questionLabel}>
@@ -251,6 +259,14 @@ const PlanDisplay: React.FC<{
     }
   };
 
+  const openProductLink = async (url: string) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      setChatError('Could not open that product link.');
+    }
+  };
+
   return (
     <View style={styles.planContainer}>
       <View style={styles.planHeader}>
@@ -343,6 +359,16 @@ const PlanDisplay: React.FC<{
                 {m.notes && (
                   <RNEText style={styles.materialNotes}>{m.notes}</RNEText>
                 )}
+                {m.purchaseUrl ? (
+                  <TouchableOpacity
+                    style={styles.materialLink}
+                    onPress={() => openProductLink(m.purchaseUrl!)}
+                  >
+                    <RNEText style={styles.materialLinkText}>
+                      View product
+                    </RNEText>
+                  </TouchableOpacity>
+                ) : null}
               </View>
               <RNEText style={styles.materialPrice}>
                 ${m.estimatedPrice.toFixed(0)}
@@ -446,6 +472,8 @@ const PlanDisplay: React.FC<{
             placeholderTextColor={theme.colors.text.hint}
             value={draft}
             onChangeText={setDraft}
+            blurOnSubmit
+            onSubmitEditing={Keyboard.dismiss}
           />
           <TouchableOpacity
             style={[
@@ -711,6 +739,19 @@ const styles = StyleSheet.create({
     color: theme.colors.text.hint,
     fontSize: 12,
     marginTop: 2,
+  },
+  materialLink: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+  },
+  materialLinkText: {
+    color: theme.colors.primary.main,
+    fontSize: 12,
+    fontWeight: '800',
   },
   materialPrice: {
     color: theme.colors.text.primary,

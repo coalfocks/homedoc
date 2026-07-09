@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Keyboard,
   Image,
   TouchableOpacity,
 } from 'react-native';
@@ -133,7 +134,12 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={Keyboard.dismiss}
+    >
       <View style={styles.content}>
         <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
           {image ? (

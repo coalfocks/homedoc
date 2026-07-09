@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Keyboard } from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -83,7 +83,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   const totalNotes = areas?.reduce((acc, area) => acc + 1, 0) || 0; // Note: would need to fetch notes per area for accurate count
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={Keyboard.dismiss}
+    >
       <View style={styles.form}>
         <Text style={styles.warning}>
           Warning: Transferring this property will give the recipient full
