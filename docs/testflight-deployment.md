@@ -12,10 +12,15 @@ HomeDoc uses Expo EAS for TestFlight builds.
 The `production` profile in `eas.json` intentionally uses:
 
 ```json
-"credentialsSource": "local"
+"credentialsSource": "local",
+"ios": {
+  "image": "macos-sequoia-15.6-xcode-26.0"
+}
 ```
 
 This bypasses stale remote credentials on Expo's servers.
+
+The iOS image is pinned because App Store Connect now rejects builds made with the iOS 18.5 SDK / Xcode 16.4. Expo documents `macos-sequoia-15.6-xcode-26.0` as the Xcode 26 image, and EAS's default `auto` image for this Expo SDK can otherwise select Xcode 16.4.
 
 The submit profile includes the App Store Connect app ID:
 
@@ -79,6 +84,14 @@ No certificate exists with serial number "263FD85F8D020952E3F1E71388667E8F"
 ```
 
 Local credentials make CI deterministic and avoid relying on Expo's stale remote credential record.
+
+After signing was repaired, EAS produced a valid IPA but App Store Connect rejected submission with:
+
+```text
+SDK version issue. This app was built with the iOS 18.5 SDK. All iOS and iPadOS apps must be built with the iOS 26 SDK or later, included in Xcode 26 or later, in order to be uploaded to App Store Connect or submitted for distribution.
+```
+
+The fix is the pinned Xcode 26 EAS image in `eas.json`.
 
 Expo's remote builder also needs the repository `.npmrc`:
 
