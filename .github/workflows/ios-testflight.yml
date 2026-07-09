@@ -55,7 +55,7 @@ jobs:
 
           fs.writeFileSync('credentials.json', `${JSON.stringify(credentials, null, 2)}\n`);
           NODE
-          openssl pkcs12 -in ios/certs/dist-cert.p12 -clcerts -nokeys -passin "pass:$IOS_DIST_CERT_PASSWORD" >/tmp/homedoc-dist-cert.pem
+          openssl pkcs12 -legacy -in ios/certs/dist-cert.p12 -clcerts -nokeys -passin "pass:$IOS_DIST_CERT_PASSWORD" >/tmp/homedoc-dist-cert.pem
           openssl x509 -in /tmp/homedoc-dist-cert.pem -noout -fingerprint -sha1
           chmod 600 credentials.json ios/certs/dist-cert.p12 ios/certs/profile.mobileprovision
         env:
