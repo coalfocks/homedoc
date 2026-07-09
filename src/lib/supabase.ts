@@ -1,10 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
+import Constants from 'expo-constants';
 
 // Initialize the Supabase client
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+const extra = Constants.expoConfig?.extra ?? {};
+const supabaseUrl =
+  process.env.EXPO_PUBLIC_SUPABASE_URL ||
+  (typeof extra.supabaseUrl === 'string' ? extra.supabaseUrl : '');
+const supabaseAnonKey =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+  (typeof extra.supabaseAnonKey === 'string' ? extra.supabaseAnonKey : '');
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabase = createClient(
+  supabaseUrl || 'https://missing-project.supabase.co',
+  supabaseAnonKey || 'missing-anon-key',
+);
 
 // Types for our database tables
 export type Property = {
