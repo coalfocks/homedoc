@@ -53,6 +53,39 @@ export type Note = {
   updated_at: string;
 };
 
+export type PlanStep = {
+  title: string;
+  description: string;
+  tips?: string;
+  estimatedMinutes?: number;
+};
+
+export type PlanMaterial = {
+  name: string;
+  estimatedPrice: number;
+  notes?: string;
+  purchaseUrl?: string;
+};
+
+export type PlanProfessionalHelp = {
+  type: string;
+  when: string;
+  averageCost?: string;
+};
+
+export type GeneratedPlan = {
+  summary: string;
+  difficulty: 'easy' | 'moderate' | 'hard' | 'expert';
+  estimatedTime: string;
+  estimatedCostRange: { min: number; max: number; currency: string };
+  steps: PlanStep[];
+  materials: PlanMaterial[];
+  tools: string[];
+  warnings: string[];
+  professionalHelp?: PlanProfessionalHelp[];
+  checkpoints: string[];
+};
+
 export type Todo = {
   id: string;
   title: string;
@@ -62,4 +95,6 @@ export type Todo = {
   area_id: string;
   created_at: string;
   updated_at: string;
+  plan?: GeneratedPlan | null;
+  plan_status?: string | null;
 };

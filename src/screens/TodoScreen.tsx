@@ -14,6 +14,7 @@ import {
   SectionTitle,
   StatusBadge,
 } from '../components/AppChrome';
+import { PlanPanel } from '../components/PlanPanel';
 import { theme } from '../utils/theme';
 
 type TodoScreenProps = {
@@ -132,6 +133,14 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         <Text style={styles.locationLabel}>Area</Text>
         <Text style={styles.locationValue}>{areaName}</Text>
       </View>
+
+      <SectionTitle title="Planning" />
+      <PlanPanel
+        todoId={todo.id}
+        plan={todo.plan}
+        planStatus={todo.plan_status}
+        onPlanGenerated={refetch}
+      />
     </Screen>
   );
 };
