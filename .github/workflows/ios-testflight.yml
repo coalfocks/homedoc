@@ -74,36 +74,7 @@ jobs:
               build_id="${build_url##*/}"
               echo "EAS build id: $build_id"
               eas build:view "$build_id" --json > eas-build-view.json || true
-              node <<'NODE'
-              const fs = require('fs');
-              const https = require('https');
-
-              if (!fs.existsSync('eas-build-view.json')) {
-                process.exit(0);
-              }
-
-              const build = JSON.parse(fs.readFileSync('eas-build-view.json', 'utf8'));
-              const logUrl = build.logFiles?.[0];
-              if (!logUrl) {
-                console.log('No EAS log file URL found.');
-                process.exit(0);
-              }
-
-              https.get(logUrl, response => {
-                let body = '';
-                response.setEncoding('utf8');
-                response.on('data', chunk => {
-                  body += chunk;
-                });
-                response.on('end', () => {
-                  const lines = body.trim().split(/\r?\n/);
-                  console.log('--- EAS remote build log tail ---');
-                  console.log(lines.slice(-260).join('\n'));
-                });
-              }).on('error', error => {
-                console.log(`Failed to fetch EAS remote log: ${error.message}`);
-              });
-              NODE
+              node -e "const fs=require('fs'),https=require('https');if(!fs.existsSync('eas-build-view.json'))process.exit(0);const build=JSON.parse(fs.readFileSync('eas-build-view.json','utf8'));const logUrl=build.logFiles&&build.logFiles[0];if(!logUrl){console.log('No EAS log file URL found.');process.exit(0);}https.get(logUrl,r=>{let body='';r.setEncoding('utf8');r.on('data',c=>body+=c);r.on('end',()=>{const lines=body.trim().split(/\\r?\\n/);console.log('--- EAS remote build log tail ---');console.log(lines.slice(-260).join('\\n'));});}).on('error',e=>console.log('Failed to fetch EAS remote log: '+e.message));"
             fi
           fi
 
