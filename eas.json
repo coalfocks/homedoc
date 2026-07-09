@@ -16,7 +16,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://nismvycjiobjbaozjwih.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im5pc212eWNqaW9iamJhb3pqd2loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NzE2ODksImV4cCI6MjAyNTQ0NzY4OX0.RIzpD55X6EeA0Bo_PHJLsLShoqsy0tSsIpMtZffR1rw"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pc212eWNqaW9iamJhb3pqd2loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NzE2ODksImV4cCI6MjAyNTQ0NzY4OX0.RIzpD55X6EeA0Bo_PHJLsLShoqsy0tSsIpMtZffR1rw"
       },
       "ios": {
         "image": "macos-sequoia-15.6-xcode-26.0"
