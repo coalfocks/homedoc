@@ -79,3 +79,11 @@ No certificate exists with serial number "263FD85F8D020952E3F1E71388667E8F"
 ```
 
 Local credentials make CI deterministic and avoid relying on Expo's stale remote credential record.
+
+Expo's remote builder also needs the repository `.npmrc`:
+
+```ini
+legacy-peer-deps=true
+```
+
+GitHub CI already installs with `--legacy-peer-deps`. The `.npmrc` makes EAS use the same dependency resolution, which is required while the React Native Elements release candidates declare a mismatched peer dependency between `@rneui/themed` and `@rneui/base`.
