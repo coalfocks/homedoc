@@ -96,6 +96,27 @@ The fix is the pinned Xcode 26 EAS image in `eas.json`.
 
 The workflow intentionally runs build and submit as separate commands. `eas build --auto-submit --wait` can collapse submit failures into a generic "Try again later" message, while the separate `eas submit --id <build-id> --verbose --verbose-fastlane` command preserves useful App Store Connect upload logs.
 
+## Bert Jr Direct Upload Fallback
+
+If EAS builds a valid IPA but EAS Submit fails, upload the IPA directly from Bert Jr with Xcode's `altool`. Bert Jr currently has Xcode 26.2 installed.
+
+```bash
+ssh bertjr
+mkdir -p ~/.appstoreconnect/private_keys ~/projects/homedoc/uploads
+cp ~/private_keys/AuthKey_2D56H437CR.p8 ~/.appstoreconnect/private_keys/AuthKey_2D56H437CR.p8
+cd ~/projects/homedoc/uploads
+curl -L --fail --output homedoc.ipa '<eas-ipa-url>'
+xcrun altool --upload-app --type ios --file homedoc.ipa --apiKey 2D56H437CR --apiIssuer 69a6de96-5186-47e3-e053-5b8c7c11a4d1
+```
+
+On July 9, 2026, EAS build `b422e6c7-9c3e-4ee8-bc62-74219f116752` produced an Xcode 26 IPA, but EAS Submit returned only:
+
+```text
+Something went wrong. Try again later.
+```
+
+Direct upload from Bert Jr succeeded with delivery/build resource UUID `7105037e-e598-4abb-978e-d0180cb80d46`, and the App Store Connect builds API reported it as `VALID`.
+
 Expo's remote builder also needs the repository `.npmrc`:
 
 ```ini
