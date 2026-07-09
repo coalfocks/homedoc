@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -11,6 +10,7 @@ import {
 import { Text as RNEText } from '@rneui/themed';
 import {
   GeneratedPlan,
+  PlanChatMessage,
   supabase,
   supabaseAnonKey,
   supabaseUrl,
@@ -21,6 +21,7 @@ type PlanPanelProps = {
   todoId: string;
   plan: GeneratedPlan | null | undefined;
   planStatus: string | null | undefined;
+  planChat: PlanChatMessage[] | null | undefined;
   onPlanGenerated: () => void;
 };
 
@@ -30,6 +31,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   todoId,
   plan,
   planStatus,
+  planChat,
   onPlanGenerated,
 }) => {
   const [phase, setPhase] = useState<Phase>(
@@ -45,18 +47,15 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
     setError(null);
     try {
       const { data: session } = await supabase.auth.getSession();
-      const res = await fetch(
-        `${supabaseUrl}/functions/v1/plan-todo`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.session?.access_token}`,
-            apikey: supabaseAnonKey,
-          },
-          body: JSON.stringify({ todoId, phase: 'questions' }),
+      const res = await fetch(`${supabaseUrl}/functions/v1/plan-todo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.session?.access_token}`,
+          apikey: supabaseAnonKey,
         },
-      );
+        body: JSON.stringify({ todoId, phase: 'questions' }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to get questions');
       setQuestions(data.questions);
@@ -78,22 +77,19 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
         question: q,
         answer: answers[i] || '',
       }));
-      const res = await fetch(
-        `${supabaseUrl}/functions/v1/plan-todo`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.session?.access_token}`,
-            apikey: supabaseAnonKey,
-          },
-          body: JSON.stringify({
-            todoId,
-            phase: 'plan',
-            answers: formattedAnswers,
-          }),
+      const res = await fetch(`${supabaseUrl}/functions/v1/plan-todo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.session?.access_token}`,
+          apikey: supabaseAnonKey,
         },
-      );
+        body: JSON.stringify({
+          todoId,
+          phase: 'plan',
+          answers: formattedAnswers,
+        }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to generate plan');
       setPhase('plan');
@@ -110,7 +106,9 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
       <View style={styles.loadingCard}>
         <ActivityIndicator size="large" color={theme.colors.primary.main} />
         <RNEText style={styles.loadingText}>
-          {phase === 'idle' ? 'Thinking of the right questions...' : 'Creating your plan...'}
+          {phase === 'idle'
+            ? 'Thinking of the right questions...'
+            : 'Creating your plan...'}
         </RNEText>
       </View>
     );
@@ -118,7 +116,15 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
 
   // ── Existing plan ──────────────────────────────────
   if (phase === 'plan' && plan) {
-    return <PlanDisplay plan={plan} onRegenerate={() => setPhase('idle')} />;
+    return (
+      <PlanDisplay
+        todoId={todoId}
+        plan={plan}
+        planChat={planChat}
+        onChatUpdated={onPlanGenerated}
+        onRegenerate={() => setPhase('idle')}
+      />
+    );
   }
 
   // ── Questions phase ────────────────────────────────
@@ -182,14 +188,67 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
 // ── Plan Display Component ──────────────────────────
 
 const PlanDisplay: React.FC<{
+  todoId: string;
   plan: GeneratedPlan;
+  planChat: PlanChatMessage[] | null | undefined;
+  onChatUpdated: () => void;
   onRegenerate: () => void;
-}> = ({ plan, onRegenerate }) => {
+}> = ({ todoId, plan, planChat, onChatUpdated, onRegenerate }) => {
+  const [messages, setMessages] = useState<PlanChatMessage[]>(planChat ?? []);
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const difficultyColors: Record<string, string> = {
     easy: '#2d8659',
     moderate: '#d4941a',
     hard: '#d45a1a',
     expert: '#c63838',
+  };
+
+  useEffect(() => {
+    setMessages(planChat ?? []);
+  }, [planChat]);
+
+  const sendMessage = async () => {
+    const message = draft.trim();
+    if (!message || sending) return;
+
+    const optimisticUserMessage: PlanChatMessage = {
+      role: 'user',
+      content: message,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, optimisticUserMessage]);
+    setDraft('');
+    setSending(true);
+    setChatError(null);
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const res = await fetch(`${supabaseUrl}/functions/v1/plan-todo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.session?.access_token}`,
+          apikey: supabaseAnonKey,
+        },
+        body: JSON.stringify({ todoId, phase: 'chat', message }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to ask about plan');
+
+      if (Array.isArray(data.chat)) {
+        setMessages(data.chat);
+      } else if (data.message) {
+        setMessages((prev) => [...prev, data.message]);
+      }
+      onChatUpdated();
+    } catch (e) {
+      setChatError(e instanceof Error ? e.message : 'Something went wrong');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -210,7 +269,11 @@ const PlanDisplay: React.FC<{
           <RNEText
             style={[
               styles.statValue,
-              { color: difficultyColors[plan.difficulty] || theme.colors.text.primary },
+              {
+                color:
+                  difficultyColors[plan.difficulty] ||
+                  theme.colors.text.primary,
+              },
             ]}
           >
             {plan.difficulty.charAt(0).toUpperCase() + plan.difficulty.slice(1)}
@@ -252,7 +315,9 @@ const PlanDisplay: React.FC<{
               </View>
               <View style={styles.stepBody}>
                 <RNEText style={styles.stepTitle}>{step.title}</RNEText>
-                <RNEText style={styles.stepDescription}>{step.description}</RNEText>
+                <RNEText style={styles.stepDescription}>
+                  {step.description}
+                </RNEText>
                 {step.tips && (
                   <RNEText style={styles.stepTip}>💡 {step.tips}</RNEText>
                 )}
@@ -335,6 +400,72 @@ const PlanDisplay: React.FC<{
           ))}
         </View>
       )}
+
+      <View style={styles.chatSection}>
+        <View style={styles.chatHeader}>
+          <RNEText style={styles.sectionTitle}>Ask About This Plan</RNEText>
+          <RNEText style={styles.chatHint}>
+            Follow-ups stay with this todo.
+          </RNEText>
+        </View>
+
+        {messages.length > 0 && (
+          <View style={styles.chatMessages}>
+            {messages.map((message, i) => (
+              <View
+                key={`${message.createdAt}-${i}`}
+                style={[
+                  styles.chatBubble,
+                  message.role === 'user'
+                    ? styles.userBubble
+                    : styles.assistantBubble,
+                ]}
+              >
+                <RNEText
+                  style={[
+                    styles.chatBubbleText,
+                    message.role === 'user'
+                      ? styles.userBubbleText
+                      : styles.assistantBubbleText,
+                  ]}
+                >
+                  {message.content}
+                </RNEText>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {chatError && <RNEText style={styles.errorText}>{chatError}</RNEText>}
+
+        <View style={styles.chatInputRow}>
+          <TextInput
+            style={styles.chatInput}
+            multiline
+            placeholder="Ask a follow-up..."
+            placeholderTextColor={theme.colors.text.hint}
+            value={draft}
+            onChangeText={setDraft}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!draft.trim() || sending) && styles.sendButtonDisabled,
+            ]}
+            onPress={sendMessage}
+            disabled={!draft.trim() || sending}
+          >
+            {sending ? (
+              <ActivityIndicator
+                size="small"
+                color={theme.colors.primary.contrast}
+              />
+            ) : (
+              <RNEText style={styles.sendButtonText}>Ask</RNEText>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
@@ -649,5 +780,87 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flex: 1,
     lineHeight: 20,
+  },
+  chatSection: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    marginTop: theme.spacing.sm,
+  },
+  chatHeader: {
+    marginBottom: theme.spacing.sm,
+  },
+  chatHint: {
+    color: theme.colors.text.hint,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  chatMessages: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  chatBubble: {
+    maxWidth: '92%',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.lg,
+  },
+  userBubble: {
+    alignSelf: 'flex-end',
+    backgroundColor: theme.colors.primary.main,
+  },
+  assistantBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+  },
+  chatBubbleText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  userBubbleText: {
+    color: theme.colors.primary.contrast,
+  },
+  assistantBubbleText: {
+    color: theme.colors.text.primary,
+  },
+  chatInputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: theme.spacing.sm,
+  },
+  chatInput: {
+    flex: 1,
+    minHeight: 44,
+    maxHeight: 110,
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: theme.colors.text.primary,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    textAlignVertical: 'top',
+  },
+  sendButton: {
+    minWidth: 58,
+    height: 44,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.primary.main,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.md,
+  },
+  sendButtonDisabled: {
+    opacity: 0.55,
+  },
+  sendButtonText: {
+    color: theme.colors.primary.contrast,
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

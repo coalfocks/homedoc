@@ -29,7 +29,10 @@ const formatDate = (value: string) =>
     year: 'numeric',
   });
 
-const statusOptions: { label: string; value: 'pending' | 'in_progress' | 'done' }[] = [
+const statusOptions: {
+  label: string;
+  value: 'pending' | 'in_progress' | 'done';
+}[] = [
   { label: 'Pending', value: 'pending' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Done', value: 'done' },
@@ -62,7 +65,9 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
     );
   }
 
-  const quickStatusChange = async (newStatus: 'pending' | 'in_progress' | 'done') => {
+  const quickStatusChange = async (
+    newStatus: 'pending' | 'in_progress' | 'done',
+  ) => {
     if (newStatus === todo.status) return;
     const { error: updateError } = await supabase
       .from('todos')
@@ -139,6 +144,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         todoId={todo.id}
         plan={todo.plan}
         planStatus={todo.plan_status}
+        planChat={todo.plan_chat}
         onPlanGenerated={refetch}
       />
     </Screen>

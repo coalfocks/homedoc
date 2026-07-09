@@ -86,6 +86,12 @@ export type GeneratedPlan = {
   checkpoints: string[];
 };
 
+export type PlanChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+};
+
 export type Todo = {
   id: string;
   title: string;
@@ -97,4 +103,5 @@ export type Todo = {
   updated_at: string;
   plan?: GeneratedPlan | null;
   plan_status?: string | null;
+  plan_chat?: PlanChatMessage[] | null;
 };

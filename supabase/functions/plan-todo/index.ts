@@ -1,12 +1,12 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import OpenAI from "https://esm.sh/openai@4.55.0";
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import OpenAI from 'https://esm.sh/openai@4.55.0';
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 interface Todo {
@@ -34,13 +34,14 @@ interface Property {
 
 interface PlanRequest {
   todoId: string;
-  phase: "questions" | "plan";
+  phase: 'questions' | 'plan' | 'chat';
   answers?: { question: string; answer: string }[];
+  message?: string;
 }
 
 interface GeneratedPlan {
   summary: string;
-  difficulty: "easy" | "moderate" | "hard" | "expert";
+  difficulty: 'easy' | 'moderate' | 'hard' | 'expert';
   estimatedTime: string;
   estimatedCostRange: { min: number; max: number; currency: string };
   steps: {
@@ -65,27 +66,33 @@ interface GeneratedPlan {
   checkpoints: string[];
 }
 
+interface PlanChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+}
+
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const openaiKey = Deno.env.get("OPENAI_API_KEY")!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
 
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return jsonError(401, "Missing authorization header");
+      return jsonError(401, 'Missing authorization header');
     }
 
     const body: PlanRequest = await req.json();
     const { todoId, phase, answers } = body;
 
     if (!todoId || !phase) {
-      return jsonError(400, "todoId and phase are required");
+      return jsonError(400, 'todoId and phase are required');
     }
 
     // Create a user-scoped client so RLS verifies this user owns the todo.
@@ -94,70 +101,68 @@ serve(async (req: Request) => {
     });
 
     // Verify user auth
-    const { data: userData, error: userErr } =
-      await userClient.auth.getUser();
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
     if (userErr || !userData.user) {
-      return jsonError(401, "Invalid authentication");
+      return jsonError(401, 'Invalid authentication');
     }
 
     // Fetch todo with area + property context
     const { data: todo, error: todoErr } = await userClient
-      .from("todos")
+      .from('todos')
       .select(
         `
-        id, title, description, status, priority,
+        id, title, description, status, priority, plan, plan_chat,
         areas (
           id, name, description,
           properties (id, name, address_line_1, city, state)
         )
       `,
       )
-      .eq("id", todoId)
+      .eq('id', todoId)
       .single();
 
     if (todoErr || !todo) {
-      return jsonError(404, "Todo not found");
+      return jsonError(404, 'Todo not found');
     }
 
     const area = todo.areas as unknown as Area;
     const property = area?.properties as unknown as Property;
     const openai = new OpenAI({ apiKey: openaiKey });
 
-    const context = `Home: ${property?.name || "Unknown"}
-Room/Area: ${area?.name || "Unknown"}
-Area description: ${area?.description || "N/A"}
+    const context = `Home: ${property?.name || 'Unknown'}
+Room/Area: ${area?.name || 'Unknown'}
+Area description: ${area?.description || 'N/A'}
 Task: ${todo.title}
-Task details: ${todo.description || "No additional details"}
+Task details: ${todo.description || 'No additional details'}
 Priority: ${todo.priority}
-Location: ${property?.city || ""}, ${property?.state || ""}`;
+Location: ${property?.city || ''}, ${property?.state || ''}`;
 
-    if (phase === "questions") {
+    if (phase === 'questions') {
       // Set status after the RLS-protected read has verified ownership.
       const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
-        .from("todos")
-        .update({ plan_status: "questioning" })
-        .eq("id", todoId);
+        .from('todos')
+        .update({ plan_status: 'questioning' })
+        .eq('id', todoId);
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content:
-              `You are a helpful home improvement planner. Given a home maintenance/repair/improvement task, ask 3-5 specific clarifying questions that will help you create a detailed, actionable plan. Questions should cover things like budget, DIY vs professional preference, timeline, current condition, tools already owned, and any safety concerns. Return ONLY a JSON array of question strings. Keep questions concise and practical.`,
+            role: 'system',
+            content: `You are a helpful home improvement planner. Given a home maintenance/repair/improvement task, ask 3-5 specific clarifying questions that will help you create a detailed, actionable plan. Questions should cover things like budget, DIY vs professional preference, timeline, current condition, tools already owned, and any safety concerns. Return ONLY a JSON array of question strings. Keep questions concise and practical.`,
           },
           {
-            role: "user",
+            role: 'user',
             content: context,
           },
         ],
         temperature: 0.7,
         max_tokens: 500,
-        response_format: { type: "json_object" },
+        response_format: { type: 'json_object' },
       });
 
-      const content = completion.choices[0]?.message?.content || "{}";
+      const content = completion.choices[0]?.message?.content || '{}';
       let questions: string[];
 
       try {
@@ -169,7 +174,7 @@ Location: ${property?.city || ""}, ${property?.state || ""}`;
       } catch {
         questions = [
           "What's your budget for this project?",
-          "Are you planning to do this yourself or hire a professional?",
+          'Are you planning to do this yourself or hire a professional?',
           "What's your ideal timeline?",
         ];
       }
@@ -177,22 +182,21 @@ Location: ${property?.city || ""}, ${property?.state || ""}`;
       return jsonResponse({ questions });
     }
 
-    if (phase === "plan") {
+    if (phase === 'plan') {
       if (!answers || answers.length === 0) {
-        return jsonError(400, "Answers are required for plan phase");
+        return jsonError(400, 'Answers are required for plan phase');
       }
 
       const answersText = answers
         .map((a) => `Q: ${a.question}\nA: ${a.answer}`)
-        .join("\n\n");
+        .join('\n\n');
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content:
-              `You are an expert home improvement planner. Given a task and the user's answers to clarifying questions, create a detailed, actionable plan. 
+            role: 'system',
+            content: `You are an expert home improvement planner. Given a task and the user's answers to clarifying questions, create a detailed, actionable plan.
 
 Return a JSON object with this exact structure:
 {
@@ -211,48 +215,117 @@ Return a JSON object with this exact structure:
 Be specific, practical, and realistic. Prices should reflect US averages. If this is a rental or the user shouldn't do it themselves, say so in warnings.`,
           },
           {
-            role: "user",
+            role: 'user',
             content: `${context}\n\nUser answers:\n${answersText}`,
           },
         ],
         temperature: 0.7,
         max_tokens: 2000,
-        response_format: { type: "json_object" },
+        response_format: { type: 'json_object' },
       });
 
-      const content = completion.choices[0]?.message?.content || "{}";
+      const content = completion.choices[0]?.message?.content || '{}';
       let plan: GeneratedPlan;
 
       try {
         plan = JSON.parse(content);
       } catch {
-        return jsonError(500, "Failed to generate plan");
+        return jsonError(500, 'Failed to generate plan');
       }
 
       // Save plan to database
       const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
-        .from("todos")
+        .from('todos')
         .update({
           plan: plan,
-          plan_status: "planned",
+          plan_status: 'planned',
+          plan_chat: [],
         })
-        .eq("id", todoId);
+        .eq('id', todoId);
 
       return jsonResponse({ plan });
     }
 
-    return jsonError(400, "Invalid phase. Use 'questions' or 'plan'");
+    if (phase === 'chat') {
+      const message = body.message?.trim();
+      const existingPlan = (todo as { plan?: GeneratedPlan | null }).plan;
+
+      if (!existingPlan) {
+        return jsonError(400, 'A generated plan is required before chatting');
+      }
+
+      if (!message) {
+        return jsonError(400, 'Message is required for chat phase');
+      }
+
+      const existingChat = Array.isArray(
+        (todo as { plan_chat?: unknown }).plan_chat,
+      )
+        ? (todo as { plan_chat: PlanChatMessage[] }).plan_chat
+        : [];
+      const trimmedChat = existingChat.slice(-12);
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a plan assistant inside a home maintenance app. Answer follow-up questions about the saved plan and the specific todo context. Be concise, practical, and safety-aware.
+
+If the user asks to change the plan, explain the recommended change clearly, but do not claim you changed saved steps or todos. Keep answers grounded in the provided plan. Ask one focused follow-up question only when needed.`,
+          },
+          {
+            role: 'user',
+            content: `${context}
+
+Saved plan JSON:
+${JSON.stringify(existingPlan)}
+
+Recent chat:
+${trimmedChat.map((m) => `${m.role}: ${m.content}`).join('\n') || 'None'}
+
+New question:
+${message}`,
+          },
+        ],
+        temperature: 0.4,
+        max_tokens: 700,
+      });
+
+      const assistantText =
+        completion.choices[0]?.message?.content?.trim() ||
+        "I couldn't generate an answer for that.";
+      const now = new Date().toISOString();
+      const nextChat: PlanChatMessage[] = [
+        ...existingChat,
+        { role: 'user', content: message, createdAt: now },
+        { role: 'assistant', content: assistantText, createdAt: now },
+      ];
+
+      const adminClient = createClient(supabaseUrl, supabaseKey);
+      await adminClient
+        .from('todos')
+        .update({ plan_chat: nextChat })
+        .eq('id', todoId);
+
+      return jsonResponse({
+        message: { role: 'assistant', content: assistantText, createdAt: now },
+        chat: nextChat,
+      });
+    }
+
+    return jsonError(400, "Invalid phase. Use 'questions', 'plan', or 'chat'");
   } catch (err) {
-    console.error("Plan-todo error:", err);
-    return jsonError(500, err instanceof Error ? err.message : "Unknown error");
+    console.error('Plan-todo error:', err);
+    return jsonError(500, err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 }
 
