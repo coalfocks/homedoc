@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Text, Input, Button } from '@rneui/themed';
+import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -17,7 +17,13 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useAllAreas } from '../hooks/useData';
-import type { Todo } from '../lib/supabase';
+import {
+  CreationCard,
+  CreationIntro,
+  CreationPrompt,
+  ErrorPanel,
+  SubmitFooter,
+} from '../components/CreationFlow';
 
 type CreateTodoScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateTodo'>;
@@ -53,7 +59,15 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
   const [status, setStatus] = useState<Status>('pending');
   const [areaId, setAreaId] = useState<string | undefined>(preselectedAreaId);
   const [saving, setSaving] = useState(false);
+  const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const completedSteps =
+    (title.trim() ? 1 : 0) +
+    (description.trim() ? 1 : 0) +
+    (areaId ? 1 : 0) +
+    (priority ? 1 : 0) +
+    (status ? 1 : 0);
 
   useEffect(() => {
     if (preselectedAreaId) setAreaId(preselectedAreaId);
@@ -74,7 +88,8 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
         },
       ]);
       if (insertError) throw insertError;
-      navigation.goBack();
+      setCreated(true);
+      setTimeout(() => navigation.goBack(), 550);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
@@ -94,143 +109,159 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={Keyboard.dismiss}
       >
-        <View style={styles.section}>
-          <Text style={styles.label}>Title</Text>
-        <Input
-          value={title}
-          onChangeText={setTitle}
-          placeholder="e.g. Replace light fixture"
-          placeholderTextColor={theme.colors.text.hint}
-          containerStyle={styles.inputContainer}
-          inputStyle={styles.input}
+        <CreationIntro
+          eyebrow="New todo"
+          title="Turn the next fix into a clear action"
+          subtitle="Capture the task, where it belongs, and the priority so it is easy to come back to."
+          stepLabel={
+            title.trim() && areaId
+              ? 'Task and area are ready.'
+              : 'Title and area are required.'
+          }
+          completedSteps={completedSteps}
+          totalSteps={5}
         />
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.label}>Description (optional)</Text>
-        <Input
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Add details, parts needed, etc."
-          placeholderTextColor={theme.colors.text.hint}
-          multiline
-          numberOfLines={4}
-          containerStyle={styles.inputContainer}
-          inputStyle={[styles.input, styles.textArea]}
+        <CreationPrompt
+          icon="todo"
+          title="Good tasks are boringly specific"
+          body="Name the action, add parts or measurements, then pick the area. The AI planning step has more to work with when the task is crisp."
         />
-      </View>
 
-      {/* Area picker */}
-      <View style={styles.section}>
-        <Text style={styles.label}>Area</Text>
-        {areasLoading ? (
-          <ActivityIndicator color={theme.colors.primary.main} />
-        ) : preselectedAreaId ? (
-          <View style={styles.areaSelected}>
-            <Text style={styles.areaSelectedText}>
-              {areas.find((a) => a.id === preselectedAreaId)?.name ||
-                'Selected area'}
-            </Text>
+        <CreationCard>
+          <View style={styles.section}>
+            <Text style={styles.label}>Title</Text>
+            <Input
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g. Replace light fixture"
+              placeholderTextColor={theme.colors.text.hint}
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+            />
           </View>
-        ) : (
-          <View style={styles.areaList}>
-            {areas.map((area) => (
-              <TouchableOpacity
-                key={area.id}
-                style={[
-                  styles.areaOption,
-                  areaId === area.id && styles.areaOptionActive,
-                ]}
-                onPress={() => setAreaId(area.id)}
-              >
-                <Text
-                  style={[
-                    styles.areaOptionText,
-                    areaId === area.id && styles.areaOptionTextActive,
-                  ]}
-                >
-                  {(area as any).properties?.name
-                    ? `${(area as any).properties.name} — `
-                    : ''}
-                  {area.name}
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Description (optional)</Text>
+            <Input
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Add details, parts needed, etc."
+              placeholderTextColor={theme.colors.text.hint}
+              multiline
+              numberOfLines={4}
+              containerStyle={styles.inputContainer}
+              inputStyle={[styles.input, styles.textArea]}
+            />
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Area</Text>
+            {areasLoading ? (
+              <View style={styles.loadingArea}>
+                <ActivityIndicator color={theme.colors.primary.main} />
+                <Text style={styles.loadingAreaText}>Loading areas...</Text>
+              </View>
+            ) : preselectedAreaId ? (
+              <View style={styles.areaSelected}>
+                <Text style={styles.areaSelectedText}>
+                  {areas.find((a) => a.id === preselectedAreaId)?.name ||
+                    'Selected area'}
                 </Text>
-              </TouchableOpacity>
-            ))}
+              </View>
+            ) : areas.length ? (
+              <View style={styles.areaList}>
+                {areas.map((area) => (
+                  <TouchableOpacity
+                    key={area.id}
+                    style={[
+                      styles.areaOption,
+                      areaId === area.id && styles.areaOptionActive,
+                    ]}
+                    onPress={() => setAreaId(area.id)}
+                  >
+                    <Text
+                      style={[
+                        styles.areaOptionText,
+                        areaId === area.id && styles.areaOptionTextActive,
+                      ]}
+                    >
+                      {(area as any).properties?.name
+                        ? `${(area as any).properties.name} - `
+                        : ''}
+                      {area.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.noAreasBox}>
+                <Text style={styles.noAreasTitle}>No areas yet</Text>
+                <Text style={styles.noAreasText}>
+                  Create an area first so this todo has somewhere to live.
+                </Text>
+              </View>
+            )}
           </View>
-        )}
-      </View>
 
-      {/* Priority picker */}
-      <View style={styles.section}>
-        <Text style={styles.label}>Priority</Text>
-        <View style={styles.pillRow}>
-          {priorities.map((p) => (
-            <TouchableOpacity
-              key={p.value}
-              style={[
-                styles.pill,
-                priority === p.value && styles.pillActive,
-              ]}
-              onPress={() => setPriority(p.value)}
-            >
-              <Text
-                style={[
-                  styles.pillText,
-                  priority === p.value && styles.pillTextActive,
-                ]}
-              >
-                {p.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+          <View style={styles.section}>
+            <Text style={styles.label}>Priority</Text>
+            <View style={styles.pillRow}>
+              {priorities.map((p) => (
+                <TouchableOpacity
+                  key={p.value}
+                  style={[
+                    styles.pill,
+                    priority === p.value && styles.pillActive,
+                  ]}
+                  onPress={() => setPriority(p.value)}
+                >
+                  <Text
+                    style={[
+                      styles.pillText,
+                      priority === p.value && styles.pillTextActive,
+                    ]}
+                  >
+                    {p.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-      {/* Status picker */}
-      <View style={styles.section}>
-        <Text style={styles.label}>Status</Text>
-        <View style={styles.pillRow}>
-          {statuses.map((s) => (
-            <TouchableOpacity
-              key={s.value}
-              style={[
-                styles.pill,
-                status === s.value && styles.pillActive,
-              ]}
-              onPress={() => setStatus(s.value)}
-            >
-              <Text
-                style={[
-                  styles.pillText,
-                  status === s.value && styles.pillTextActive,
-                ]}
-              >
-                {s.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+          <View style={styles.section}>
+            <Text style={styles.label}>Status</Text>
+            <View style={styles.pillRow}>
+              {statuses.map((s) => (
+                <TouchableOpacity
+                  key={s.value}
+                  style={[styles.pill, status === s.value && styles.pillActive]}
+                  onPress={() => setStatus(s.value)}
+                >
+                  <Text
+                    style={[
+                      styles.pillText,
+                      status === s.value && styles.pillTextActive,
+                    ]}
+                  >
+                    {s.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <ErrorPanel message={error} />
+        </CreationCard>
 
-      <Button
-        title="Create Todo"
-        onPress={handleCreate}
-        loading={saving}
-        disabled={saving || !title.trim() || !areaId}
-        containerStyle={styles.buttonContainer}
-        buttonStyle={[
-          styles.button,
-          (saving || !title.trim() || !areaId) && styles.disabledButton,
-        ]}
-        titleStyle={[
-          styles.buttonText,
-          (saving || !title.trim() || !areaId) && styles.disabledButtonText,
-        ]}
-        disabledStyle={styles.disabledButton}
-        disabledTitleStyle={styles.disabledButtonText}
-      />
+        <SubmitFooter
+          title="Create Todo"
+          hint="Create this todo"
+          onPress={handleCreate}
+          loading={saving}
+          success={created}
+          disabled={saving || !title.trim() || !areaId}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -278,6 +309,16 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.dark,
     fontWeight: '600',
   },
+  loadingArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+  },
+  loadingAreaText: {
+    color: theme.colors.text.secondary,
+    fontWeight: '600',
+  },
   areaList: {
     gap: theme.spacing.xs,
   },
@@ -298,6 +339,22 @@ const styles = StyleSheet.create({
   },
   areaOptionTextActive: {
     color: theme.colors.primary.contrast,
+  },
+  noAreasBox: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(217, 164, 65, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(217, 164, 65, 0.2)',
+  },
+  noAreasTitle: {
+    color: theme.colors.warning.dark,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  noAreasText: {
+    color: theme.colors.text.slate,
+    lineHeight: 20,
   },
   pillRow: {
     flexDirection: 'row',
@@ -323,31 +380,6 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: theme.colors.primary.contrast,
-  },
-  buttonContainer: {
-    marginTop: theme.spacing.lg,
-  },
-  button: {
-    backgroundColor: theme.colors.primary.main,
-    borderRadius: theme.borderRadius.sm,
-    height: 50,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.primary.contrast,
-  },
-  disabledButton: {
-    backgroundColor: theme.colors.background.paper,
-    opacity: 0.7,
-  },
-  disabledButtonText: {
-    color: theme.colors.text.disabled,
-  },
-  errorText: {
-    color: theme.colors.error.main,
-    marginBottom: theme.spacing.md,
-    textAlign: 'center',
   },
 });
 

@@ -5,11 +5,17 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useProperty, useAreas } from '../hooks/useData';
+import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 
 type TransferPropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'TransferProperty'>;
   route: RouteProp<RootStackParamList, 'TransferProperty'>;
+};
+
+type TransferResponse = {
+  propertyName?: string;
+  recipientEmail?: string;
 };
 
 const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
@@ -24,6 +30,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   const { areas, loading: areasLoading } = useAreas(route.params.propertyId);
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (propertyLoading || areasLoading) {
     return (
@@ -42,38 +49,64 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   }
 
   const handleTransfer = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter recipient email');
+    const recipientEmail = email.trim().toLowerCase();
+
+    if (!recipientEmail) {
+      setError('Please enter recipient email');
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
+    if (!emailRegex.test(recipientEmail)) {
+      setError('Please enter a valid email address');
       return;
     }
 
+    Alert.alert(
+      'Transfer property?',
+      `This will move "${property.name}" and all attached areas, notes, and todos to ${recipientEmail}. You will lose access after the transfer.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Transfer',
+          style: 'destructive',
+          onPress: () => performTransfer(recipientEmail),
+        },
+      ],
+    );
+  };
+
+  const performTransfer = async (recipientEmail: string) => {
     setIsLoading(true);
+    setError(null);
+
     try {
-      // TODO: Implement actual transfer logic
-      // 1. Check if user exists with this email
-      // 2. Create transfer request in database
-      // 3. Send notification to recipient
-      // For now, just show a coming soon message
+      const { data, error: transferError } = await supabase.functions.invoke(
+        'transfer-property',
+        {
+          body: {
+            propertyId: property.id,
+            recipientEmail,
+          },
+        },
+      );
+
+      if (transferError) throw transferError;
+      const transfer = data as TransferResponse | null;
 
       Alert.alert(
-        'Coming Soon',
-        'Property transfer functionality will be available soon. For now, you can share property details manually.',
+        'Property transferred',
+        `${transfer?.propertyName || property.name} now belongs to ${transfer?.recipientEmail || recipientEmail}.`,
         [
           {
             text: 'OK',
-            onPress: () => navigation.goBack(),
+            onPress: () => navigation.navigate('Main'),
           },
         ],
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to initiate transfer. Please try again.');
+      const message = await getTransferErrorMessage(error);
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -98,15 +131,21 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
         <Input
           label="Recipient Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(nextEmail) => {
+            setEmail(nextEmail);
+            if (error) setError(null);
+          }}
           placeholder="Enter recipient's email"
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
           inputContainerStyle={styles.inputContainer}
           labelStyle={styles.labelStyle}
           inputStyle={styles.inputStyle}
           placeholderTextColor={theme.colors.text.secondary}
         />
+
+        {error ? <Text style={styles.formError}>{error}</Text> : null}
 
         <View style={styles.propertyInfo}>
           <Text style={styles.propertyTitle}>Property Details</Text>
@@ -131,7 +170,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
           title="Initiate Transfer"
           onPress={handleTransfer}
           loading={isLoading}
-          disabled={isLoading}
+          disabled={isLoading || !email.trim()}
           buttonStyle={styles.transferButton}
           titleStyle={styles.buttonTitle}
         />
@@ -147,6 +186,25 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     </ScrollView>
   );
 };
+
+async function getTransferErrorMessage(error: unknown) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'context' in error &&
+    error.context instanceof Response
+  ) {
+    try {
+      const body = await error.context.json();
+      if (typeof body?.error === 'string') return body.error;
+    } catch {
+      // Fall through to the generic message below.
+    }
+  }
+
+  if (error instanceof Error) return error.message;
+  return 'Failed to transfer property. Please try again.';
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -171,6 +229,13 @@ const styles = StyleSheet.create({
     color: theme.colors.error.main,
     textAlign: 'center',
     marginTop: 20,
+  },
+  formError: {
+    color: theme.colors.error.dark,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: -theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
   inputContainer: {
     paddingHorizontal: theme.spacing.sm,

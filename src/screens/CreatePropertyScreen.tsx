@@ -9,8 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Text, Input, Button } from '@rneui/themed';
-import { useTheme } from '@rneui/themed';
+import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { supabase } from '../lib/supabase';
@@ -18,6 +17,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import {
+  CreationCard,
+  CreationIntro,
+  CreationPrompt,
+  ErrorPanel,
+  SubmitFooter,
+} from '../components/CreationFlow';
 
 type CreatePropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateProperty'>;
@@ -26,7 +32,6 @@ type CreatePropertyScreenProps = {
 const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   navigation,
 }) => {
-  const { theme } = useTheme();
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
@@ -37,7 +42,22 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   const [zipCode, setZipCode] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const requiredFields = [
+    name.trim(),
+    addressLine1.trim(),
+    city.trim(),
+    state.trim(),
+    zipCode.trim(),
+  ];
+  const completedSteps =
+    requiredFields.filter(Boolean).length +
+    (image ? 1 : 0) +
+    (nickname ? 1 : 0);
+  const totalSteps = 7;
+  const isReady = requiredFields.every(Boolean);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -107,7 +127,8 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
 
       if (error) throw error;
 
-      navigation.goBack();
+      setCreated(true);
+      setTimeout(() => navigation.goBack(), 550);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -128,133 +149,135 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <View style={styles.content}>
-          <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
-            {image ? (
-              <Image source={{ uri: image }} style={styles.imagePreview} />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Icon name="add" color="#FFFFFF" size={32} />
-                <Text style={styles.uploadText}>Add Property Image</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <Input
-            label="Property Name"
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter property name"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
+          <CreationIntro
+            eyebrow="New property"
+            title="Set up the home base"
+            subtitle="Add the core details once so every area, note, and task has a clean place to land."
+            stepLabel={
+              isReady
+                ? 'Required details are ready.'
+                : 'Name, address, city, state, and ZIP are required.'
+            }
+            completedSteps={completedSteps}
+            totalSteps={totalSteps}
           />
 
-          <Input
-            label="Nickname (optional)"
-            value={nickname}
-            onChangeText={setNickname}
-            placeholder="Enter a friendly nickname"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
+          <CreationPrompt
+            icon="home"
+            title="Start with the parts you know"
+            body="Photos and nicknames are optional, but they make the home easier to recognize later."
           />
 
-          <Input
-            label="Address Line 1"
-            value={addressLine1}
-            onChangeText={setAddressLine1}
-            placeholder="Enter address line 1"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
-          />
+          <CreationCard>
+            <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
+              {image ? (
+                <Image source={{ uri: image }} style={styles.imagePreview} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Icon
+                    name="camera"
+                    color={theme.colors.primary.contrast}
+                    size={32}
+                  />
+                  <Text style={styles.uploadText}>Add Property Image</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
-          <Input
-            label="Address Line 2"
-            value={addressLine2}
-            onChangeText={setAddressLine2}
-            placeholder="Enter address line 2"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
-          />
+            <Input
+              label="Property Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter property name"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
 
-          <Input
-            label="City"
-            value={city}
-            onChangeText={setCity}
-            placeholder="Enter city"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
-          />
+            <Input
+              label="Nickname (optional)"
+              value={nickname}
+              onChangeText={setNickname}
+              placeholder="Enter a friendly nickname"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
 
-          <Input
-            label="State"
-            value={state}
-            onChangeText={setState}
-            placeholder="Enter state"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
-          />
+            <Input
+              label="Address Line 1"
+              value={addressLine1}
+              onChangeText={setAddressLine1}
+              placeholder="Enter address line 1"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
 
-          <Input
-            label="Zip Code"
-            value={zipCode}
-            onChangeText={setZipCode}
-            placeholder="Enter zip code"
-            placeholderTextColor="#666"
-            autoCapitalize="words"
-            containerStyle={styles.inputContainer}
-            inputStyle={styles.input}
-            labelStyle={styles.label}
-          />
+            <Input
+              label="Address Line 2"
+              value={addressLine2}
+              onChangeText={setAddressLine2}
+              placeholder="Enter address line 2"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
 
-          {error && <Text style={styles.errorText}>{error}</Text>}
+            <Input
+              label="City"
+              value={city}
+              onChangeText={setCity}
+              placeholder="Enter city"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
 
-          <Button
+            <Input
+              label="State"
+              value={state}
+              onChangeText={setState}
+              placeholder="Enter state"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
+
+            <Input
+              label="Zip Code"
+              value={zipCode}
+              onChangeText={setZipCode}
+              placeholder="Enter zip code"
+              placeholderTextColor="#666"
+              autoCapitalize="words"
+              containerStyle={styles.inputContainer}
+              inputStyle={styles.input}
+              labelStyle={styles.label}
+            />
+
+            <ErrorPanel message={error} />
+          </CreationCard>
+
+          <SubmitFooter
             title="Create Property"
+            hint="Create this property"
             onPress={handleCreateProperty}
             loading={loading}
-            disabled={
-              loading || !name || !addressLine1 || !city || !state || !zipCode
-            }
-            containerStyle={styles.buttonContainer}
-            buttonStyle={[
-              styles.button,
-              (loading ||
-                !name ||
-                !addressLine1 ||
-                !city ||
-                !state ||
-                !zipCode) &&
-                styles.disabledButton,
-            ]}
-            titleStyle={[
-              styles.buttonText,
-              (loading ||
-                !name ||
-                !addressLine1 ||
-                !city ||
-                !state ||
-                !zipCode) &&
-                styles.disabledButtonText,
-            ]}
-            disabledStyle={styles.disabledButton}
-            disabledTitleStyle={styles.disabledButtonText}
+            success={created}
+            disabled={loading || !isReady}
           />
         </View>
       </ScrollView>
@@ -298,7 +321,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
@@ -309,34 +332,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: 16,
     marginBottom: 8,
-  },
-  buttonContainer: {
-    marginTop: 24,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  button: {
-    backgroundColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.primary.contrast,
-  },
-  disabledButton: {
-    backgroundColor: theme.colors.background.paper,
-    opacity: 0.7,
-  },
-  disabledButtonText: {
-    color: theme.colors.text.disabled,
-  },
-  errorText: {
-    color: '#FF3B30',
-    marginBottom: 16,
-    textAlign: 'center',
   },
 });
 

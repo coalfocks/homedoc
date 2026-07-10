@@ -9,8 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Text, Input, Button } from '@rneui/themed';
-import { useTheme } from '@rneui/themed';
+import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -18,6 +17,13 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import {
+  CreationCard,
+  CreationIntro,
+  CreationPrompt,
+  ErrorPanel,
+  SubmitFooter,
+} from '../components/CreationFlow';
 
 type CreateNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateNote'>;
@@ -28,13 +34,16 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   navigation,
   route,
 }) => {
-  const { theme } = useTheme();
   const { areaId } = route.params;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const completedSteps =
+    (title.trim() ? 1 : 0) + (content.trim() ? 1 : 0) + (images.length ? 1 : 0);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -101,7 +110,8 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
 
       if (error) throw error;
 
-      navigation.goBack();
+      setCreated(true);
+      setTimeout(() => navigation.goBack(), 550);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -125,70 +135,87 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={Keyboard.dismiss}
       >
-        <Input
-          label="Note Title"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Enter note title"
-          placeholderTextColor="#666"
-          autoCapitalize="words"
-          containerStyle={styles.inputContainer}
-          inputStyle={styles.input}
-          labelStyle={styles.label}
+        <CreationIntro
+          eyebrow="New note"
+          title="Capture the detail before it disappears"
+          subtitle="Notes are best for paint colors, measurements, repair context, and weird little home facts."
+          stepLabel={
+            title.trim() ? 'Note title is ready.' : 'A short title is required.'
+          }
+          completedSteps={completedSteps}
+          totalSteps={3}
         />
 
-        <Input
-          label="Content"
-          value={content}
-          onChangeText={setContent}
-          placeholder="Enter note content"
-          placeholderTextColor="#666"
-          multiline
-          numberOfLines={6}
-          containerStyle={styles.inputContainer}
-          inputStyle={[styles.input, styles.textArea]}
-          labelStyle={styles.label}
+        <CreationPrompt
+          icon="note"
+          title="Make it useful for future you"
+          body="A couple of specifics beat a perfect paragraph: what, where, when, and any product names."
         />
 
-        <View style={styles.imageSection}>
-          <Text style={styles.sectionTitle}>Images</Text>
-          <View style={styles.imageContainer}>
-            {images.map((image, index) => (
-              <View key={index} style={styles.imageWrapper}>
-                <Image source={{ uri: image }} style={styles.image} />
-                <TouchableOpacity
-                  style={styles.removeImage}
-                  onPress={() => handleRemoveImage(index)}
-                >
-                  <Text style={styles.removeImageIcon}>×</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-            <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
-              <Icon name="add" color="#FFFFFF" size={32} />
-              <Text style={styles.addImageText}>Add Images</Text>
-            </TouchableOpacity>
+        <CreationCard>
+          <Input
+            label="Note Title"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Enter note title"
+            placeholderTextColor="#666"
+            autoCapitalize="words"
+            containerStyle={styles.inputContainer}
+            inputStyle={styles.input}
+            labelStyle={styles.label}
+          />
+
+          <Input
+            label="Content"
+            value={content}
+            onChangeText={setContent}
+            placeholder="Enter note content"
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={6}
+            containerStyle={styles.inputContainer}
+            inputStyle={[styles.input, styles.textArea]}
+            labelStyle={styles.label}
+          />
+
+          <View style={styles.imageSection}>
+            <Text style={styles.sectionTitle}>Images</Text>
+            <View style={styles.imageContainer}>
+              {images.map((image, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image source={{ uri: image }} style={styles.image} />
+                  <TouchableOpacity
+                    style={styles.removeImage}
+                    onPress={() => handleRemoveImage(index)}
+                  >
+                    <Text style={styles.removeImageIcon}>x</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <TouchableOpacity
+                style={styles.addImageButton}
+                onPress={pickImage}
+              >
+                <Icon
+                  name="image"
+                  color={theme.colors.primary.main}
+                  size={32}
+                />
+                <Text style={styles.addImageText}>Add Images</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+          <ErrorPanel message={error} />
+        </CreationCard>
 
-        <Button
+        <SubmitFooter
           title="Create Note"
+          hint="Create this note"
           onPress={handleCreateNote}
           loading={loading}
-          disabled={loading || !title}
-          containerStyle={styles.buttonContainer}
-          buttonStyle={[
-            styles.button,
-            (loading || !title) && styles.disabledButton,
-          ]}
-          titleStyle={[
-            styles.buttonText,
-            (loading || !title) && styles.disabledButtonText,
-          ]}
-          disabledStyle={styles.disabledButton}
-          disabledTitleStyle={styles.disabledButtonText}
+          success={created}
+          disabled={loading || !title.trim()}
         />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -205,7 +232,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
@@ -229,12 +256,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.text.primary,
     marginBottom: 12,
-    paddingHorizontal: 16,
   },
   imageContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 16,
     gap: 12,
   },
   imageWrapper: {
@@ -267,7 +292,7 @@ const styles = StyleSheet.create({
   addImageButton: {
     width: '47%',
     aspectRatio: 1,
-    backgroundColor: theme.colors.background.elevated,
+    backgroundColor: 'rgba(31, 77, 107, 0.06)',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -279,34 +304,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: theme.colors.text.primary,
     marginTop: 8,
-  },
-  buttonContainer: {
-    marginTop: 24,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  button: {
-    backgroundColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.primary.contrast,
-  },
-  disabledButton: {
-    backgroundColor: theme.colors.background.paper,
-    opacity: 0.7,
-  },
-  disabledButtonText: {
-    color: theme.colors.text.disabled,
-  },
-  errorText: {
-    color: '#FF3B30',
-    marginBottom: 16,
-    textAlign: 'center',
   },
 });
 

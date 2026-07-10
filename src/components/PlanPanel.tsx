@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Keyboard,
   Linking,
-  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -138,13 +137,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
           Answer a few questions and I'll build a detailed plan.
         </RNEText>
         {error && <RNEText style={styles.errorText}>{error}</RNEText>}
-        <ScrollView
-          scrollEnabled={false}
-          style={styles.questionsList}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="handled"
-          onScrollBeginDrag={Keyboard.dismiss}
-        >
+        <View style={styles.questionsList}>
           {questions.map((q, i) => (
             <View key={i} style={styles.questionItem}>
               <RNEText style={styles.questionLabel}>
@@ -162,7 +155,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
               />
             </View>
           ))}
-        </ScrollView>
+        </View>
         <TouchableOpacity style={styles.primaryButton} onPress={generatePlan}>
           <RNEText style={styles.primaryButtonText}>Generate Plan</RNEText>
         </TouchableOpacity>

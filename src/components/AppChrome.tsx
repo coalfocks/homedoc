@@ -2,6 +2,8 @@ import React from 'react';
 import {
   ActivityIndicator,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -27,18 +29,25 @@ export const Screen: React.FC<ScreenProps> = ({
 }) => {
   if (scroll) {
     return (
-      <View style={[styles.screen, style]} removeClippedSubviews>
+      <KeyboardAvoidingView
+        style={[styles.screen, style]}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <BackgroundWash />
         <ScrollView
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           showsVerticalScrollIndicator={false}
-          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+          contentInsetAdjustmentBehavior="automatic"
+          keyboardDismissMode={
+            Platform.OS === 'ios' ? 'interactive' : 'on-drag'
+          }
           keyboardShouldPersistTaps="handled"
           onScrollBeginDrag={Keyboard.dismiss}
         >
           {children}
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 
@@ -256,7 +265,11 @@ type AddButtonProps = {
 };
 
 export const AddButton: React.FC<AddButtonProps> = ({ label, onPress }) => (
-  <TouchableOpacity style={addButtonStyles.container} onPress={onPress} activeOpacity={0.8}>
+  <TouchableOpacity
+    style={addButtonStyles.container}
+    onPress={onPress}
+    activeOpacity={0.8}
+  >
     <Icon name="add" size={18} color={theme.colors.primary.main} />
     <Text style={addButtonStyles.label}>{label}</Text>
   </TouchableOpacity>

@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState, Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 // Initialize the Supabase client
@@ -15,7 +17,29 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 export const supabase = createClient(
   supabaseUrl || 'https://missing-project.supabase.co',
   supabaseAnonKey || 'missing-anon-key',
+  {
+    auth: {
+      autoRefreshToken: true,
+      detectSessionInUrl: Platform.OS === 'web',
+      persistSession: true,
+      storage: AsyncStorage,
+    },
+  },
 );
+
+if (Platform.OS !== 'web') {
+  if (AppState.currentState === 'active') {
+    supabase.auth.startAutoRefresh();
+  }
+
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+}
 
 // Types for our database tables
 export type Property = {

@@ -9,8 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Text, Input, Button } from '@rneui/themed';
-import { useTheme } from '@rneui/themed';
+import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -18,6 +17,13 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import {
+  CreationCard,
+  CreationIntro,
+  CreationPrompt,
+  ErrorPanel,
+  SubmitFooter,
+} from '../components/CreationFlow';
 
 type CreateAreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CreateArea'>;
@@ -28,13 +34,16 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
   navigation,
   route,
 }) => {
-  const { theme } = useTheme();
   const { propertyId } = route.params;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const completedSteps =
+    (name.trim() ? 1 : 0) + (description.trim() ? 1 : 0) + (image ? 1 : 0);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -97,7 +106,8 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
 
       if (error) throw error;
 
-      navigation.goBack();
+      setCreated(true);
+      setTimeout(() => navigation.goBack(), 550);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -117,60 +127,76 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={Keyboard.dismiss}
       >
-        <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.imagePreview} />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Icon name="add" color="#FFFFFF" size={32} />
-              <Text style={styles.uploadText}>Add Area Image</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <Input
-          label="Area Name"
-          value={name}
-          onChangeText={setName}
-          placeholder="Enter area name (e.g., Kitchen, Master Bedroom)"
-          placeholderTextColor="#666"
-          autoCapitalize="words"
-          containerStyle={styles.inputContainer}
-          inputStyle={styles.input}
-          labelStyle={styles.label}
+        <CreationIntro
+          eyebrow="New area"
+          title="Make the next room easy to find"
+          subtitle="Areas become the buckets for notes, repairs, products, and maintenance work."
+          stepLabel={
+            name.trim()
+              ? 'Area name is ready.'
+              : 'Give the area a clear, familiar name.'
+          }
+          completedSteps={completedSteps}
+          totalSteps={3}
         />
 
-        <Input
-          label="Description"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Enter area description"
-          placeholderTextColor="#666"
-          multiline
-          numberOfLines={4}
-          containerStyle={styles.inputContainer}
-          inputStyle={[styles.input, styles.textArea]}
-          labelStyle={styles.label}
+        <CreationPrompt
+          icon="area"
+          title="Rooms, systems, or outdoor spaces all work"
+          body="Use the same labels you would say out loud: Kitchen, furnace closet, west fence, master bath."
         />
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        <CreationCard>
+          <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
+            {image ? (
+              <Image source={{ uri: image }} style={styles.imagePreview} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Icon
+                  name="camera"
+                  color={theme.colors.primary.contrast}
+                  size={32}
+                />
+                <Text style={styles.uploadText}>Add Area Image</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
-        <Button
+          <Input
+            label="Area Name"
+            value={name}
+            onChangeText={setName}
+            placeholder="Enter area name (e.g., Kitchen, Master Bedroom)"
+            placeholderTextColor="#666"
+            autoCapitalize="words"
+            containerStyle={styles.inputContainer}
+            inputStyle={styles.input}
+            labelStyle={styles.label}
+          />
+
+          <Input
+            label="Description"
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Enter area description"
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={4}
+            containerStyle={styles.inputContainer}
+            inputStyle={[styles.input, styles.textArea]}
+            labelStyle={styles.label}
+          />
+
+          <ErrorPanel message={error} />
+        </CreationCard>
+
+        <SubmitFooter
           title="Create Area"
+          hint="Create this area"
           onPress={handleCreateArea}
           loading={loading}
-          disabled={loading || !name}
-          containerStyle={styles.buttonContainer}
-          buttonStyle={[
-            styles.button,
-            (loading || !name) && styles.disabledButton,
-          ]}
-          titleStyle={[
-            styles.buttonText,
-            (loading || !name) && styles.disabledButtonText,
-          ]}
-          disabledStyle={styles.disabledButton}
-          disabledTitleStyle={styles.disabledButtonText}
+          success={created}
+          disabled={loading || !name.trim()}
         />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -211,7 +237,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
@@ -226,34 +252,6 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: 16,
     marginBottom: 8,
-  },
-  buttonContainer: {
-    marginTop: 24,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-  button: {
-    backgroundColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.primary.contrast,
-  },
-  disabledButton: {
-    backgroundColor: theme.colors.background.paper,
-    opacity: 0.7,
-  },
-  disabledButtonText: {
-    color: theme.colors.text.disabled,
-  },
-  errorText: {
-    color: '#FF3B30',
-    marginBottom: 16,
-    textAlign: 'center',
   },
 });
 
