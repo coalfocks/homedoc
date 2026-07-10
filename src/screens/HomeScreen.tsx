@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useProperties } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
+import { useBilling } from '../hooks/useBilling';
 import {
   AddButton,
   EmptyStateCard,
@@ -13,6 +14,7 @@ import {
   Screen,
   SectionTitle,
 } from '../components/AppChrome';
+import { UpgradeCard } from '../components/UpgradeCard';
 import { theme } from '../utils/theme';
 
 type HomeScreenProps = {
@@ -22,11 +24,21 @@ type HomeScreenProps = {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, loading: authLoading } = useAuth();
   const { properties, loading, error, refetch } = useProperties(user?.id);
+  const { isPro, checkoutLoading } = useBilling();
 
   const totalAreas = properties.reduce(
     (sum, property: any) => sum + (property.area_count ?? 0),
     0,
   );
+  const hasReachedFreePropertyLimit = !isPro && properties.length >= 1;
+  const handleAddProperty = () => {
+    if (hasReachedFreePropertyLimit) {
+      navigation.navigate('Upgrade');
+      return;
+    }
+
+    navigation.navigate('CreateProperty');
+  };
 
   if (authLoading || (loading && properties.length === 0)) {
     return (
@@ -60,6 +72,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         subtitle="The homes you manage, with room-by-room records ready whenever something breaks."
       />
 
+      {!isPro && properties.length > 0 ? (
+        <UpgradeCard
+          compact
+          title="Add rentals, cabins, and family homes with Pro"
+          body="Your first property is free. Upgrade when HomeDoc becomes the operating system for more than one place."
+          cta="See Pro"
+          loading={checkoutLoading}
+          onPress={() => navigation.navigate('Upgrade')}
+        />
+      ) : null}
+
       <View style={styles.metricRow}>
         <MetricPill
           label="Properties"
@@ -84,8 +107,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       />
 
       <AddButton
-        label="Add property"
-        onPress={() => navigation.navigate('CreateProperty')}
+        label={
+          hasReachedFreePropertyLimit ? 'Add another with Pro' : 'Add property'
+        }
+        onPress={handleAddProperty}
       />
 
       {properties.length === 0 ? (
@@ -94,7 +119,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           title="No properties yet"
           description="Start with the main house, rental, or cabin you actually need to remember details for."
           actionLabel="Add your first property"
-          onActionPress={() => navigation.navigate('CreateProperty')}
+          onActionPress={handleAddProperty}
         />
       ) : (
         <View style={styles.list}>
@@ -145,7 +170,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           ))}
         </View>
       )}
-
     </Screen>
   );
 };

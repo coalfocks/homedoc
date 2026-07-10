@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useTodo } from '../hooks/useData';
+import { useBilling } from '../hooks/useBilling';
 import { supabase } from '../lib/supabase';
 import {
   EmptyStateCard,
@@ -40,6 +41,7 @@ const statusOptions: {
 
 const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   const { todo, loading, error, refetch } = useTodo(route.params.todoId);
+  const { isPro, checkoutLoading, openCheckout } = useBilling();
 
   if (loading) {
     return (
@@ -145,6 +147,9 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         plan={todo.plan}
         planStatus={todo.plan_status}
         planChat={todo.plan_chat}
+        isPro={isPro}
+        upgradeLoading={checkoutLoading}
+        onUpgradePress={openCheckout}
         onPlanGenerated={refetch}
       />
     </Screen>

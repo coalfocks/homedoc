@@ -119,8 +119,6 @@ const AuthScreen: React.FC = () => {
   if (magicLinkSent) {
     return (
       <View style={styles.container}>
-        <View style={styles.backgroundOrbTop} />
-        <View style={styles.backgroundOrbBottom} />
         <View style={styles.content}>
           <View style={styles.authCard}>
             <View style={styles.header}>
@@ -170,8 +168,6 @@ const AuthScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.backgroundOrbTop} />
-      <View style={styles.backgroundOrbBottom} />
       <KeyboardAvoidingView
         style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -179,8 +175,8 @@ const AuthScreen: React.FC = () => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        onScrollBeginDrag={Keyboard.dismiss}
+          keyboardDismissMode="on-drag"
+          onScrollBeginDrag={Keyboard.dismiss}
         >
           <View style={styles.header}>
             <Logo size={72} color={theme.colors.primary.main} />
@@ -195,9 +191,27 @@ const AuthScreen: React.FC = () => {
                   : 'Sign back into HomeDoc.'}
             </Text>
             <Text style={styles.heroSubtitle}>
-              Keep warranties, photos, notes, and room-by-room details in one
-              place instead of a dozen random folders.
+              Preserve the stuff every home loses: warranties, paint colors,
+              appliance details, maintenance plans, and the story a future buyer
+              or property manager will wish they had.
             </Text>
+          </View>
+
+          <View style={styles.valueStrip}>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>Move-in memory</Text>
+              <Text style={styles.valueBody}>Capture the details once.</Text>
+            </View>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>AI planning</Text>
+              <Text style={styles.valueBody}>
+                Scope repairs before you start.
+              </Text>
+            </View>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>Home handoff</Text>
+              <Text style={styles.valueBody}>Transfer records cleanly.</Text>
+            </View>
           </View>
 
           <View style={styles.authCard}>
@@ -343,27 +357,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 40,
   },
-  backgroundOrbTop: {
-    position: 'absolute',
-    top: -120,
-    right: -80,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(138, 117, 255, 0.18)',
-  },
-  backgroundOrbBottom: {
-    position: 'absolute',
-    bottom: -140,
-    left: -90,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: 'rgba(255, 107, 78, 0.14)',
-  },
   header: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 20,
   },
   eyebrow: {
     color: theme.colors.primary.light,
@@ -397,6 +393,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     ...theme.shadows.lg,
+  },
+  valueStrip: {
+    width: '100%',
+    maxWidth: 420,
+    alignSelf: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  valueItem: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.84)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+  },
+  valueTitle: {
+    color: theme.colors.text.primary,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  valueBody: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
   },
   title: {
     color: theme.colors.text.primary,

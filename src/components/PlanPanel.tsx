@@ -17,12 +17,16 @@ import {
   supabaseUrl,
 } from '../lib/supabase';
 import { theme } from '../utils/theme';
+import { UpgradeCard } from './UpgradeCard';
 
 type PlanPanelProps = {
   todoId: string;
   plan: GeneratedPlan | null | undefined;
   planStatus: string | null | undefined;
   planChat: PlanChatMessage[] | null | undefined;
+  isPro?: boolean;
+  upgradeLoading?: boolean;
+  onUpgradePress?: () => void;
   onPlanGenerated: () => void;
 };
 
@@ -33,6 +37,9 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   plan,
   planStatus,
   planChat,
+  isPro = false,
+  upgradeLoading = false,
+  onUpgradePress,
   onPlanGenerated,
 }) => {
   const [phase, setPhase] = useState<Phase>(
@@ -44,6 +51,11 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const startPlanning = async () => {
+    if (!isPro && onUpgradePress) {
+      onUpgradePress();
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -70,6 +82,11 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   };
 
   const generatePlan = async () => {
+    if (!isPro && onUpgradePress) {
+      onUpgradePress();
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -130,6 +147,19 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
 
   // ── Questions phase ────────────────────────────────
   if (phase === 'questions') {
+    if (!isPro && onUpgradePress) {
+      return (
+        <UpgradeCard
+          compact
+          title="AI planning is a Pro feature"
+          body="Upgrade to turn home todos into step-by-step plans with materials, costs, warnings, and follow-up chat."
+          cta="Upgrade to plan"
+          loading={upgradeLoading}
+          onPress={onUpgradePress}
+        />
+      );
+    }
+
     return (
       <View style={styles.container}>
         <RNEText style={styles.heading}>Help me plan this</RNEText>
@@ -173,15 +203,26 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   return (
     <View style={styles.container}>
       {error && <RNEText style={styles.errorText}>{error}</RNEText>}
-      <TouchableOpacity style={styles.planButton} onPress={startPlanning}>
-        <RNEText style={styles.planButtonIcon}>✨</RNEText>
-        <View style={styles.planButtonTextContainer}>
-          <RNEText style={styles.planButtonTitle}>Help me plan this</RNEText>
-          <RNEText style={styles.planButtonSubtitle}>
-            Get a step-by-step plan with materials, costs, and tips
-          </RNEText>
-        </View>
-      </TouchableOpacity>
+      {!isPro && onUpgradePress ? (
+        <UpgradeCard
+          compact
+          title="Plan projects with HomeDoc Pro"
+          body="Get materials, rough costs, safety checks, and step-by-step guidance before you start."
+          cta="Upgrade to plan"
+          loading={upgradeLoading}
+          onPress={onUpgradePress}
+        />
+      ) : (
+        <TouchableOpacity style={styles.planButton} onPress={startPlanning}>
+          <RNEText style={styles.planButtonIcon}>✨</RNEText>
+          <View style={styles.planButtonTextContainer}>
+            <RNEText style={styles.planButtonTitle}>Help me plan this</RNEText>
+            <RNEText style={styles.planButtonSubtitle}>
+              Get a step-by-step plan with materials, costs, and tips
+            </RNEText>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

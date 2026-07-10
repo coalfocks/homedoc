@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAreas, useProperty } from '../hooks/useData';
+import { useBilling } from '../hooks/useBilling';
 import { supabase } from '../lib/supabase';
 import {
   AddButton,
@@ -26,7 +27,8 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   route,
 }) => {
   const { property, loading, error } = useProperty(route.params.propertyId);
-  const { areas, refetch: refetchAreas } = useAreas(route.params.propertyId);
+  const { areas } = useAreas(route.params.propertyId);
+  const { isPro } = useBilling();
 
   if (loading) {
     return (
@@ -125,6 +127,24 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         </TouchableOpacity>
       </View>
 
+      {!isPro ? (
+        <TouchableOpacity
+          style={styles.handoffCard}
+          onPress={() => navigation.navigate('Upgrade')}
+          activeOpacity={0.86}
+        >
+          <View style={styles.handoffBadge}>
+            <Text style={styles.handoffBadgeText}>PRO</Text>
+          </View>
+          <Text style={styles.handoffTitle}>Build a home handoff packet</Text>
+          <Text style={styles.handoffBody}>
+            Package rooms, notes, maintenance plans, and ownership transfer into
+            something a buyer, tenant, or property manager can actually use.
+          </Text>
+          <Text style={styles.handoffAction}>See Pro</Text>
+        </TouchableOpacity>
+      ) : null}
+
       <SectionTitle
         title="Areas in this property"
         subtitle="Build a reliable inventory of rooms, systems, and spaces."
@@ -193,7 +213,6 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
           ))}
         </View>
       )}
-
     </Screen>
   );
 };
@@ -230,6 +249,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.spacing.sm,
     marginBottom: theme.spacing.xl,
+  },
+  handoffCard: {
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.primary.dark,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+    marginBottom: theme.spacing.xl,
+    ...theme.shadows.md,
+  },
+  handoffBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    marginBottom: theme.spacing.sm,
+  },
+  handoffBadgeText: {
+    color: theme.colors.primary.contrast,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  handoffTitle: {
+    color: theme.colors.primary.contrast,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '800',
+    marginBottom: theme.spacing.xs,
+  },
+  handoffBody: {
+    color: 'rgba(255,255,255,0.82)',
+    lineHeight: theme.typography.body2.lineHeight,
+    marginBottom: theme.spacing.sm,
+  },
+  handoffAction: {
+    color: theme.colors.secondary.light,
+    fontWeight: '800',
   },
   actionButton: {
     paddingHorizontal: theme.spacing.md,

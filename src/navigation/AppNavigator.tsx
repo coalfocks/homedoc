@@ -26,6 +26,7 @@ import CreatePropertyScreen from '../screens/CreatePropertyScreen';
 import CreateAreaScreen from '../screens/CreateAreaScreen';
 import CreateNoteScreen from '../screens/CreateNoteScreen';
 import CreateTodoScreen from '../screens/CreateTodoScreen';
+import UpgradeScreen from '../screens/UpgradeScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -43,6 +44,7 @@ export type RootStackParamList = {
   CreateArea: { propertyId: string };
   CreateNote: { areaId: string };
   CreateTodo: { areaId?: string };
+  Upgrade: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -141,6 +143,15 @@ const MainTabs = () => (
         ),
       }}
     />
+    <Tab.Screen
+      name="Pro"
+      component={UpgradeScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="priority" color={color} size={size} />
+        ),
+      }}
+    />
   </Tab.Navigator>
 );
 
@@ -148,12 +159,12 @@ export const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-      screenOptions={{
-        ...sharedHeader,
-        animation: 'none',
-        presentation: 'card',
-      }}
-    >
+        screenOptions={{
+          ...sharedHeader,
+          animation: 'none',
+          presentation: 'card',
+        }}
+      >
         <Stack.Screen
           name="Main"
           component={MainTabs}
@@ -228,6 +239,11 @@ export const AppNavigator = () => {
           name="CreateTodo"
           component={CreateTodoScreen}
           options={{ title: 'Add Todo' }}
+        />
+        <Stack.Screen
+          name="Upgrade"
+          component={UpgradeScreen}
+          options={{ title: 'HomeDoc Pro' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
