@@ -65,6 +65,11 @@ export type Area = {
   image_url: string;
   created_at: string;
   updated_at: string;
+  properties?: {
+    id: string;
+    name: string;
+    user_id?: string;
+  } | null;
 };
 
 export type Note = {
@@ -73,8 +78,29 @@ export type Note = {
   content: string;
   images: string[];
   area_id: string;
+  note_source?: 'owner' | 'contractor';
+  contractor_user_id?: string | null;
+  contractor_area_access_id?: string | null;
+  contractor_name?: string | null;
+  contractor_company?: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ContractorAreaAccess = {
+  id: string;
+  area_id: string;
+  owner_user_id: string;
+  contractor_user_id: string;
+  contractor_email: string;
+  contractor_name?: string | null;
+  company_name?: string | null;
+  trade?: string | null;
+  verification_status: 'unverified' | 'verified' | string;
+  status: 'active' | 'revoked' | string;
+  created_at: string;
+  updated_at: string;
+  areas?: Area | null;
 };
 
 export type PlanStep = {

@@ -14,6 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { useContractorAreaAccess } from '../hooks/useData';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
@@ -34,7 +36,9 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   navigation,
   route,
 }) => {
+  const { user } = useAuth();
   const { areaId } = route.params;
+  const { access } = useContractorAreaAccess(areaId, user?.id);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -44,6 +48,9 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
 
   const completedSteps =
     (title.trim() ? 1 : 0) + (content.trim() ? 1 : 0) + (images.length ? 1 : 0);
+  const contractorAccess = access.find(
+    (item) => item.contractor_user_id === user?.id,
+  );
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -103,6 +110,17 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
             content,
             images: imageUrls,
             area_id: areaId,
+            ...(contractorAccess
+              ? {
+                  note_source: 'contractor',
+                  contractor_user_id: user?.id,
+                  contractor_area_access_id: contractorAccess.id,
+                  contractor_name:
+                    contractorAccess.contractor_name ||
+                    contractorAccess.contractor_email,
+                  contractor_company: contractorAccess.company_name || null,
+                }
+              : {}),
           },
         ])
         .select()
@@ -136,9 +154,17 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
-          eyebrow="New note"
-          title="Capture the detail before it disappears"
-          subtitle="Notes are best for paint colors, measurements, repair context, and weird little home facts."
+          eyebrow={contractorAccess ? 'Contractor work note' : 'New note'}
+          title={
+            contractorAccess
+              ? 'Document the work while it is fresh'
+              : 'Capture the detail before it disappears'
+          }
+          subtitle={
+            contractorAccess
+              ? 'Add what changed, products used, photos, warranty details, and anything the homeowner should know later.'
+              : 'Notes are best for paint colors, measurements, repair context, and weird little home facts.'
+          }
           stepLabel={
             title.trim() ? 'Note title is ready.' : 'A short title is required.'
           }
@@ -148,8 +174,16 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
 
         <CreationPrompt
           icon="note"
-          title="Make it useful for future you"
-          body="A couple of specifics beat a perfect paragraph: what, where, when, and any product names."
+          title={
+            contractorAccess
+              ? 'Leave a clean work record'
+              : 'Make it useful for future you'
+          }
+          body={
+            contractorAccess
+              ? 'Use this like a job closeout note: work completed, parts used, photos, and recommended follow-up.'
+              : 'A couple of specifics beat a perfect paragraph: what, where, when, and any product names.'
+          }
         />
 
         <CreationCard>

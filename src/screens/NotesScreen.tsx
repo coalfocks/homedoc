@@ -82,6 +82,15 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
                     {' • '}
                     {item.areas?.name || 'Area'}
                   </Text>
+                  {item.note_source === 'contractor' ? (
+                    <Text style={styles.contractorMeta}>
+                      Contractor update
+                      {item.contractor_name ? ` • ${item.contractor_name}` : ''}
+                      {item.contractor_company
+                        ? ` • ${item.contractor_company}`
+                        : ''}
+                    </Text>
+                  ) : null}
                 </View>
                 <Text style={styles.cardDate}>
                   {formatDate(item.created_at)}
@@ -153,6 +162,12 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.main,
     fontSize: theme.typography.body2.fontSize,
     fontWeight: '600',
+  },
+  contractorMeta: {
+    marginTop: 4,
+    color: theme.colors.accent.dark,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
   },
   cardDate: {
     color: theme.colors.text.secondary,

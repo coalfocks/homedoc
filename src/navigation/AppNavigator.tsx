@@ -27,6 +27,7 @@ import CreateAreaScreen from '../screens/CreateAreaScreen';
 import CreateNoteScreen from '../screens/CreateNoteScreen';
 import CreateTodoScreen from '../screens/CreateTodoScreen';
 import UpgradeScreen from '../screens/UpgradeScreen';
+import InviteContractorScreen from '../screens/InviteContractorScreen';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -45,6 +46,7 @@ export type RootStackParamList = {
   CreateNote: { areaId: string };
   CreateTodo: { areaId?: string };
   Upgrade: undefined;
+  InviteContractor: { areaId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -244,6 +246,11 @@ export const AppNavigator = () => {
           name="Upgrade"
           component={UpgradeScreen}
           options={{ title: 'HomeDoc Pro' }}
+        />
+        <Stack.Screen
+          name="InviteContractor"
+          component={InviteContractorScreen}
+          options={{ title: 'Invite Contractor' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

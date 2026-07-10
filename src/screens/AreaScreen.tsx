@@ -4,7 +4,13 @@ import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useArea, useNotes, useTodos } from '../hooks/useData';
+import {
+  useArea,
+  useContractorAreaAccess,
+  useNotes,
+  useTodos,
+} from '../hooks/useData';
+import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
   AddButton,
@@ -30,9 +36,14 @@ const formatDate = (value: string) =>
   });
 
 const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
+  const { user } = useAuth();
   const { area, loading, error } = useArea(route.params.areaId);
   const { notes, refetch: refetchNotes } = useNotes(route.params.areaId);
   const { todos } = useTodos(route.params.areaId);
+  const { access: contractorAccess } = useContractorAreaAccess(
+    route.params.areaId,
+    user?.id,
+  );
 
   if (loading) {
     return (
@@ -57,6 +68,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
       </Screen>
     );
   }
+
+  const isOwner = (area as any).properties?.user_id === user?.id;
+  const currentContractorAccess = contractorAccess.find(
+    (item) => item.contractor_user_id === user?.id,
+  );
 
   const confirmDeleteArea = () => {
     Alert.alert(
@@ -91,9 +107,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
           area.description ||
           'Document this space with notes, photos, and maintenance records.'
         }
-        actionLabel="Edit"
-        onActionPress={() =>
-          navigation.navigate('EditArea', { areaId: area.id })
+        actionLabel={isOwner ? 'Edit' : undefined}
+        onActionPress={
+          isOwner
+            ? () => navigation.navigate('EditArea', { areaId: area.id })
+            : undefined
         }
       />
 
@@ -119,70 +137,138 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         />
       </View>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={confirmDeleteArea}>
-        <Text style={styles.deleteButtonText}>Delete area</Text>
-      </TouchableOpacity>
+      {currentContractorAccess ? (
+        <View style={styles.contractorModeCard}>
+          <Text style={styles.contractorModeTitle}>Contractor workspace</Text>
+          <Text style={styles.contractorModeBody}>
+            You can add work notes for this area. Ownership and delete controls
+            stay with the property owner.
+          </Text>
+          <View style={styles.contractorMetaRow}>
+            <Text style={styles.contractorMetaText}>
+              {currentContractorAccess.company_name ||
+                currentContractorAccess.contractor_name ||
+                currentContractorAccess.contractor_email}
+            </Text>
+            {currentContractorAccess.verification_status === 'verified' ? (
+              <Text style={styles.verifiedPill}>Verified</Text>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
 
-      {/* ── Todos section ── */}
-      <SectionTitle
-        title="Todos in this area"
-        subtitle="Tasks, repairs, and improvements tracked here."
-      />
-
-      <AddButton
-        label="Add todo"
-        onPress={() =>
-          navigation.navigate('CreateTodo', { areaId: area.id })
-        }
-      />
-
-      {todos.filter((t) => t.status !== 'done').length === 0 ? (
-        <EmptyStateCard
-          icon="todo"
-          title="No pending todos"
-          description="Everything's done. Add a new task when something needs attention."
-          actionLabel="Add todo"
-          onActionPress={() =>
-            navigation.navigate('CreateTodo', { areaId: area.id })
-          }
-        />
-      ) : (
-        <View style={styles.list}>
-          {todos
-            .filter((t) => t.status !== 'done')
-            .slice(0, 3)
-            .map((todo) => (
-              <TouchableOpacity
-                key={todo.id}
-                onPress={() =>
-                  navigation.navigate('Todo', { todoId: todo.id })
-                }
-                style={styles.todoCard}
-              >
-                <View style={styles.todoCardTop}>
-                  <Text style={styles.todoCardTitle} numberOfLines={1}>
-                    {todo.title}
-                  </Text>
-                  <PriorityBadge priority={todo.priority} />
-                </View>
-                {todo.description ? (
-                  <Text style={styles.todoCardDesc} numberOfLines={2}>
-                    {todo.description}
-                  </Text>
-                ) : null}
-              </TouchableOpacity>
-            ))}
-          {todos.filter((t) => t.status !== 'done').length > 3 ? (
+      {isOwner ? (
+        <>
+          <View style={styles.ownerActionRow}>
             <TouchableOpacity
+              style={styles.contractorButton}
               onPress={() =>
-                navigation.navigate('AreaTodos', { areaId: area.id })
+                navigation.navigate('InviteContractor', { areaId: area.id })
               }
             >
-              <Text style={styles.viewAllLink}>View all todos →</Text>
+              <Text style={styles.contractorButtonText}>
+                Add contractor update access
+              </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={confirmDeleteArea}
+            >
+              <Text style={styles.deleteButtonText}>Delete area</Text>
+            </TouchableOpacity>
+          </View>
+
+          {contractorAccess.length > 0 ? (
+            <View style={styles.accessList}>
+              <Text style={styles.accessListTitle}>Contractor access</Text>
+              {contractorAccess.map((item) => (
+                <View key={item.id} style={styles.accessRow}>
+                  <View style={styles.accessTextWrap}>
+                    <Text style={styles.accessName}>
+                      {item.contractor_name || item.contractor_email}
+                    </Text>
+                    <Text style={styles.accessMeta}>
+                      {[item.company_name, item.trade]
+                        .filter(Boolean)
+                        .join(' • ') || item.contractor_email}
+                    </Text>
+                  </View>
+                  {item.verification_status === 'verified' ? (
+                    <Text style={styles.verifiedPill}>Verified</Text>
+                  ) : (
+                    <Text style={styles.pendingPill}>Unverified</Text>
+                  )}
+                </View>
+              ))}
+            </View>
           ) : null}
-        </View>
-      )}
+        </>
+      ) : null}
+
+      {isOwner ? (
+        <>
+          {/* ── Todos section ── */}
+          <SectionTitle
+            title="Todos in this area"
+            subtitle="Tasks, repairs, and improvements tracked here."
+          />
+
+          <AddButton
+            label="Add todo"
+            onPress={() =>
+              navigation.navigate('CreateTodo', { areaId: area.id })
+            }
+          />
+
+          {todos.filter((t) => t.status !== 'done').length === 0 ? (
+            <EmptyStateCard
+              icon="todo"
+              title="No pending todos"
+              description="Everything's done. Add a new task when something needs attention."
+              actionLabel="Add todo"
+              onActionPress={() =>
+                navigation.navigate('CreateTodo', { areaId: area.id })
+              }
+            />
+          ) : (
+            <View style={styles.list}>
+              {todos
+                .filter((t) => t.status !== 'done')
+                .slice(0, 3)
+                .map((todo) => (
+                  <TouchableOpacity
+                    key={todo.id}
+                    onPress={() =>
+                      navigation.navigate('Todo', { todoId: todo.id })
+                    }
+                    style={styles.todoCard}
+                  >
+                    <View style={styles.todoCardTop}>
+                      <Text style={styles.todoCardTitle} numberOfLines={1}>
+                        {todo.title}
+                      </Text>
+                      <PriorityBadge priority={todo.priority} />
+                    </View>
+                    {todo.description ? (
+                      <Text style={styles.todoCardDesc} numberOfLines={2}>
+                        {todo.description}
+                      </Text>
+                    ) : null}
+                  </TouchableOpacity>
+                ))}
+              {todos.filter((t) => t.status !== 'done').length > 3 ? (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('AreaTodos', { areaId: area.id })
+                  }
+                >
+                  <Text style={styles.viewAllLink}>View all todos →</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          )}
+        </>
+      ) : null}
 
       <SectionTitle
         title="Notes in this area"
@@ -190,7 +276,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
       />
 
       <AddButton
-        label="Add note"
+        label={currentContractorAccess ? 'Add work note' : 'Add note'}
         onPress={() => navigation.navigate('CreateNote', { areaId: area.id })}
       />
 
@@ -213,14 +299,27 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
               style={styles.card}
             >
               <View style={styles.cardTop}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('EditNote', { noteId: item.id })
-                  }
-                >
-                  <Text style={styles.cardAction}>Edit</Text>
-                </TouchableOpacity>
+                <View style={styles.cardTitleWrap}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  {item.note_source === 'contractor' ? (
+                    <Text style={styles.contractorNoteMeta}>
+                      Contractor update
+                      {item.contractor_name ? ` • ${item.contractor_name}` : ''}
+                      {item.contractor_company
+                        ? ` • ${item.contractor_company}`
+                        : ''}
+                    </Text>
+                  ) : null}
+                </View>
+                {isOwner || item.contractor_user_id === user?.id ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('EditNote', { noteId: item.id })
+                    }
+                  >
+                    <Text style={styles.cardAction}>Edit</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
               <Text style={styles.cardContent} numberOfLines={3}>
                 {item.content}
@@ -230,7 +329,6 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
           ))}
         </View>
       )}
-
     </Screen>
   );
 };
@@ -263,9 +361,23 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     marginBottom: theme.spacing.md,
   },
+  ownerActionRow: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xl,
+  },
+  contractorButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 12,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+  },
+  contractorButtonText: {
+    color: theme.colors.primary.dark,
+    fontWeight: '800',
+  },
   deleteButton: {
     alignSelf: 'flex-start',
-    marginBottom: theme.spacing.xl,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.pill,
@@ -274,6 +386,89 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: theme.colors.error.dark,
     fontWeight: '700',
+  },
+  contractorModeCard: {
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.16)',
+    marginBottom: theme.spacing.lg,
+  },
+  contractorModeTitle: {
+    color: theme.colors.primary.dark,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '800',
+    marginBottom: theme.spacing.xs,
+  },
+  contractorModeBody: {
+    color: theme.colors.text.slate,
+    lineHeight: theme.typography.body2.lineHeight,
+    marginBottom: theme.spacing.sm,
+  },
+  contractorMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+  },
+  contractorMetaText: {
+    color: theme.colors.text.primary,
+    fontWeight: '700',
+  },
+  accessList: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.86)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    marginBottom: theme.spacing.xl,
+  },
+  accessListTitle: {
+    color: theme.colors.text.primary,
+    fontWeight: '800',
+    marginBottom: theme.spacing.sm,
+  },
+  accessRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.subtle,
+  },
+  accessTextWrap: {
+    flex: 1,
+  },
+  accessName: {
+    color: theme.colors.text.primary,
+    fontWeight: '700',
+  },
+  accessMeta: {
+    marginTop: 2,
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+  },
+  verifiedPill: {
+    overflow: 'hidden',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(47, 133, 90, 0.12)',
+    color: theme.colors.success.dark,
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  pendingPill: {
+    overflow: 'hidden',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(217, 164, 65, 0.14)',
+    color: theme.colors.warning.dark,
+    fontSize: 11,
+    fontWeight: '800',
   },
   list: {
     gap: theme.spacing.md,
@@ -292,8 +487,10 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     marginBottom: theme.spacing.sm,
   },
-  cardTitle: {
+  cardTitleWrap: {
     flex: 1,
+  },
+  cardTitle: {
     color: theme.colors.text.primary,
     fontSize: theme.typography.h4.fontSize,
     fontWeight: '700',
@@ -301,6 +498,12 @@ const styles = StyleSheet.create({
   cardAction: {
     color: theme.colors.primary.main,
     fontWeight: '700',
+  },
+  contractorNoteMeta: {
+    marginTop: 3,
+    color: theme.colors.accent.dark,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
   },
   cardContent: {
     color: theme.colors.text.slate,

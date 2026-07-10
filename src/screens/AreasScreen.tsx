@@ -3,7 +3,7 @@ import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useAllAreas } from '../hooks/useData';
+import { useAllAreas, useAssignedContractorAreas } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import {
   EmptyStateCard,
@@ -23,6 +23,11 @@ type AreasScreenProps = {
 const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
   const { areas, loading, error } = useAllAreas(user?.id);
+  const {
+    assignments,
+    loading: assignmentsLoading,
+    error: assignmentsError,
+  } = useAssignedContractorAreas(user?.id);
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -40,6 +45,57 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
         title="Add new areas from inside a property"
         body="Areas stay attached to a specific home, so creation happens from the property detail screen instead of this rollup view."
       />
+
+      {assignments.length > 0 || assignmentsLoading || assignmentsError ? (
+        <>
+          <SectionTitle
+            title="Contractor work"
+            subtitle="Areas where a homeowner has invited you to document work."
+          />
+          {assignmentsLoading ? (
+            <LoadingStateCard title="Loading contractor assignments..." />
+          ) : assignmentsError ? (
+            <View style={styles.noticeCard}>
+              <Text style={styles.noticeTitle}>Couldn’t load assignments</Text>
+              <Text style={styles.noticeBody}>{assignmentsError}</Text>
+            </View>
+          ) : (
+            <View style={styles.list}>
+              {assignments.map((assignment: any) => {
+                const assignedArea = assignment.areas;
+                if (!assignedArea) return null;
+                return (
+                  <TouchableOpacity
+                    key={assignment.id}
+                    onPress={() =>
+                      navigation.navigate('Area', { areaId: assignedArea.id })
+                    }
+                    style={styles.contractorCard}
+                  >
+                    <View style={styles.cardBody}>
+                      <View style={styles.contractorTopRow}>
+                        <Text style={styles.cardTitle}>
+                          {assignedArea.name}
+                        </Text>
+                        {assignment.verification_status === 'verified' ? (
+                          <Text style={styles.verifiedPill}>Verified</Text>
+                        ) : null}
+                      </View>
+                      <Text style={styles.cardProperty}>
+                        {assignedArea.properties?.name || 'Assigned property'}
+                      </Text>
+                      <Text style={styles.cardDescription} numberOfLines={2}>
+                        Add work notes, photos, materials, and closeout details
+                        for the homeowner.
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </>
+      ) : null}
 
       <SectionTitle
         title="All areas"
@@ -166,6 +222,29 @@ const styles = StyleSheet.create({
     marginTop: 2,
     color: theme.colors.primary.main,
     fontWeight: '600',
+  },
+  contractorCard: {
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.16)',
+    ...theme.shadows.sm,
+  },
+  contractorTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  verifiedPill: {
+    overflow: 'hidden',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.pill,
+    backgroundColor: 'rgba(47, 133, 90, 0.12)',
+    color: theme.colors.success.dark,
+    fontSize: 11,
+    fontWeight: '800',
   },
   cardDescription: {
     marginTop: theme.spacing.sm,

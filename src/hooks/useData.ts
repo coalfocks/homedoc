@@ -1,6 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { supabase, Property, Area, Note, Todo } from '../lib/supabase';
+import {
+  supabase,
+  Property,
+  Area,
+  Note,
+  Todo,
+  ContractorAreaAccess,
+} from '../lib/supabase';
 
 /**
  * Generic hook for Supabase queries with loading/error state.
@@ -121,7 +128,11 @@ export const useArea = (areaId: string | undefined) => {
   const result = useSupabaseQuery<Area | null>(
     () => {
       if (!areaId) return Promise.resolve({ data: null, error: null });
-      return supabase.from('areas').select('*').eq('id', areaId).single();
+      return supabase
+        .from('areas')
+        .select('*, properties(id, name, user_id)')
+        .eq('id', areaId)
+        .single();
     },
     [areaId],
     null,
@@ -203,6 +214,65 @@ export const useAllAreas = (userId: string | undefined) => {
   );
   return {
     areas: result.data,
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch,
+  };
+};
+
+export const useContractorAreaAccess = (
+  areaId: string | undefined,
+  userId: string | undefined,
+) => {
+  const result = useSupabaseQuery<ContractorAreaAccess[]>(
+    () => {
+      if (!areaId || !userId) {
+        return Promise.resolve({
+          data: [] as ContractorAreaAccess[],
+          error: null,
+        });
+      }
+
+      return supabase
+        .from('contractor_area_access')
+        .select('*')
+        .eq('area_id', areaId)
+        .eq('status', 'active');
+    },
+    [areaId, userId],
+    [],
+  );
+
+  return {
+    access: result.data,
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch,
+  };
+};
+
+export const useAssignedContractorAreas = (userId: string | undefined) => {
+  const result = useSupabaseQuery<ContractorAreaAccess[]>(
+    () => {
+      if (!userId) {
+        return Promise.resolve({
+          data: [] as ContractorAreaAccess[],
+          error: null,
+        });
+      }
+
+      return supabase
+        .from('contractor_area_access')
+        .select('*, areas(*, properties(id, name, user_id))')
+        .eq('contractor_user_id', userId)
+        .eq('status', 'active');
+    },
+    [userId],
+    [],
+  );
+
+  return {
+    assignments: result.data,
     loading: result.loading,
     error: result.error,
     refetch: result.refetch,
