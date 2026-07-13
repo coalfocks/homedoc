@@ -52,6 +52,7 @@ export type Property = {
   state: string;
   zip_code: string;
   user_id: string;
+  household_id?: string | null;
   image_url: string;
   created_at: string;
   updated_at: string;
@@ -69,6 +70,7 @@ export type Area = {
     id: string;
     name: string;
     user_id?: string;
+    household_id?: string | null;
   } | null;
 };
 

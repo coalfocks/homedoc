@@ -16,6 +16,7 @@ type TransferPropertyScreenProps = {
 type TransferResponse = {
   propertyName?: string;
   recipientEmail?: string;
+  role?: string;
 };
 
 const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
@@ -63,13 +64,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     }
 
     Alert.alert(
-      'Transfer property?',
-      `This will move "${property.name}" and all attached areas, notes, and todos to ${recipientEmail}. You will lose access after the transfer.`,
+      'Share property?',
+      `This will add ${recipientEmail} to the household for "${property.name}" so you can both manage shared properties, areas, notes, photos, and todos.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Transfer',
-          style: 'destructive',
+          text: 'Share',
           onPress: () => performTransfer(recipientEmail),
         },
       ],
@@ -82,11 +82,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
 
     try {
       const { data, error: transferError } = await supabase.functions.invoke(
-        'transfer-property',
+        'share-property',
         {
           body: {
             propertyId: property.id,
             recipientEmail,
+            role: 'admin',
           },
         },
       );
@@ -95,8 +96,8 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
       const transfer = data as TransferResponse | null;
 
       Alert.alert(
-        'Property transferred',
-        `${transfer?.propertyName || property.name} now belongs to ${transfer?.recipientEmail || recipientEmail}.`,
+        'Property shared',
+        `${transfer?.recipientEmail || recipientEmail} can now access the shared household for ${transfer?.propertyName || property.name}.`,
         [
           {
             text: 'OK',
@@ -112,9 +113,6 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     }
   };
 
-  // Count notes from areas
-  const totalNotes = areas?.reduce((acc, area) => acc + 1, 0) || 0; // Note: would need to fetch notes per area for accurate count
-
   return (
     <ScrollView
       style={styles.container}
@@ -124,8 +122,9 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     >
       <View style={styles.form}>
         <Text style={styles.warning}>
-          Warning: Transferring this property will give the recipient full
-          access to all areas and notes. This action cannot be undone.
+          Share this property with a spouse, partner, or trusted co-owner. They
+          can manage shared household properties, areas, notes, photos, and
+          todos with you.
         </Text>
 
         <Input
@@ -167,7 +166,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
 
       <View style={styles.buttonContainer}>
         <Button
-          title="Initiate Transfer"
+          title="Share Property"
           onPress={handleTransfer}
           loading={isLoading}
           disabled={isLoading || !email.trim()}
@@ -203,7 +202,7 @@ async function getTransferErrorMessage(error: unknown) {
   }
 
   if (error instanceof Error) return error.message;
-  return 'Failed to transfer property. Please try again.';
+  return 'Failed to share property. Please try again.';
 }
 
 const styles = StyleSheet.create({

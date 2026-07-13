@@ -46,15 +46,18 @@ serve(async (req: Request) => {
 
   const { data: area, error: areaError } = await userClient
     .from('areas')
-    .select('id, name, properties!inner(id, name, user_id)')
+    .select('id, name, properties!inner(id, name)')
     .eq('id', body.areaId)
     .single();
 
-  const property = area?.properties as
-    | { id: string; name: string; user_id: string }
-    | undefined;
+  const property = area?.properties as { id: string; name: string } | undefined;
 
-  if (areaError || !area || property?.user_id !== userData.user.id) {
+  const { data: canManageArea, error: accessError } = await userClient.rpc(
+    'current_user_owns_area',
+    { p_area_id: body.areaId },
+  );
+
+  if (areaError || accessError || !area || !canManageArea) {
     return jsonError(404, 'Area not found for this account');
   }
 

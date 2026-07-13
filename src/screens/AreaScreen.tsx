@@ -69,10 +69,10 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
     );
   }
 
-  const isOwner = (area as any).properties?.user_id === user?.id;
   const currentContractorAccess = contractorAccess.find(
     (item) => item.contractor_user_id === user?.id,
   );
+  const canManageArea = !currentContractorAccess;
 
   const confirmDeleteArea = () => {
     Alert.alert(
@@ -107,9 +107,9 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
           area.description ||
           'Document this space with notes, photos, and maintenance records.'
         }
-        actionLabel={isOwner ? 'Edit' : undefined}
+        actionLabel={canManageArea ? 'Edit' : undefined}
         onActionPress={
-          isOwner
+          canManageArea
             ? () => navigation.navigate('EditArea', { areaId: area.id })
             : undefined
         }
@@ -157,7 +157,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         </View>
       ) : null}
 
-      {isOwner ? (
+      {canManageArea ? (
         <>
           <View style={styles.ownerActionRow}>
             <TouchableOpacity
@@ -205,7 +205,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         </>
       ) : null}
 
-      {isOwner ? (
+      {canManageArea ? (
         <>
           {/* ── Todos section ── */}
           <SectionTitle
@@ -311,7 +311,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                     </Text>
                   ) : null}
                 </View>
-                {isOwner || item.contractor_user_id === user?.id ? (
+                {canManageArea || item.contractor_user_id === user?.id ? (
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('EditNote', { noteId: item.id })

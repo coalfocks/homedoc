@@ -53,7 +53,7 @@ export const useProperties = (userId: string | undefined) => {
     () => {
       if (!userId)
         return Promise.resolve({ data: [] as Property[], error: null });
-      return supabase.from('properties').select('*').eq('user_id', userId);
+      return supabase.from('properties').select('*').order('created_at');
     },
     [userId],
     [],
@@ -130,7 +130,7 @@ export const useArea = (areaId: string | undefined) => {
       if (!areaId) return Promise.resolve({ data: null, error: null });
       return supabase
         .from('areas')
-        .select('*, properties(id, name, user_id)')
+        .select('*, properties(id, name, user_id, household_id)')
         .eq('id', areaId)
         .single();
     },
@@ -206,8 +206,8 @@ export const useAllAreas = (userId: string | undefined) => {
       if (!userId) return Promise.resolve({ data: [] as Area[], error: null });
       return supabase
         .from('areas')
-        .select('*, properties!inner(name, id)')
-        .eq('properties.user_id', userId);
+        .select('*, properties!inner(name, id, user_id, household_id)')
+        .order('created_at');
     },
     [userId],
     [],
@@ -263,7 +263,7 @@ export const useAssignedContractorAreas = (userId: string | undefined) => {
 
       return supabase
         .from('contractor_area_access')
-        .select('*, areas(*, properties(id, name, user_id))')
+        .select('*, areas(*, properties(id, name, user_id, household_id))')
         .eq('contractor_user_id', userId)
         .eq('status', 'active');
     },
@@ -286,9 +286,9 @@ export const useAllNotes = (userId: string | undefined) => {
       return supabase
         .from('notes')
         .select(
-          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id, household_id))',
         )
-        .eq('areas.properties.user_id', userId);
+        .order('created_at', { ascending: false });
     },
     [userId],
     [],
@@ -308,9 +308,9 @@ export const useTodosByProperty = (userId: string | undefined) => {
       return supabase
         .from('todos')
         .select(
-          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id))',
+          '*, areas!inner(id, name, property_id, properties!inner(id, name, user_id, household_id))',
         )
-        .eq('areas.properties.user_id', userId);
+        .order('created_at', { ascending: false });
     },
     [userId],
     [],

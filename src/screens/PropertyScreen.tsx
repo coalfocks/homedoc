@@ -117,7 +117,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
             navigation.navigate('TransferProperty', { propertyId: property.id })
           }
         >
-          <Text style={styles.actionButtonText}>Transfer</Text>
+          <Text style={styles.actionButtonText}>Share</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}

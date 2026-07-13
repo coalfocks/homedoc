@@ -220,7 +220,7 @@ export const AppNavigator = () => {
         <Stack.Screen
           name="TransferProperty"
           component={TransferPropertyScreen}
-          options={{ title: 'Transfer Property' }}
+          options={{ title: 'Share Property' }}
         />
         <Stack.Screen
           name="CreateProperty"
