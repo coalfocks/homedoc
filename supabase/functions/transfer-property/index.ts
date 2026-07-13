@@ -55,7 +55,7 @@ serve(async (req: Request) => {
     // RLS verifies the caller currently owns the property.
     const { data: property, error: propertyError } = await userClient
       .from('properties')
-      .select('id, name, user_id')
+      .select('id, name, user_id, household_id')
       .eq('id', propertyId)
       .single();
 
@@ -77,11 +77,37 @@ serve(async (req: Request) => {
       return jsonError(400, "You can't transfer a property to yourself");
     }
 
+    const { data: canManageCurrentHousehold } = property.household_id
+      ? await adminClient
+          .from('household_members')
+          .select('role')
+          .eq('household_id', property.household_id)
+          .eq('user_id', currentUser.id)
+          .maybeSingle()
+      : { data: null };
+
+    if (
+      property.user_id !== currentUser.id &&
+      !['owner', 'admin'].includes(canManageCurrentHousehold?.role)
+    ) {
+      return jsonError(
+        403,
+        'Only household owners and admins can transfer this property',
+      );
+    }
+
+    const recipientHouseholdId = await getOrCreatePrimaryHousehold(
+      adminClient,
+      recipient.id,
+    );
+
     const { error: updateError } = await adminClient
       .from('properties')
-      .update({ user_id: recipient.id })
-      .eq('id', propertyId)
-      .eq('user_id', currentUser.id);
+      .update({
+        user_id: recipient.id,
+        household_id: recipientHouseholdId,
+      })
+      .eq('id', property.id);
 
     if (updateError) {
       return jsonError(500, 'Failed to transfer property');
@@ -91,6 +117,7 @@ serve(async (req: Request) => {
       propertyId,
       propertyName: property.name,
       recipientEmail: recipient.email,
+      householdId: recipientHouseholdId,
     });
   } catch (err) {
     console.error('transfer-property error:', err);
@@ -100,6 +127,45 @@ serve(async (req: Request) => {
 
 function normalizeEmail(email: string | undefined) {
   return email?.trim().toLowerCase() || '';
+}
+
+async function getOrCreatePrimaryHousehold(
+  adminClient: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const { data: existing, error: existingError } = await adminClient
+    .from('household_members')
+    .select('household_id')
+    .eq('user_id', userId)
+    .in('role', ['owner', 'admin'])
+    .order('created_at')
+    .limit(1)
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+  if (existing?.household_id) return existing.household_id as string;
+
+  const { data: household, error: householdError } = await adminClient
+    .from('households')
+    .insert({ name: 'My household', created_by: userId })
+    .select('id')
+    .single();
+
+  if (householdError || !household) {
+    throw householdError || new Error('Failed to create recipient household');
+  }
+
+  const { error: memberError } = await adminClient
+    .from('household_members')
+    .insert({
+      household_id: household.id,
+      user_id: userId,
+      role: 'owner',
+      invited_by: userId,
+    });
+
+  if (memberError) throw memberError;
+  return household.id as string;
 }
 
 async function findUserByEmail(

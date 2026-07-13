@@ -1,8 +1,11 @@
-import React from 'react';
+import { useRoute, useIsFocused } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   ScrollView,
   StyleSheet,
@@ -21,12 +24,42 @@ type ScreenProps = {
   style?: ViewStyle;
 };
 
+const scrollOffsets = new Map<string, number>();
+
 export const Screen: React.FC<ScreenProps> = ({
   children,
   scroll = false,
   contentContainerStyle,
   style,
 }) => {
+  const route = useRoute();
+  const isFocused = useIsFocused();
+  const scrollRef = useRef<ScrollView>(null);
+  const routeKey = route.key;
+
+  const restoreScrollOffset = useCallback(() => {
+    if (!scroll || !isFocused) return;
+
+    const savedOffset = scrollOffsets.get(routeKey);
+    if (!savedOffset) return;
+
+    scrollRef.current?.scrollTo({ y: savedOffset, animated: false });
+  }, [isFocused, routeKey, scroll]);
+
+  useEffect(() => {
+    if (!scroll || !isFocused) return;
+
+    const restoreTimer = setTimeout(() => {
+      restoreScrollOffset();
+    }, 0);
+
+    return () => clearTimeout(restoreTimer);
+  }, [isFocused, restoreScrollOffset, scroll]);
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollOffsets.set(routeKey, event.nativeEvent.contentOffset.y);
+  };
+
   if (scroll) {
     return (
       <KeyboardAvoidingView
@@ -35,6 +68,7 @@ export const Screen: React.FC<ScreenProps> = ({
       >
         <BackgroundWash />
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
@@ -43,7 +77,10 @@ export const Screen: React.FC<ScreenProps> = ({
             Platform.OS === 'ios' ? 'interactive' : 'on-drag'
           }
           keyboardShouldPersistTaps="handled"
+          onContentSizeChange={restoreScrollOffset}
           onScrollBeginDrag={Keyboard.dismiss}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
           {children}
         </ScrollView>
