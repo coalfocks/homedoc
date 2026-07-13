@@ -23,6 +23,8 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   navigation,
   route,
 }) => {
+  const mode = route.params.mode || 'share';
+  const isTransfer = mode === 'transfer';
   const {
     property,
     loading: propertyLoading,
@@ -64,12 +66,15 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     }
 
     Alert.alert(
-      'Share property?',
-      `This will add ${recipientEmail} to the household for "${property.name}" so you can both manage shared properties, areas, notes, photos, and todos.`,
+      isTransfer ? 'Transfer property?' : 'Share property?',
+      isTransfer
+        ? `This will move "${property.name}" into ${recipientEmail}'s household. Everyone in their household will get access, and your household will lose access unless they share it back.`
+        : `This will add ${recipientEmail} to the household for "${property.name}" so you can both manage shared properties, areas, notes, photos, and todos.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Share',
+          text: isTransfer ? 'Transfer' : 'Share',
+          style: isTransfer ? 'destructive' : 'default',
           onPress: () => performTransfer(recipientEmail),
         },
       ],
@@ -82,12 +87,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
 
     try {
       const { data, error: transferError } = await supabase.functions.invoke(
-        'share-property',
+        isTransfer ? 'transfer-property' : 'share-property',
         {
           body: {
             propertyId: property.id,
             recipientEmail,
-            role: 'admin',
+            ...(isTransfer ? {} : { role: 'admin' }),
           },
         },
       );
@@ -96,8 +101,10 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
       const transfer = data as TransferResponse | null;
 
       Alert.alert(
-        'Property shared',
-        `${transfer?.recipientEmail || recipientEmail} can now access the shared household for ${transfer?.propertyName || property.name}.`,
+        isTransfer ? 'Property transferred' : 'Property shared',
+        isTransfer
+          ? `${transfer?.propertyName || property.name} is now owned by ${transfer?.recipientEmail || recipientEmail}'s household.`
+          : `${transfer?.recipientEmail || recipientEmail} can now access the shared household for ${transfer?.propertyName || property.name}.`,
         [
           {
             text: 'OK',
@@ -122,9 +129,9 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
     >
       <View style={styles.form}>
         <Text style={styles.warning}>
-          Share this property with a spouse, partner, or trusted co-owner. They
-          can manage shared household properties, areas, notes, photos, and
-          todos with you.
+          {isTransfer
+            ? 'Transfer this property to a new owner. Their whole household will get access, and your household will lose access unless the new owner shares it back.'
+            : 'Share this property with a spouse, partner, or trusted co-owner. They can manage shared household properties, areas, notes, photos, and todos with you.'}
         </Text>
 
         <Input
@@ -166,7 +173,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
 
       <View style={styles.buttonContainer}>
         <Button
-          title="Share Property"
+          title={isTransfer ? 'Transfer Property' : 'Share Property'}
           onPress={handleTransfer}
           loading={isLoading}
           disabled={isLoading || !email.trim()}
@@ -202,7 +209,7 @@ async function getTransferErrorMessage(error: unknown) {
   }
 
   if (error instanceof Error) return error.message;
-  return 'Failed to share property. Please try again.';
+  return 'Action failed. Please try again.';
 }
 
 const styles = StyleSheet.create({

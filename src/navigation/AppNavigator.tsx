@@ -40,7 +40,7 @@ export type RootStackParamList = {
   EditTodo: { todoId: string };
   EditProperty: { propertyId: string };
   EditArea: { areaId: string };
-  TransferProperty: { propertyId: string };
+  TransferProperty: { propertyId: string; mode?: 'share' | 'transfer' };
   CreateProperty: undefined;
   CreateArea: { propertyId: string };
   CreateNote: { areaId: string };
@@ -220,7 +220,12 @@ export const AppNavigator = () => {
         <Stack.Screen
           name="TransferProperty"
           component={TransferPropertyScreen}
-          options={{ title: 'Share Property' }}
+          options={({ route }) => ({
+            title:
+              route.params.mode === 'transfer'
+                ? 'Transfer Property'
+                : 'Share Property',
+          })}
         />
         <Stack.Screen
           name="CreateProperty"

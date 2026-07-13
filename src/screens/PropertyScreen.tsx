@@ -114,10 +114,24 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() =>
-            navigation.navigate('TransferProperty', { propertyId: property.id })
+            navigation.navigate('TransferProperty', {
+              propertyId: property.id,
+              mode: 'share',
+            })
           }
         >
           <Text style={styles.actionButtonText}>Share</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() =>
+            navigation.navigate('TransferProperty', {
+              propertyId: property.id,
+              mode: 'transfer',
+            })
+          }
+        >
+          <Text style={styles.actionButtonText}>Transfer</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}
