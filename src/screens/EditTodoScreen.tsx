@@ -115,9 +115,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
   if (error || !todo) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorText}>
-          {error || 'Todo not found'}
-        </Text>
+        <Text style={styles.errorText}>{error || 'Todo not found'}</Text>
       </View>
     );
   }
@@ -192,10 +190,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
           {priorities.map((p) => (
             <TouchableOpacity
               key={p.value}
-              style={[
-                styles.pill,
-                priority === p.value && styles.pillActive,
-              ]}
+              style={[styles.pill, priority === p.value && styles.pillActive]}
               onPress={() => setPriority(p.value)}
             >
               <Text
@@ -218,10 +213,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
           {statuses.map((s) => (
             <TouchableOpacity
               key={s.value}
-              style={[
-                styles.pill,
-                status === s.value && styles.pillActive,
-              ]}
+              style={[styles.pill, status === s.value && styles.pillActive]}
               onPress={() => setStatus(s.value)}
             >
               <Text

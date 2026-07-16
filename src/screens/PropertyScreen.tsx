@@ -16,6 +16,7 @@ import {
   SectionTitle,
 } from '../components/AppChrome';
 import { theme } from '../utils/theme';
+import { formatAddressBlock } from '../utils/address';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
@@ -79,13 +80,17 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   };
 
   const heroTitle = property.nickname || property.name;
+  const subtitle = formatAddressBlock(
+    property,
+    'Address not added yet. Add it when the details matter.',
+  );
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
         eyebrow="PROPERTY DETAIL"
         title={heroTitle}
-        subtitle={`${property.address_line_1}${property.address_line_2 ? `, ${property.address_line_2}` : ''}\n${property.city}, ${property.state} ${property.zip_code}`}
+        subtitle={subtitle}
         actionLabel="Edit"
         onActionPress={() =>
           navigation.navigate('EditProperty', { propertyId: property.id })

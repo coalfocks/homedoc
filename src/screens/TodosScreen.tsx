@@ -42,8 +42,7 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
 
   // Group by area name
   const grouped = filtered.reduce((acc: Record<string, Todo[]>, todo) => {
-    const areaName =
-      (todo as any).areas?.name || 'Unknown Area';
+    const areaName = (todo as any).areas?.name || 'Unknown Area';
     if (!acc[areaName]) acc[areaName] = [];
     acc[areaName].push(todo);
     return acc;
@@ -107,7 +106,7 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
           title="No todos found"
           description={
             filter === 'all'
-              ? 'Once you add todos inside an area, they\'ll show up here.'
+              ? "Once you add todos inside an area, they'll show up here."
               : `No ${filter.replace('_', ' ')} todos right now.`
           }
         />

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Keyboard,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
@@ -13,17 +14,12 @@ import { Icon } from '../components/Icon';
 import { Logo } from '../components/Logo';
 import { theme } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
+import { openFeedbackEmail } from '../utils/feedback';
 
 type AuthMode = 'magic' | 'password';
 
 const AuthScreen: React.FC = () => {
-  const {
-    signIn,
-    signUp,
-    signInWithMagicLink,
-    signInWithGoogle,
-    signInWithApple,
-  } = useAuth();
+  const { signIn, signUp, signInWithMagicLink } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -80,36 +76,6 @@ const AuthScreen: React.FC = () => {
       Alert.alert(
         'Magic link failed',
         error?.message || 'We could not send the magic link. Please try again.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      await signInWithGoogle();
-    } catch (error: any) {
-      console.error('Google sign in error:', error);
-      Alert.alert(
-        'Google sign-in failed',
-        error?.message || 'Please try again.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    try {
-      setLoading(true);
-      await signInWithApple();
-    } catch (error: any) {
-      console.error('Apple sign in error:', error);
-      Alert.alert(
-        'Apple sign-in failed',
-        error?.message || 'Please try again.',
       );
     } finally {
       setLoading(false);
@@ -211,6 +177,38 @@ const AuthScreen: React.FC = () => {
             <View style={styles.valueItem}>
               <Text style={styles.valueTitle}>Home handoff</Text>
               <Text style={styles.valueBody}>Transfer records cleanly.</Text>
+            </View>
+          </View>
+
+          <View style={styles.betaNotice}>
+            <Text style={styles.betaNoticeTitle}>Free beta</Text>
+            <Text style={styles.betaNoticeBody}>
+              Use the full app while we polish the workflow. HomeDoc stores home
+              details, addresses, and photos in your account.
+            </Text>
+            <Text style={styles.betaNoticeBody}>
+              During beta, uploaded images use public storage URLs, so do not
+              upload sensitive documents or photos you would not want accessible
+              to someone with a direct link. AI planning may send todo context
+              to our AI provider to generate a plan.
+            </Text>
+            <View style={styles.betaNoticeActions}>
+              <TouchableOpacity
+                style={styles.betaNoticeButton}
+                onPress={() =>
+                  openFeedbackEmail('Privacy or data request', normalizedEmail)
+                }
+              >
+                <Text style={styles.betaNoticeButtonText}>Privacy request</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.betaNoticeButton}
+                onPress={() =>
+                  openFeedbackEmail('Account deletion request', normalizedEmail)
+                }
+              >
+                <Text style={styles.betaNoticeButtonText}>Delete account</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -318,24 +316,10 @@ const AuthScreen: React.FC = () => {
               </>
             )}
 
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <Button
-              title="Continue with Google"
-              buttonStyle={styles.socialButton}
-              titleStyle={styles.socialButtonTitle}
-              onPress={handleGoogleSignIn}
-            />
-            <Button
-              title="Continue with Apple"
-              buttonStyle={styles.socialButton}
-              titleStyle={styles.socialButtonTitle}
-              onPress={handleAppleSignIn}
-            />
+            <Text style={styles.helperText}>
+              Google and Apple sign-in are hidden during beta while native
+              redirects are verified.
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -416,6 +400,41 @@ const styles = StyleSheet.create({
   valueBody: {
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
+  },
+  betaNotice: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.14)',
+    marginBottom: theme.spacing.lg,
+  },
+  betaNoticeTitle: {
+    color: theme.colors.primary.dark,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  betaNoticeBody: {
+    color: theme.colors.text.slate,
+    lineHeight: theme.typography.body2.lineHeight,
+    marginBottom: theme.spacing.sm,
+  },
+  betaNoticeActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
+  },
+  betaNoticeButton: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.primary.main,
+    paddingVertical: 10,
+  },
+  betaNoticeButtonText: {
+    color: theme.colors.primary.main,
+    fontWeight: '800',
   },
   title: {
     color: theme.colors.text.primary,

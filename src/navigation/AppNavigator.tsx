@@ -7,6 +7,9 @@ import { Text } from '@rneui/themed';
 import { Icon } from '../components/Icon';
 import { supabase } from '../utils/supabaseClient';
 import { theme } from '../utils/theme';
+import { isFreeBeta } from '../config/beta';
+import { useAuth } from '../contexts/AuthContext';
+import { openFeedbackEmail } from '../utils/feedback';
 
 import HomeScreen from '../screens/HomeScreen';
 import AreasScreen from '../screens/AreasScreen';
@@ -66,96 +69,119 @@ const sharedHeader = {
   headerBackTitleVisible: false,
 };
 
-const MainTabs = () => (
-  <Tab.Navigator
-    screenOptions={{
-      tabBarActiveTintColor: theme.colors.primary.main,
-      tabBarInactiveTintColor: theme.colors.text.secondary,
-      tabBarLabelStyle: {
-        fontSize: 12,
-        fontWeight: '600',
-        marginBottom: 4,
-      },
-      tabBarStyle: {
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        borderTopColor: theme.colors.border.subtle,
-        height: 68,
-        paddingTop: 8,
-      },
-      sceneStyle: {
-        backgroundColor: theme.colors.background.default,
-      },
-      headerStyle: {
-        backgroundColor: theme.colors.background.default,
-      },
-      headerShadowVisible: false,
-      headerTitleStyle: {
-        fontSize: theme.typography.h4.fontSize,
-        fontWeight: '700',
-        color: theme.colors.text.primary,
-      },
-      headerRight: () => (
-        <TouchableOpacity onPress={() => supabase.auth.signOut()}>
-          <Text
+const MainTabs = () => {
+  const { user } = useAuth();
+
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: theme.colors.primary.main,
+        tabBarInactiveTintColor: theme.colors.text.secondary,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginBottom: 4,
+        },
+        tabBarStyle: {
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          borderTopColor: theme.colors.border.subtle,
+          height: 68,
+          paddingTop: 8,
+        },
+        sceneStyle: {
+          backgroundColor: theme.colors.background.default,
+        },
+        headerStyle: {
+          backgroundColor: theme.colors.background.default,
+        },
+        headerShadowVisible: false,
+        headerTitleStyle: {
+          fontSize: theme.typography.h4.fontSize,
+          fontWeight: '700',
+          color: theme.colors.text.primary,
+        },
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => openFeedbackEmail('Main navigation', user?.email)}
             style={{
-              color: theme.colors.primary.main,
-              fontWeight: '700',
               marginRight: theme.spacing.md,
             }}
           >
-            Sign out
-          </Text>
-        </TouchableOpacity>
-      ),
-    }}
-  >
-    <Tab.Screen
-      name="Properties"
-      component={HomeScreen}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="home" color={color} size={size} />
+            <Text
+              style={{
+                color: theme.colors.primary.main,
+                fontWeight: '700',
+              }}
+            >
+              Feedback
+            </Text>
+          </TouchableOpacity>
+        ),
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => supabase.auth.signOut()}>
+            <Text
+              style={{
+                color: theme.colors.text.secondary,
+                fontWeight: '700',
+                marginLeft: theme.spacing.md,
+              }}
+            >
+              Sign out
+            </Text>
+          </TouchableOpacity>
         ),
       }}
-    />
-    <Tab.Screen
-      name="Areas"
-      component={AreasScreen}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="area" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Notes"
-      component={NotesScreen}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="note" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Todos"
-      component={TodosScreen}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="todo" color={color} size={size} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Pro"
-      component={UpgradeScreen}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Icon name="priority" color={color} size={size} />
-        ),
-      }}
-    />
-  </Tab.Navigator>
-);
+    >
+      <Tab.Screen
+        name="Properties"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Areas"
+        component={AreasScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="area" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notes"
+        component={NotesScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="note" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Todos"
+        component={TodosScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="todo" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Pro"
+        component={UpgradeScreen}
+        options={{
+          title: isFreeBeta ? 'Beta' : 'Pro',
+          tabBarLabel: isFreeBeta ? 'Beta' : 'Pro',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="priority" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
 
 export const AppNavigator = () => {
   return (
@@ -250,7 +276,7 @@ export const AppNavigator = () => {
         <Stack.Screen
           name="Upgrade"
           component={UpgradeScreen}
-          options={{ title: 'HomeDoc Pro' }}
+          options={{ title: isFreeBeta ? 'HomeDoc Beta' : 'HomeDoc Pro' }}
         />
         <Stack.Screen
           name="InviteContractor"

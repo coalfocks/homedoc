@@ -166,13 +166,13 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
       const { error } = await supabase
         .from('properties')
         .update({
-          name,
-          nickname,
-          address_line_1: addressLine1,
-          address_line_2: addressLine2,
-          city,
-          state,
-          zip_code: zipCode,
+          name: name.trim(),
+          nickname: nickname.trim() || null,
+          address_line_1: addressLine1.trim() || null,
+          address_line_2: addressLine2.trim() || null,
+          city: city.trim() || null,
+          state: state.trim() || null,
+          zip_code: zipCode.trim() || null,
           image_url: imageUrl,
         })
         .eq('id', property.id);
@@ -230,7 +230,7 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
           labelStyle={styles.label}
         />
         <Input
-          label="Address Line 1"
+          label="Address Line 1 (optional)"
           value={addressLine1}
           onChangeText={setAddressLine1}
           placeholder="Enter address line 1"
@@ -250,7 +250,7 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
           labelStyle={styles.label}
         />
         <Input
-          label="City"
+          label="City (optional)"
           value={city}
           onChangeText={setCity}
           placeholder="Enter city"
@@ -288,9 +288,7 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
           title="Save Changes"
           onPress={handleSave}
           loading={loading}
-          disabled={
-            loading || !name || !addressLine1 || !city || !state || !zipCode
-          }
+          disabled={loading || !name.trim()}
           containerStyle={styles.cursorPointer}
         />
         <Button

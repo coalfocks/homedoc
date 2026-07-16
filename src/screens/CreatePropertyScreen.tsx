@@ -45,18 +45,15 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const requiredFields = [
-    name.trim(),
-    addressLine1.trim(),
-    city.trim(),
-    state.trim(),
-    zipCode.trim(),
-  ];
+  const hasAddress =
+    addressLine1.trim() || city.trim() || state.trim() || zipCode.trim();
+  const requiredFields = [name.trim()];
   const completedSteps =
     requiredFields.filter(Boolean).length +
     (image ? 1 : 0) +
-    (nickname ? 1 : 0);
-  const totalSteps = 7;
+    (nickname ? 1 : 0) +
+    (hasAddress ? 1 : 0);
+  const totalSteps = 4;
   const isReady = requiredFields.every(Boolean);
 
   const pickImage = async () => {
@@ -107,17 +104,17 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
         imageUrl = await uploadImage(image);
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('properties')
         .insert([
           {
-            name,
-            nickname,
-            address_line_1: addressLine1,
-            address_line_2: addressLine2,
-            city,
-            state,
-            zip_code: zipCode,
+            name: name.trim(),
+            nickname: nickname.trim() || null,
+            address_line_1: addressLine1.trim() || null,
+            address_line_2: addressLine2.trim() || null,
+            city: city.trim() || null,
+            state: state.trim() || null,
+            zip_code: zipCode.trim() || null,
             image_url: imageUrl,
             user_id: user.id,
           },
@@ -128,7 +125,9 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
       if (error) throw error;
 
       setCreated(true);
-      setTimeout(() => navigation.goBack(), 550);
+      setTimeout(() => {
+        navigation.replace('Property', { propertyId: data.id });
+      }, 550);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -155,8 +154,8 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
             subtitle="Add the core details once so every area, note, and task has a clean place to land."
             stepLabel={
               isReady
-                ? 'Required details are ready.'
-                : 'Name, address, city, state, and ZIP are required.'
+                ? 'You can save this property now.'
+                : 'A property name is the only required field.'
             }
             completedSteps={completedSteps}
             totalSteps={totalSteps}
@@ -165,7 +164,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
           <CreationPrompt
             icon="home"
             title="Start with the parts you know"
-            body="Photos and nicknames are optional, but they make the home easier to recognize later."
+            body="A name is enough for beta. Add the address, photo, and nickname now if they are handy, or fill them in later."
           />
 
           <CreationCard>
@@ -209,7 +208,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
             />
 
             <Input
-              label="Address Line 1"
+              label="Address Line 1 (optional)"
               value={addressLine1}
               onChangeText={setAddressLine1}
               placeholder="Enter address line 1"
@@ -233,7 +232,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
             />
 
             <Input
-              label="City"
+              label="City (optional)"
               value={city}
               onChangeText={setCity}
               placeholder="Enter city"

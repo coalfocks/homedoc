@@ -13,8 +13,11 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
+  StatusBanner,
 } from '../components/AppChrome';
+import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
 import { UpgradeCard } from '../components/UpgradeCard';
+import { formatAddressLines } from '../utils/address';
 import { theme } from '../utils/theme';
 
 type HomeScreenProps = {
@@ -24,7 +27,7 @@ type HomeScreenProps = {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, loading: authLoading } = useAuth();
   const { properties, loading, error, refetch } = useProperties(user?.id);
-  const { isPro, checkoutLoading } = useBilling();
+  const { isPro, betaAccess, checkoutLoading } = useBilling();
 
   const totalAreas = properties.reduce(
     (sum, property: any) => sum + (property.area_count ?? 0),
@@ -72,6 +75,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         subtitle="The homes you manage, with room-by-room records ready whenever something breaks."
       />
 
+      {betaAccess ? (
+        <StatusBanner
+          title="Free beta is on"
+          body="Pro features are included while we learn what actually helps people document and hand off a home."
+        />
+      ) : null}
+
+      <BetaFeedbackCard context="Properties" compact />
+
       {!isPro && properties.length > 0 ? (
         <UpgradeCard
           compact
@@ -114,60 +126,81 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       />
 
       {properties.length === 0 ? (
-        <EmptyStateCard
-          icon="home"
-          title="No properties yet"
-          description="Start with the main house, rental, or cabin you actually need to remember details for."
-          actionLabel="Add your first property"
-          onActionPress={handleAddProperty}
-        />
+        <>
+          <View style={styles.startGuide}>
+            <Text style={styles.startGuideTitle}>
+              Start with one real place
+            </Text>
+            <Text style={styles.startGuideBody}>
+              Add a property, create an area like Kitchen or Utility Room, then
+              capture one note or todo you would normally forget.
+            </Text>
+          </View>
+          <EmptyStateCard
+            icon="home"
+            title="No properties yet"
+            description="A good beta test starts with the home you live in, rent out, or help maintain."
+            actionLabel="Add your first property"
+            onActionPress={handleAddProperty}
+          />
+        </>
       ) : (
         <View style={styles.list}>
-          {properties.map((item: any) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() =>
-                navigation.navigate('Property', { propertyId: item.id })
-              }
-              style={styles.card}
-            >
-              {item.image_url ? (
-                <Image
-                  source={{ uri: item.image_url }}
-                  style={styles.propertyImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View style={styles.imageFallback}>
-                  <Text style={styles.imageFallbackText}>
-                    {item.name?.slice(0, 1)?.toUpperCase() || 'H'}
-                  </Text>
-                </View>
-              )}
-              <View style={styles.cardBody}>
-                <View style={styles.cardTopRow}>
-                  <View style={styles.cardTitleWrap}>
-                    <Text style={styles.cardTitle}>
-                      {item.nickname || item.name}
+          {properties.map((item: any) => {
+            const addressLines = formatAddressLines(item);
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() =>
+                  navigation.navigate('Property', { propertyId: item.id })
+                }
+                style={styles.card}
+              >
+                {item.image_url ? (
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.propertyImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.imageFallback}>
+                    <Text style={styles.imageFallbackText}>
+                      {item.name?.slice(0, 1)?.toUpperCase() || 'H'}
                     </Text>
-                    {item.nickname ? (
-                      <Text style={styles.cardSubtitle}>{item.name}</Text>
-                    ) : null}
                   </View>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>Property</Text>
+                )}
+                <View style={styles.cardBody}>
+                  <View style={styles.cardTopRow}>
+                    <View style={styles.cardTitleWrap}>
+                      <Text style={styles.cardTitle}>
+                        {item.nickname || item.name}
+                      </Text>
+                      {item.nickname ? (
+                        <Text style={styles.cardSubtitle}>{item.name}</Text>
+                      ) : null}
+                    </View>
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>Property</Text>
+                    </View>
                   </View>
+                  {addressLines.length > 0 ? (
+                    <>
+                      {addressLines.map((line) => (
+                        <Text key={line} style={styles.address}>
+                          {line}
+                        </Text>
+                      ))}
+                    </>
+                  ) : (
+                    <Text style={styles.address}>
+                      Add the address when you need it.
+                    </Text>
+                  )}
                 </View>
-                <Text style={styles.address}>
-                  {item.address_line_1}
-                  {item.address_line_2 ? `, ${item.address_line_2}` : ''}
-                </Text>
-                <Text style={styles.address}>
-                  {item.city}, {item.state} {item.zip_code}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
     </Screen>
@@ -198,6 +231,24 @@ const styles = StyleSheet.create({
   },
   noticeBody: {
     color: theme.colors.text.slate,
+  },
+  startGuide: {
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.14)',
+    marginBottom: theme.spacing.md,
+  },
+  startGuideTitle: {
+    color: theme.colors.primary.dark,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '800',
+    marginBottom: theme.spacing.xs,
+  },
+  startGuideBody: {
+    color: theme.colors.text.slate,
+    lineHeight: theme.typography.body2.lineHeight,
   },
   list: {
     gap: theme.spacing.md,

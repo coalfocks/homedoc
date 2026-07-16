@@ -3,6 +3,7 @@ import { Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { isFreeBeta } from '../config/beta';
 
 export type Entitlement = {
   plan: 'free' | 'pro';
@@ -127,11 +128,13 @@ export const useBilling = () => {
   }, []);
 
   const isPro =
-    entitlement.plan === 'pro' && proStatuses.has(entitlement.status);
+    isFreeBeta ||
+    (entitlement.plan === 'pro' && proStatuses.has(entitlement.status));
 
   return {
     entitlement,
     isPro,
+    betaAccess: isFreeBeta,
     loading,
     checkoutLoading,
     error,

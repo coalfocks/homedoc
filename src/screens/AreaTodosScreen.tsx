@@ -129,9 +129,7 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
           title="No todos here"
           description="Add your first task — a repair, upgrade, or anything you need to get done in this area."
           actionLabel="Add todo"
-          onActionPress={() =>
-            navigation.navigate('CreateTodo', { areaId })
-          }
+          onActionPress={() => navigation.navigate('CreateTodo', { areaId })}
         />
       ) : (
         <View style={styles.list}>
@@ -208,7 +206,6 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
           ))}
         </View>
       )}
-
     </Screen>
   );
 };

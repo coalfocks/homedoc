@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import {
   EmptyStateCard,
@@ -8,8 +8,12 @@ import {
   Screen,
   SectionTitle,
 } from '../components/AppChrome';
+import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
 import { UpgradeCard } from '../components/UpgradeCard';
+import { useAuth } from '../contexts/AuthContext';
 import { useBilling } from '../hooks/useBilling';
+import { supabase } from '../lib/supabase';
+import { openFeedbackEmail } from '../utils/feedback';
 import { theme } from '../utils/theme';
 
 const proFeatures = [
@@ -35,21 +39,122 @@ const goToMarketUseCases = [
 ];
 
 const UpgradeScreen: React.FC = () => {
+  const { user, signOut } = useAuth();
   const {
     entitlement,
     isPro,
+    betaAccess,
     checkoutLoading,
     error,
     openCheckout,
     openBillingPortal,
   } = useBilling();
 
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Delete account',
+      'This permanently deletes your HomeDoc account and the properties owned by this account. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete account',
+          style: 'destructive',
+          onPress: async () => {
+            const { error: deleteError } =
+              await supabase.functions.invoke('delete-account');
+
+            if (deleteError) {
+              Alert.alert(
+                'Could not delete account',
+                deleteError.message || 'Please send a deletion request.',
+              );
+              return;
+            }
+
+            await signOut();
+          },
+        },
+      ],
+    );
+  };
+
+  if (betaAccess) {
+    const betaFeatures = [
+      'AI planning for home todos',
+      'Multiple properties while beta access is active',
+      'Share and transfer flows for home handoff testing',
+      'Feedback capture with app version and account context',
+    ];
+
+    return (
+      <Screen scroll contentContainerStyle={styles.content}>
+        <PageHeader
+          eyebrow="HOMEDOC BETA"
+          title="Free beta access is active"
+          subtitle="Use the full app, then tell us what feels useful, confusing, or missing before paid plans go live."
+        />
+
+        <View style={styles.activeCard}>
+          <Text style={styles.activeTitle}>No payment required</Text>
+          <Text style={styles.activeBody}>
+            Pro surfaces are included during beta so testers can exercise the
+            complete workflow without hitting checkout.
+          </Text>
+        </View>
+
+        <SectionTitle
+          title="What to try"
+          subtitle="The goal is to learn whether documenting a home feels valuable enough to keep doing."
+        />
+        <View style={styles.featureList}>
+          {betaFeatures.map((feature) => (
+            <View key={feature} style={styles.featureRow}>
+              <Text style={styles.check}>✓</Text>
+              <Text style={styles.featureText}>{feature}</Text>
+            </View>
+          ))}
+        </View>
+
+        <BetaFeedbackCard context="Beta" compact />
+
+        <SectionTitle
+          title="Privacy and account"
+          subtitle="HomeDoc stores home details, addresses, and photos. Uploaded images currently use public storage URLs during beta."
+        />
+        <View style={styles.accountCard}>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() =>
+              openFeedbackEmail('Privacy or data request', user?.email)
+            }
+          >
+            <Text style={styles.secondaryButtonText}>Privacy request</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteAccountButton}
+            onPress={confirmDeleteAccount}
+          >
+            <Text style={styles.deleteAccountButtonText}>Delete account</Text>
+          </TouchableOpacity>
+        </View>
+      </Screen>
+    );
+  }
+
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="HOMEDOC PRO"
-        title="Keep the house knowledge worth paying for"
-        subtitle="HomeDoc Pro is for AI planning, unlimited records, and clean handoffs when a home changes hands."
+        eyebrow={betaAccess ? 'HOMEDOC BETA' : 'HOMEDOC PRO'}
+        title={
+          betaAccess
+            ? 'Pro is included while HomeDoc is in beta'
+            : 'Keep the house knowledge worth paying for'
+        }
+        subtitle={
+          betaAccess
+            ? 'Use everything, then tell us what should stay, what should change, and what would eventually be worth paying for.'
+            : 'HomeDoc Pro is for AI planning, unlimited records, and clean handoffs when a home changes hands.'
+        }
       />
 
       <View style={styles.metricRow}>
@@ -57,7 +162,15 @@ const UpgradeScreen: React.FC = () => {
         <MetricPill label="Status" value={entitlement.status || 'free'} />
       </View>
 
-      {isPro ? (
+      {betaAccess ? (
+        <View style={styles.activeCard}>
+          <Text style={styles.activeTitle}>Free beta access is active</Text>
+          <Text style={styles.activeBody}>
+            AI planning, extra properties, and handoff surfaces are unlocked for
+            beta feedback. No payment is required right now.
+          </Text>
+        </View>
+      ) : isPro ? (
         <View style={styles.activeCard}>
           <Text style={styles.activeTitle}>Pro is active</Text>
           <Text style={styles.activeBody}>
@@ -82,6 +195,8 @@ const UpgradeScreen: React.FC = () => {
           onPress={openCheckout}
         />
       )}
+
+      <BetaFeedbackCard context="Beta and Pro" compact />
 
       {error ? (
         <View style={styles.errorCard}>
@@ -182,6 +297,26 @@ const styles = StyleSheet.create({
   errorBody: {
     color: theme.colors.text.slate,
     lineHeight: theme.typography.body2.lineHeight,
+  },
+  accountCard: {
+    gap: theme.spacing.sm,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    marginBottom: theme.spacing.lg,
+  },
+  deleteAccountButton: {
+    alignItems: 'center',
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.error.main,
+    paddingVertical: 12,
+  },
+  deleteAccountButtonText: {
+    color: theme.colors.error.main,
+    fontWeight: '800',
   },
   featureList: {
     gap: theme.spacing.sm,

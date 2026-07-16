@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useProperty, useAreas } from '../hooks/useData';
+import { formatAddressBlock } from '../utils/address';
 import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 
@@ -160,10 +161,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
             <Text style={styles.propertyNickname}>"{property.nickname}"</Text>
           )}
           <Text style={styles.propertyAddress}>
-            {property.address_line_1}
-            {property.address_line_2 && `\n${property.address_line_2}`}
-            {'\n'}
-            {property.city}, {property.state} {property.zip_code}
+            {formatAddressBlock(property, 'Address not added yet.')}
           </Text>
           <Text style={styles.propertyStats}>
             {areas?.length || 0} {areas?.length === 1 ? 'Area' : 'Areas'}
