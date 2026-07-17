@@ -10,7 +10,7 @@ HomeDoc uses Expo EAS for TestFlight builds.
 4. EAS builds with the `production` profile and waits for completion.
 5. The workflow submits that exact EAS build ID to App Store Connect with verbose submit logs.
 
-The `production` profile in `eas.json` intentionally uses:
+The `production` profile in `eas.json` intentionally uses local signing credentials:
 
 ```json
 "credentialsSource": "local",
@@ -20,6 +20,14 @@ The `production` profile in `eas.json` intentionally uses:
 ```
 
 This bypasses stale remote credentials on Expo's servers.
+
+The app uses local timestamp-style iOS build numbers in `app.json`
+(`expo.ios.buildNumber`). Do not switch `cli.appVersionSource` back to
+`remote` unless the EAS remote build number is first moved above the highest
+timestamp build already uploaded to App Store Connect. On July 17, 2026, remote
+auto-increment produced build `26`, but Apple had already seen
+`202607132104`, so App Store Connect rejected the IPA as a lower
+`CFBundleVersion`.
 
 The iOS image is pinned because App Store Connect now rejects builds made with the iOS 18.5 SDK / Xcode 16.4. Expo documents `macos-sequoia-15.6-xcode-26.0` as the Xcode 26 image, and EAS's default `auto` image for this Expo SDK can otherwise select Xcode 16.4.
 
