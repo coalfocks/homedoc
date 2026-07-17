@@ -351,21 +351,19 @@ const styles = StyleSheet.create({
   },
   washTop: {
     position: 'absolute',
-    top: -70,
-    right: -40,
-    width: 220,
-    height: 220,
-    borderRadius: 999,
-    backgroundColor: 'rgba(201, 122, 43, 0.10)',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 132,
+    backgroundColor: 'rgba(255,255,255,0.30)',
   },
   washBottom: {
     position: 'absolute',
-    bottom: -80,
-    left: -60,
-    width: 260,
-    height: 260,
-    borderRadius: 999,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 96,
+    backgroundColor: 'rgba(31, 77, 107, 0.04)',
   },
   headerBlock: {
     marginBottom: theme.spacing.lg,
@@ -382,7 +380,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary.dark,
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 1.4,
+    letterSpacing: 0,
     marginBottom: theme.spacing.xs,
   },
   headerTitle: {
@@ -542,7 +540,7 @@ const styles = StyleSheet.create({
   priorityBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 0.3,
+    letterSpacing: 0,
   },
   statusBadge: {
     paddingHorizontal: theme.spacing.sm,
@@ -553,6 +551,6 @@ const styles = StyleSheet.create({
   statusBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 0.3,
+    letterSpacing: 0,
   },
 });

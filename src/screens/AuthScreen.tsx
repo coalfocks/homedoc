@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 1.8,
+    letterSpacing: 0,
   },
   heroTitle: {
     color: theme.colors.text.primary,

@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0,
     textTransform: 'uppercase',
     marginBottom: 4,
   },

@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
     fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.8,
+    letterSpacing: 0,
   },
   title: {
     color: theme.colors.primary.contrast,

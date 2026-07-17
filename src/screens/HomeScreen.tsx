@@ -13,7 +13,6 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
-  StatusBanner,
 } from '../components/AppChrome';
 import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
 import { UpgradeCard } from '../components/UpgradeCard';
@@ -72,17 +71,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <PageHeader
         eyebrow="YOUR HOME BASE"
         title="Properties"
-        subtitle="The homes you manage, with room-by-room records ready whenever something breaks."
+        subtitle="Room-by-room records for the homes you manage."
       />
 
-      {betaAccess ? (
-        <StatusBanner
-          title="Free beta is on"
-          body="Pro features are included while we learn what actually helps people document and hand off a home."
-        />
-      ) : null}
-
-      <BetaFeedbackCard context="Properties" compact />
+      <BetaFeedbackCard
+        context="Properties"
+        compact
+        title={betaAccess ? 'Free beta is on' : 'Beta feedback wanted'}
+        body={
+          betaAccess
+            ? 'Pro features are included for now. Send feedback when something feels clunky or worth keeping.'
+            : 'Tell us what made sense, what felt clunky, and what would make this worth keeping around.'
+        }
+      />
 
       {!isPro && properties.length > 0 ? (
         <UpgradeCard

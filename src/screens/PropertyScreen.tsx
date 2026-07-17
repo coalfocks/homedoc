@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 220,
     borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.background.dark,
     marginBottom: theme.spacing.lg,
   },
   heroFallback: {
@@ -251,11 +252,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 220,
     borderRadius: theme.borderRadius.xl,
-    backgroundColor: theme.colors.primary.light,
+    backgroundColor: 'rgba(63, 127, 104, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(63, 127, 104, 0.20)',
     marginBottom: theme.spacing.lg,
   },
   heroFallbackText: {
-    color: theme.colors.primary.contrast,
+    color: theme.colors.accent.dark,
     fontSize: 48,
     fontWeight: '800',
   },
@@ -290,7 +293,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
     fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.8,
+    letterSpacing: 0,
   },
   handoffTitle: {
     color: theme.colors.primary.contrast,

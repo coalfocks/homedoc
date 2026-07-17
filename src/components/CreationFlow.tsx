@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary.dark,
     fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.6,
+    letterSpacing: 0,
     textTransform: 'uppercase',
   },
   stepText: {

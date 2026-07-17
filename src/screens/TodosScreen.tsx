@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary.dark,
     fontSize: 13,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0,
     textTransform: 'uppercase',
     marginTop: theme.spacing.sm,
     marginBottom: theme.spacing.xs,

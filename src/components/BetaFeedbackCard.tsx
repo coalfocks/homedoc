@@ -8,22 +8,23 @@ import { theme } from '../utils/theme';
 type BetaFeedbackCardProps = {
   context: string;
   compact?: boolean;
+  title?: string;
+  body?: string;
 };
 
 export const BetaFeedbackCard: React.FC<BetaFeedbackCardProps> = ({
   context,
   compact = false,
+  title = 'Beta feedback wanted',
+  body = 'Tell us what made sense, what felt clunky, and what would make this worth keeping around.',
 }) => {
   const { user } = useAuth();
 
   return (
     <View style={[styles.card, compact && styles.compactCard]}>
       <View style={styles.copy}>
-        <Text style={styles.title}>Beta feedback wanted</Text>
-        <Text style={styles.body}>
-          Tell us what made sense, what felt clunky, and what would make this
-          worth keeping around.
-        </Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.body}>{body}</Text>
       </View>
       <TouchableOpacity
         style={styles.button}
