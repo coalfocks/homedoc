@@ -28,7 +28,7 @@ jobs:
           # eas build --platform all --non-interactive --no-wait
           # eas deploy --platform all --non-interactive
           npx expo export --platform=web
-          eas deploy --non-interactive
+          eas deploy --prod --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
