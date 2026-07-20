@@ -108,12 +108,20 @@ export const MarketingScreen = () => {
         <View style={[styles.heroCopy, isNarrow && styles.heroCopyNarrow]}>
           <Text style={styles.kicker}>PRIVATE HOME RECORDS</Text>
           <Text style={[styles.heroTitle, isNarrow && styles.heroTitleNarrow]}>
-            The memory your house should have come with.
+            The memory your home never had.
           </Text>
           <Text style={[styles.heroBody, isNarrow && styles.heroBodyNarrow]}>
             HomeDoc keeps the details every homeowner loses: project notes,
             photos, appliance info, contractor history, maintenance todos, and
             the little facts you only remember when something breaks.
+          </Text>
+          <Text style={styles.heroExample}>
+            Find the furnace filter size, last service date, or paint color in
+            seconds instead of digging through texts and camera rolls.
+          </Text>
+          <Text style={styles.privacyLine}>
+            Your records are private to your account and the people you choose
+            to share them with.
           </Text>
           <View style={styles.heroActions}>
             <TouchableOpacity
@@ -123,10 +131,12 @@ export const MarketingScreen = () => {
               <Text style={styles.primaryActionText}>Request beta access</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.secondaryAction}
+              style={styles.inviteLink}
               onPress={() => openUrl(appUrl)}
             >
-              <Text style={styles.secondaryActionText}>I have an invite</Text>
+              <Text style={styles.inviteLinkText}>
+                I already have an invite
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -264,15 +274,31 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 30,
     maxWidth: 620,
-    marginBottom: 28,
+    marginBottom: 16,
   },
   heroBodyNarrow: {
     fontSize: 17,
     lineHeight: 26,
   },
+  heroExample: {
+    color: theme.colors.primary.dark,
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '800',
+    maxWidth: 620,
+    marginBottom: 10,
+  },
+  privacyLine: {
+    color: theme.colors.text.secondary,
+    fontSize: 14,
+    lineHeight: 21,
+    maxWidth: 620,
+    marginBottom: 26,
+  },
   heroActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 12,
   },
   primaryAction: {
@@ -286,16 +312,12 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
     fontWeight: '900',
   },
-  secondaryAction: {
+  inviteLink: {
     minHeight: 48,
     justifyContent: 'center',
-    borderRadius: theme.borderRadius.sm,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderColor: theme.colors.border.strong,
-    backgroundColor: theme.colors.background.elevated,
+    paddingHorizontal: 6,
   },
-  secondaryActionText: {
+  inviteLinkText: {
     color: theme.colors.primary.dark,
     fontWeight: '900',
   },
