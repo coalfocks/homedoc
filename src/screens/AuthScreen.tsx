@@ -163,55 +163,6 @@ const AuthScreen: React.FC = () => {
             </Text>
           </View>
 
-          <View style={styles.valueStrip}>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>Move-in memory</Text>
-              <Text style={styles.valueBody}>Capture the details once.</Text>
-            </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>AI planning</Text>
-              <Text style={styles.valueBody}>
-                Scope repairs before you start.
-              </Text>
-            </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>Home handoff</Text>
-              <Text style={styles.valueBody}>Transfer records cleanly.</Text>
-            </View>
-          </View>
-
-          <View style={styles.betaNotice}>
-            <Text style={styles.betaNoticeTitle}>Free beta</Text>
-            <Text style={styles.betaNoticeBody}>
-              Use the full app while we polish the workflow. HomeDoc stores home
-              details, addresses, and photos in your account.
-            </Text>
-            <Text style={styles.betaNoticeBody}>
-              During beta, uploaded images use public storage URLs, so do not
-              upload sensitive documents or photos you would not want accessible
-              to someone with a direct link. AI planning may send todo context
-              to our AI provider to generate a plan.
-            </Text>
-            <View style={styles.betaNoticeActions}>
-              <TouchableOpacity
-                style={styles.betaNoticeButton}
-                onPress={() =>
-                  openFeedbackEmail('Privacy or data request', normalizedEmail)
-                }
-              >
-                <Text style={styles.betaNoticeButtonText}>Privacy request</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.betaNoticeButton}
-                onPress={() =>
-                  openFeedbackEmail('Account deletion request', normalizedEmail)
-                }
-              >
-                <Text style={styles.betaNoticeButtonText}>Delete account</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           <View style={styles.authCard}>
             <View style={styles.modeSwitcher}>
               <Button
@@ -321,6 +272,54 @@ const AuthScreen: React.FC = () => {
               redirects are verified.
             </Text>
           </View>
+
+          <View style={styles.valueStrip}>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>Move-in memory</Text>
+              <Text style={styles.valueBody}>Capture the details once.</Text>
+            </View>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>AI planning</Text>
+              <Text style={styles.valueBody}>
+                Scope repairs before you start.
+              </Text>
+            </View>
+            <View style={styles.valueItem}>
+              <Text style={styles.valueTitle}>Home handoff</Text>
+              <Text style={styles.valueBody}>Transfer records cleanly.</Text>
+            </View>
+          </View>
+
+          <View style={styles.betaNotice}>
+            <Text style={styles.betaNoticeTitle}>Free beta</Text>
+            <Text style={styles.betaNoticeBody}>
+              Use the full app while we polish the workflow. HomeDoc stores home
+              details, addresses, and photos in your account.
+            </Text>
+            <Text style={styles.betaNoticeBody}>
+              During beta, uploaded images are private to people with record
+              access. AI planning may send todo context to our AI provider to
+              generate a plan.
+            </Text>
+            <View style={styles.betaNoticeActions}>
+              <TouchableOpacity
+                style={styles.betaNoticeButton}
+                onPress={() =>
+                  openFeedbackEmail('Privacy or data request', normalizedEmail)
+                }
+              >
+                <Text style={styles.betaNoticeButtonText}>Privacy request</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.betaNoticeButton}
+                onPress={() =>
+                  openFeedbackEmail('Account deletion request', normalizedEmail)
+                }
+              >
+                <Text style={styles.betaNoticeButtonText}>Delete account</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -338,8 +337,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingVertical: 40,
+    justifyContent: 'flex-start',
+    paddingTop: 28,
+    paddingBottom: 32,
   },
   header: {
     alignItems: 'center',
@@ -347,8 +347,8 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: theme.colors.primary.light,
-    marginTop: 20,
-    marginBottom: 12,
+    marginTop: 14,
+    marginBottom: 8,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0,
@@ -356,9 +356,9 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: theme.colors.text.primary,
     textAlign: 'center',
-    fontSize: 32,
-    lineHeight: 38,
-    marginBottom: 12,
+    fontSize: 30,
+    lineHeight: 36,
+    marginBottom: 8,
   },
   heroSubtitle: {
     color: theme.colors.text.secondary,
@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     maxWidth: 360,
+    marginBottom: 16,
   },
   authCard: {
     width: '100%',
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     alignSelf: 'center',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
   valueItem: {
     padding: theme.spacing.md,
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(31, 77, 107, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(31, 77, 107, 0.14)',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   betaNoticeTitle: {
     color: theme.colors.primary.dark,
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   helperText: {
-    color: theme.colors.text.secondary,
+    color: 'rgba(255,255,255,0.72)',
     fontSize: 14,
     lineHeight: 21,
     marginTop: 6,
@@ -539,9 +540,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   linkButtonText: {
-    color: theme.colors.primary.main,
+    color: theme.colors.secondary.light,
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '700',
   },
   confirmationContent: {
     alignItems: 'center',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,9 +14,12 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
+  SortControl,
 } from '../components/AppChrome';
+import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
 import { formatAddressBlock } from '../utils/address';
+import { SortOrder, sortRecords } from '../utils/sortRecords';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
@@ -30,6 +33,11 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   const { property, loading, error } = useProperty(route.params.propertyId);
   const { areas } = useAreas(route.params.propertyId);
   const { isPro } = useBilling();
+  const [sortOrder, setSortOrder] = useState<SortOrder>('alphabetical');
+  const sortedAreas = useMemo(
+    () => sortRecords(areas, sortOrder, (area) => area.name),
+    [areas, sortOrder],
+  );
 
   if (loading) {
     return (
@@ -98,8 +106,8 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
       />
 
       {property.image_url ? (
-        <Image
-          source={{ uri: property.image_url }}
+        <SignedImage
+          imagePath={property.image_url}
           style={styles.heroImage}
           resizeMode="cover"
         />
@@ -188,15 +196,24 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         />
       ) : (
         <View style={styles.list}>
-          {areas.map((item: any) => (
+          <SortControl
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { label: 'A-Z', value: 'alphabetical' },
+              { label: 'Newest', value: 'newest' },
+              { label: 'Oldest', value: 'oldest' },
+            ]}
+          />
+          {sortedAreas.map((item: any) => (
             <TouchableOpacity
               key={item.id}
               onPress={() => navigation.navigate('Area', { areaId: item.id })}
               style={styles.card}
             >
               {item.image_url ? (
-                <Image
-                  source={{ uri: item.image_url }}
+                <SignedImage
+                  imagePath={item.image_url}
                   style={styles.areaImage}
                   resizeMode="cover"
                 />

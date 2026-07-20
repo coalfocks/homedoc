@@ -70,7 +70,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
       isTransfer ? 'Transfer property?' : 'Share property?',
       isTransfer
         ? `This will move "${property.name}" into ${recipientEmail}'s household. Everyone in their household will get access, and your household will lose access unless they share it back.`
-        : `This will add ${recipientEmail} to the household for "${property.name}" so you can both manage shared properties, areas, notes, photos, and todos.`,
+        : `This will give ${recipientEmail} access to "${property.name}" only. Other properties in your household stay private.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -105,7 +105,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
         isTransfer ? 'Property transferred' : 'Property shared',
         isTransfer
           ? `${transfer?.propertyName || property.name} is now owned by ${transfer?.recipientEmail || recipientEmail}'s household.`
-          : `${transfer?.recipientEmail || recipientEmail} can now access the shared household for ${transfer?.propertyName || property.name}.`,
+          : `${transfer?.recipientEmail || recipientEmail} can now access ${transfer?.propertyName || property.name}.`,
         [
           {
             text: 'OK',
@@ -132,7 +132,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
         <Text style={styles.warning}>
           {isTransfer
             ? 'Transfer this property to a new owner. Their whole household will get access, and your household will lose access unless the new owner shares it back.'
-            : 'Share this property with a spouse, partner, or trusted co-owner. They can manage shared household properties, areas, notes, photos, and todos with you.'}
+            : 'Share this property with a spouse, partner, or trusted co-owner. They can manage this property, areas, notes, photos, and todos with you.'}
         </Text>
 
         <Input

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { Platform, View, ActivityIndicator, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@rneui/themed';
@@ -7,8 +7,23 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import SplashScreen from './src/screens/SplashScreen';
 import AuthScreen from './src/screens/AuthScreen';
+import { MarketingScreen } from './src/screens/MarketingScreen';
 import { theme } from './src/utils/theme';
 import { isSupabaseConfigured } from './src/lib/supabase';
+
+const marketingHosts = new Set([
+  'homedocumentation.com',
+  'www.homedocumentation.com',
+]);
+
+const isMarketingHost = () => {
+  if (Platform.OS !== 'web') return false;
+
+  const hostname =
+    typeof window !== 'undefined' ? window.location.hostname : '';
+
+  return marketingHosts.has(hostname);
+};
 
 const ConfigErrorScreen = () => (
   <View
@@ -82,6 +97,17 @@ const AppContent = () => {
 
 const App = () => {
   const [isSplashComplete, setIsSplashComplete] = useState(false);
+
+  if (isMarketingHost()) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <ThemeProvider theme={theme}>
+          <MarketingScreen />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    );
+  }
 
   if (!isSplashComplete) {
     return <SplashScreen onFinish={() => setIsSplashComplete(true)} />;

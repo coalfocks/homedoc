@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -13,10 +13,13 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
+  SortControl,
 } from '../components/AppChrome';
 import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
+import { SignedImage } from '../components/SignedImage';
 import { UpgradeCard } from '../components/UpgradeCard';
 import { formatAddressLines } from '../utils/address';
+import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { theme } from '../utils/theme';
 
 type HomeScreenProps = {
@@ -27,6 +30,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, loading: authLoading } = useAuth();
   const { properties, loading, error, refetch } = useProperties(user?.id);
   const { isPro, betaAccess, checkoutLoading } = useBilling();
+  const [sortOrder, setSortOrder] = useState<SortOrder>('alphabetical');
+  const sortedProperties = useMemo(
+    () =>
+      sortRecords(
+        properties,
+        sortOrder,
+        (property: any) => property.nickname || property.name,
+      ),
+    [properties, sortOrder],
+  );
 
   const totalAreas = properties.reduce(
     (sum, property: any) => sum + (property.area_count ?? 0),
@@ -147,7 +160,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </>
       ) : (
         <View style={styles.list}>
-          {properties.map((item: any) => {
+          <SortControl
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { label: 'A-Z', value: 'alphabetical' },
+              { label: 'Newest', value: 'newest' },
+              { label: 'Oldest', value: 'oldest' },
+            ]}
+          />
+          {sortedProperties.map((item: any) => {
             const addressLines = formatAddressLines(item);
 
             return (
@@ -159,8 +181,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 style={styles.card}
               >
                 {item.image_url ? (
-                  <Image
-                    source={{ uri: item.image_url }}
+                  <SignedImage
+                    imagePath={item.image_url}
                     style={styles.propertyImage}
                     resizeMode="cover"
                   />

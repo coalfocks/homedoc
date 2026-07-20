@@ -16,6 +16,8 @@ import { useArea } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { SignedImage } from '../components/SignedImage';
+import { isDirectImageUri, uploadPrivateImage } from '../utils/privateImages';
 
 type EditAreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditArea'>;
@@ -55,29 +57,6 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
     }
   };
 
-  const uploadImage = async (uri: string) => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const filename = `areas/${area?.property_id}/${Date.now()}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filename, blob);
-
-      if (error) throw error;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('images').getPublicUrl(filename);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
-    }
-  };
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -110,8 +89,8 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
       let imageUrl = area?.image_url || null;
 
       // Upload new image if one was selected and it's different from current
-      if (image && image !== area?.image_url) {
-        imageUrl = await uploadImage(image);
+      if (image && image !== area?.image_url && isDirectImageUri(image)) {
+        imageUrl = await uploadPrivateImage(image, `areas/${area.property_id}`);
       }
 
       const { error: updateError } = await supabase
@@ -143,7 +122,7 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
       <View style={styles.content}>
         <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
           {image ? (
-            <Image source={{ uri: image }} style={styles.imagePreview} />
+            <SignedImage imagePath={image} style={styles.imagePreview} />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Icon name="add" color="#FFFFFF" size={32} />

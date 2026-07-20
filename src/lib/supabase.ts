@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { AppState, Platform } from 'react-native';
 import Constants from 'expo-constants';
 
@@ -14,6 +15,21 @@ export const supabaseAnonKey =
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
+const secureAuthStorage = {
+  getItem: (key: string) => {
+    if (Platform.OS === 'web') return AsyncStorage.getItem(key);
+    return SecureStore.getItemAsync(key);
+  },
+  setItem: (key: string, value: string) => {
+    if (Platform.OS === 'web') return AsyncStorage.setItem(key, value);
+    return SecureStore.setItemAsync(key, value);
+  },
+  removeItem: (key: string) => {
+    if (Platform.OS === 'web') return AsyncStorage.removeItem(key);
+    return SecureStore.deleteItemAsync(key);
+  },
+};
+
 export const supabase = createClient(
   supabaseUrl || 'https://missing-project.supabase.co',
   supabaseAnonKey || 'missing-anon-key',
@@ -22,7 +38,7 @@ export const supabase = createClient(
       autoRefreshToken: true,
       detectSessionInUrl: Platform.OS === 'web',
       persistSession: true,
-      storage: AsyncStorage,
+      storage: secureAuthStorage,
     },
   },
 );
@@ -46,11 +62,11 @@ export type Property = {
   id: string;
   name: string;
   nickname?: string;
-  address_line_1: string;
-  address_line_2?: string;
-  city: string;
-  state: string;
-  zip_code: string;
+  address_line_1: string | null;
+  address_line_2?: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
   user_id: string;
   household_id?: string | null;
   image_url: string;

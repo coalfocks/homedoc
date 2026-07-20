@@ -17,6 +17,9 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { uploadPrivateImage } from '../utils/privateImages';
+import { getErrorMessage } from '../utils/errors';
+import { createUuid } from '../utils/uuid';
 import {
   CreationCard,
   CreationIntro,
@@ -58,58 +61,33 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
     }
   };
 
-  const uploadImage = async (uri: string) => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const filename = `areas/${propertyId}/${Date.now()}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filename, blob);
-
-      if (error) throw error;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('images').getPublicUrl(filename);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
-    }
-  };
-
   const handleCreateArea = async () => {
     try {
       setLoading(true);
       setError(null);
+      const areaId = createUuid();
 
       let imageUrl = null;
       if (image) {
-        imageUrl = await uploadImage(image);
+        imageUrl = await uploadPrivateImage(image, `areas/${propertyId}`);
       }
 
-      const { data, error } = await supabase
-        .from('areas')
-        .insert([
-          {
-            name,
-            description,
-            property_id: propertyId,
-            image_url: imageUrl,
-          },
-        ])
-        .select()
-        .single();
+      const { error } = await supabase.from('areas').insert([
+        {
+          id: areaId,
+          name,
+          description,
+          property_id: propertyId,
+          image_url: imageUrl,
+        },
+      ]);
 
       if (error) throw error;
 
       setCreated(true);
-      setTimeout(() => navigation.goBack(), 550);
+      setTimeout(() => navigation.replace('Area', { areaId }), 550);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

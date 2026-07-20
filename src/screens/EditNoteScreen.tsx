@@ -16,6 +16,8 @@ import { useNote } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { SignedImage } from '../components/SignedImage';
+import { uploadPrivateImage } from '../utils/privateImages';
 
 type EditNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
@@ -60,21 +62,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
       const uploadPromises = uris.map(async (uri, index) => {
         // Only upload if it's a local URI (not already uploaded)
         if (uri.startsWith('file://') || uri.startsWith('content://')) {
-          const response = await fetch(uri);
-          const blob = await response.blob();
-          const filename = `notes/${note?.area_id}/${Date.now()}_${index}.jpg`;
-
-          const { data, error } = await supabase.storage
-            .from('images')
-            .upload(filename, blob);
-
-          if (error) throw error;
-
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from('images').getPublicUrl(filename);
-
-          return publicUrl;
+          return uploadPrivateImage(uri, `notes/${note?.area_id}/${index}`);
         }
         return uri; // Return existing URL as-is
       });
@@ -171,7 +159,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
           <View style={styles.imageContainer}>
             {images.map((image, index) => (
               <View key={index} style={styles.imageWrapper}>
-                <Image source={{ uri: image }} style={styles.image} />
+                <SignedImage imagePath={image} style={styles.image} />
                 <TouchableOpacity
                   style={styles.removeImage}
                   onPress={() => handleRemoveImage(index)}

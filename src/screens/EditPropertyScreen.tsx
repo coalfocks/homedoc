@@ -18,6 +18,8 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { SignedImage } from '../components/SignedImage';
+import { isDirectImageUri, uploadPrivateImage } from '../utils/privateImages';
 
 type EditPropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditProperty'>;
@@ -35,8 +37,8 @@ const ImageWithPlaceholder = ({ uri, style }: { uri: string; style: any }) => {
           <ActivityIndicator size="large" color={theme.colors.primary.main} />
         </View>
       )}
-      <Image
-        source={{ uri }}
+      <SignedImage
+        imagePath={uri}
         style={[style, isLoading ? styles.hidden : styles.visible]}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
@@ -103,29 +105,6 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
     }
   };
 
-  const uploadImage = async (uri: string) => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const filename = `${user?.id}/${Date.now()}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filename, blob);
-
-      if (error) throw error;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('images').getPublicUrl(filename);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
-    }
-  };
-
   if (propertyLoading) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
@@ -159,8 +138,8 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
       let imageUrl = property?.image_url || null;
 
       // Upload new image if one was selected and it's different from current
-      if (image && image !== property?.image_url) {
-        imageUrl = await uploadImage(image);
+      if (image && image !== property?.image_url && isDirectImageUri(image)) {
+        imageUrl = await uploadPrivateImage(image, `properties/${property.id}`);
       }
 
       const { error } = await supabase

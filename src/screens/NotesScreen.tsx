@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,8 +12,10 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
+  SortControl,
   StatusBanner,
 } from '../components/AppChrome';
+import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { theme } from '../utils/theme';
 
 type NotesScreenProps = {
@@ -30,6 +32,11 @@ const formatDate = (value: string) =>
 const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
   const { notes, loading, error } = useAllNotes(user?.id);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('alphabetical');
+  const sortedNotes = useMemo(
+    () => sortRecords(notes, sortOrder, (note) => note.title),
+    [notes, sortOrder],
+  );
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -49,7 +56,7 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
       />
 
       <SectionTitle
-        title="Recent notes"
+        title="All notes"
         subtitle="Open any entry to review the full detail and attached images."
       />
 
@@ -68,7 +75,16 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
         />
       ) : (
         <View style={styles.list}>
-          {notes.map((item: any) => (
+          <SortControl
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { label: 'A-Z', value: 'alphabetical' },
+              { label: 'Newest', value: 'newest' },
+              { label: 'Oldest', value: 'oldest' },
+            ]}
+          />
+          {sortedNotes.map((item: any) => (
             <TouchableOpacity
               key={item.id}
               onPress={() => navigation.navigate('Note', { noteId: item.id })}

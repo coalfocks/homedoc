@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import {
   Screen,
   SectionTitle,
 } from '../components/AppChrome';
+import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
 
 type NoteScreenProps = {
@@ -76,9 +77,9 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
           />
           <View style={styles.imageGrid}>
             {note.images.map((image, index) => (
-              <Image
+              <SignedImage
                 key={`${image}-${index}`}
-                source={{ uri: image }}
+                imagePath={image}
                 style={styles.image}
                 resizeMode="cover"
               />

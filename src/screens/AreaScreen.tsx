@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,8 +20,11 @@ import {
   PriorityBadge,
   Screen,
   SectionTitle,
+  SortControl,
 } from '../components/AppChrome';
+import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
+import { SortOrder, sortRecords } from '../utils/sortRecords';
 
 type AreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Area'>;
@@ -43,6 +46,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   const { access: contractorAccess } = useContractorAreaAccess(
     route.params.areaId,
     user?.id,
+  );
+  const [noteSortOrder, setNoteSortOrder] = useState<SortOrder>('alphabetical');
+  const sortedNotes = useMemo(
+    () => sortRecords(notes, noteSortOrder, (note) => note.title),
+    [notes, noteSortOrder],
   );
 
   if (loading) {
@@ -116,8 +124,8 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
       />
 
       {area.image_url ? (
-        <Image
-          source={{ uri: area.image_url }}
+        <SignedImage
+          imagePath={area.image_url}
           style={styles.heroImage}
           resizeMode="cover"
         />
@@ -292,7 +300,16 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         />
       ) : (
         <View style={styles.list}>
-          {notes.map((item: any) => (
+          <SortControl
+            value={noteSortOrder}
+            onChange={setNoteSortOrder}
+            options={[
+              { label: 'A-Z', value: 'alphabetical' },
+              { label: 'Newest', value: 'newest' },
+              { label: 'Oldest', value: 'oldest' },
+            ]}
+          />
+          {sortedNotes.map((item: any) => (
             <TouchableOpacity
               key={item.id}
               onPress={() => navigation.navigate('Note', { noteId: item.id })}

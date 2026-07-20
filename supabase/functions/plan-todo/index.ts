@@ -72,6 +72,11 @@ interface PlanChatMessage {
   createdAt: string;
 }
 
+const freeMonthlyAiCallLimit = 20;
+const proMonthlyAiCallLimit = 300;
+const maxAnswersPayloadLength = 6000;
+const maxChatMessageLength = 2000;
+
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -127,7 +132,20 @@ serve(async (req: Request) => {
 
     const area = todo.areas as unknown as Area;
     const property = area?.properties as unknown as Property;
+    const adminClient = createClient(supabaseUrl, supabaseKey);
     const openai = new OpenAI({ apiKey: openaiKey });
+    const requireAiQuota = async () => {
+      const quota = await consumeAiPlanCall(adminClient, userData.user.id);
+
+      if (!quota.allowed) {
+        return jsonError(
+          429,
+          `AI planning limit reached for this month (${quota.used}/${quota.limit}).`,
+        );
+      }
+
+      return null;
+    };
 
     const context = `Home: ${property?.name || 'Unknown'}
 Room/Area: ${area?.name || 'Unknown'}
@@ -138,8 +156,10 @@ Priority: ${todo.priority}
 Location: ${property?.city || ''}, ${property?.state || ''}`;
 
     if (phase === 'questions') {
+      const quotaError = await requireAiQuota();
+      if (quotaError) return quotaError;
+
       // Set status after the RLS-protected read has verified ownership.
-      const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
         .from('todos')
         .update({ plan_status: 'questioning' })
@@ -191,6 +211,13 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
         .map((a) => `Q: ${a.question}\nA: ${a.answer}`)
         .join('\n\n');
 
+      if (answersText.length > maxAnswersPayloadLength) {
+        return jsonError(413, 'Answers are too long for one plan request');
+      }
+
+      const quotaError = await requireAiQuota();
+      if (quotaError) return quotaError;
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
@@ -234,7 +261,6 @@ Be specific, practical, and realistic. Prices should reflect US averages. When a
       }
 
       // Save plan to database
-      const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
         .from('todos')
         .update({
@@ -258,6 +284,13 @@ Be specific, practical, and realistic. Prices should reflect US averages. When a
       if (!message) {
         return jsonError(400, 'Message is required for chat phase');
       }
+
+      if (message.length > maxChatMessageLength) {
+        return jsonError(413, 'Message is too long for one chat request');
+      }
+
+      const quotaError = await requireAiQuota();
+      if (quotaError) return quotaError;
 
       const existingChat = Array.isArray(
         (todo as { plan_chat?: unknown }).plan_chat,
@@ -303,7 +336,6 @@ ${message}`,
         { role: 'assistant', content: assistantText, createdAt: now },
       ];
 
-      const adminClient = createClient(supabaseUrl, supabaseKey);
       await adminClient
         .from('todos')
         .update({ plan_chat: nextChat })
@@ -331,4 +363,44 @@ function jsonResponse(data: unknown, status = 200) {
 
 function jsonError(status: number, message: string) {
   return jsonResponse({ error: message }, status);
+}
+
+async function consumeAiPlanCall(
+  adminClient: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const { data: entitlement, error: entitlementError } = await adminClient
+    .from('user_entitlements')
+    .select('plan, status')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (entitlementError) throw entitlementError;
+
+  const isPro =
+    entitlement?.plan === 'pro' &&
+    ['active', 'trialing'].includes(entitlement.status);
+  const limit = isPro ? proMonthlyAiCallLimit : freeMonthlyAiCallLimit;
+  const now = new Date();
+  const periodStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  )
+    .toISOString()
+    .slice(0, 10);
+
+  const { data: usage, error: usageError } = await adminClient
+    .rpc('consume_ai_plan_call', {
+      p_user_id: userId,
+      p_period_start: periodStart,
+      p_monthly_limit: limit,
+    })
+    .single();
+
+  if (usageError) throw usageError;
+
+  return {
+    allowed: Boolean(usage?.allowed),
+    used: usage?.used ?? limit,
+    limit: usage?.monthly_limit ?? limit,
+  };
 }

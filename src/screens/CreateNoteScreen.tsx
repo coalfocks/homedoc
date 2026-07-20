@@ -19,6 +19,9 @@ import { useContractorAreaAccess } from '../hooks/useData';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { uploadPrivateImage } from '../utils/privateImages';
+import { getErrorMessage } from '../utils/errors';
+import { createUuid } from '../utils/uuid';
 import {
   CreationCard,
   CreationIntro,
@@ -68,21 +71,7 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   const uploadImages = async (uris: string[]) => {
     try {
       const uploadPromises = uris.map(async (uri, index) => {
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        const filename = `notes/${areaId}/${Date.now()}_${index}.jpg`;
-
-        const { data, error } = await supabase.storage
-          .from('images')
-          .upload(filename, blob);
-
-        if (error) throw error;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('images').getPublicUrl(filename);
-
-        return publicUrl;
+        return uploadPrivateImage(uri, `notes/${areaId}/${index}`);
       });
 
       return await Promise.all(uploadPromises);
@@ -96,42 +85,40 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
     try {
       setLoading(true);
       setError(null);
+      const noteId = createUuid();
 
       let imageUrls: string[] = [];
       if (images.length > 0) {
         imageUrls = await uploadImages(images);
       }
 
-      const { data, error } = await supabase
-        .from('notes')
-        .insert([
-          {
-            title,
-            content,
-            images: imageUrls,
-            area_id: areaId,
-            ...(contractorAccess
-              ? {
-                  note_source: 'contractor',
-                  contractor_user_id: user?.id,
-                  contractor_area_access_id: contractorAccess.id,
-                  contractor_name:
-                    contractorAccess.contractor_name ||
-                    contractorAccess.contractor_email,
-                  contractor_company: contractorAccess.company_name || null,
-                }
-              : {}),
-          },
-        ])
-        .select()
-        .single();
+      const { error } = await supabase.from('notes').insert([
+        {
+          id: noteId,
+          title,
+          content,
+          images: imageUrls,
+          area_id: areaId,
+          ...(contractorAccess
+            ? {
+                note_source: 'contractor',
+                contractor_user_id: user?.id,
+                contractor_area_access_id: contractorAccess.id,
+                contractor_name:
+                  contractorAccess.contractor_name ||
+                  contractorAccess.contractor_email,
+                contractor_company: contractorAccess.company_name || null,
+              }
+            : {}),
+        },
+      ]);
 
       if (error) throw error;
 
       setCreated(true);
-      setTimeout(() => navigation.goBack(), 550);
+      setTimeout(() => navigation.replace('Note', { noteId }), 550);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -53,7 +53,7 @@ serve(async (req: Request) => {
   const property = area?.properties as { id: string; name: string } | undefined;
 
   const { data: canManageArea, error: accessError } = await userClient.rpc(
-    'current_user_owns_area',
+    'current_user_can_manage_area',
     { p_area_id: body.areaId },
   );
 

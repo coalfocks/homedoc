@@ -312,6 +312,52 @@ export const AddButton: React.FC<AddButtonProps> = ({ label, onPress }) => (
   </TouchableOpacity>
 );
 
+type SortControlOption<T extends string> = {
+  label: string;
+  value: T;
+};
+
+type SortControlProps<T extends string> = {
+  value: T;
+  options: SortControlOption<T>[];
+  onChange: (value: T) => void;
+};
+
+export const SortControl = <T extends string>({
+  value,
+  options,
+  onChange,
+}: SortControlProps<T>) => (
+  <View style={sortControlStyles.container}>
+    <Text style={sortControlStyles.label}>Sort</Text>
+    <View style={sortControlStyles.optionRow}>
+      {options.map((option) => {
+        const selected = option.value === value;
+        return (
+          <TouchableOpacity
+            key={option.value}
+            style={[
+              sortControlStyles.option,
+              selected ? sortControlStyles.optionSelected : null,
+            ]}
+            onPress={() => onChange(option.value)}
+            activeOpacity={0.82}
+          >
+            <Text
+              style={[
+                sortControlStyles.optionText,
+                selected ? sortControlStyles.optionTextSelected : null,
+              ]}
+            >
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  </View>
+);
+
 const addButtonStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -330,6 +376,46 @@ const addButtonStyles = StyleSheet.create({
     color: theme.colors.primary.main,
     fontWeight: '700',
     fontSize: 15,
+  },
+});
+
+const sortControlStyles = StyleSheet.create({
+  container: {
+    marginBottom: theme.spacing.md,
+  },
+  label: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    padding: 4,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(31, 77, 107, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.12)',
+  },
+  option: {
+    flex: 1,
+    alignItems: 'center',
+    minHeight: 38,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+  },
+  optionSelected: {
+    backgroundColor: theme.colors.background.paper,
+    ...theme.shadows.sm,
+  },
+  optionText: {
+    color: theme.colors.text.slate,
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: '700',
+  },
+  optionTextSelected: {
+    color: theme.colors.primary.dark,
   },
 });
 

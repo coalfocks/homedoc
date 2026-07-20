@@ -17,6 +17,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { uploadPrivateImage } from '../utils/privateImages';
+import { getErrorMessage } from '../utils/errors';
+import { createUuid } from '../utils/uuid';
 import {
   CreationCard,
   CreationIntro,
@@ -69,67 +72,50 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
     }
   };
 
-  const uploadImage = async (uri: string) => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const filename = `${user?.id}/${Date.now()}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filename, blob);
-
-      if (error) throw error;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('images').getPublicUrl(filename);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
-    }
-  };
-
   const handleCreateProperty = async () => {
     if (!user) return;
 
     try {
       setLoading(true);
       setError(null);
+      const propertyId = createUuid();
 
-      let imageUrl = null;
-      if (image) {
-        imageUrl = await uploadImage(image);
-      }
-
-      const { data, error } = await supabase
-        .from('properties')
-        .insert([
-          {
-            name: name.trim(),
-            nickname: nickname.trim() || null,
-            address_line_1: addressLine1.trim() || null,
-            address_line_2: addressLine2.trim() || null,
-            city: city.trim() || null,
-            state: state.trim() || null,
-            zip_code: zipCode.trim() || null,
-            image_url: imageUrl,
-            user_id: user.id,
-          },
-        ])
-        .select()
-        .single();
+      const { error } = await supabase.from('properties').insert([
+        {
+          id: propertyId,
+          name: name.trim(),
+          nickname: nickname.trim() || null,
+          address_line_1: addressLine1.trim() || null,
+          address_line_2: addressLine2.trim() || null,
+          city: city.trim() || null,
+          state: state.trim() || null,
+          zip_code: zipCode.trim() || null,
+          image_url: null,
+          user_id: user.id,
+        },
+      ]);
 
       if (error) throw error;
 
+      if (image) {
+        const imagePath = await uploadPrivateImage(
+          image,
+          `properties/${propertyId}`,
+        );
+        const { error: imageUpdateError } = await supabase
+          .from('properties')
+          .update({ image_url: imagePath })
+          .eq('id', propertyId);
+
+        if (imageUpdateError) throw imageUpdateError;
+      }
+
       setCreated(true);
       setTimeout(() => {
-        navigation.replace('Property', { propertyId: data.id });
+        navigation.replace('Property', { propertyId });
       }, 550);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

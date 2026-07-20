@@ -77,28 +77,55 @@ serve(async (req: Request) => {
       return jsonError(400, "You can't transfer a property to yourself");
     }
 
-    const { data: canManageCurrentHousehold } = property.household_id
-      ? await adminClient
-          .from('household_members')
-          .select('role')
-          .eq('household_id', property.household_id)
-          .eq('user_id', currentUser.id)
-          .maybeSingle()
-      : { data: null };
+    const { data: canTransfer, error: canTransferError } = await userClient.rpc(
+      'current_user_can_manage_property',
+      { p_property_id: property.id },
+    );
 
-    if (
-      property.user_id !== currentUser.id &&
-      !['owner', 'admin'].includes(canManageCurrentHousehold?.role)
-    ) {
+    if (canTransferError || !canTransfer) {
       return jsonError(
         403,
-        'Only household owners and admins can transfer this property',
+        'Only property owners and admins can transfer this property',
       );
     }
 
-    const recipientHouseholdId = await getOrCreatePrimaryHousehold(
+    const { count: collaboratorCount, error: collaboratorCountError } =
+      await adminClient
+        .from('property_collaborators')
+        .select('property_id', { count: 'exact', head: true })
+        .eq('property_id', property.id)
+        .eq('status', 'active');
+
+    if (collaboratorCountError) {
+      return jsonError(500, collaboratorCountError.message);
+    }
+
+    if ((collaboratorCount ?? 0) > 0) {
+      return jsonError(
+        409,
+        'Remove shared collaborators before transferring this property',
+      );
+    }
+
+    if (
+      property.household_id &&
+      property.user_id !== currentUser.id &&
+      !(await isSoleHouseholdManager(
+        adminClient,
+        property.household_id,
+        currentUser.id,
+      ))
+    ) {
+      return jsonError(
+        409,
+        'Only the property owner can transfer while other household managers exist',
+      );
+    }
+
+    const recipientHouseholdId = await createHandoffHousehold(
       adminClient,
       recipient.id,
+      property.name,
     );
 
     const { error: updateError } = await adminClient
@@ -129,25 +156,31 @@ function normalizeEmail(email: string | undefined) {
   return email?.trim().toLowerCase() || '';
 }
 
-async function getOrCreatePrimaryHousehold(
+async function isSoleHouseholdManager(
   adminClient: ReturnType<typeof createClient>,
+  householdId: string,
   userId: string,
 ) {
-  const { data: existing, error: existingError } = await adminClient
+  const { data, error } = await adminClient
     .from('household_members')
-    .select('household_id')
-    .eq('user_id', userId)
-    .in('role', ['owner', 'admin'])
-    .order('created_at')
-    .limit(1)
-    .maybeSingle();
+    .select('user_id')
+    .eq('household_id', householdId)
+    .in('role', ['owner', 'admin']);
 
-  if (existingError) throw existingError;
-  if (existing?.household_id) return existing.household_id as string;
+  if (error) throw error;
 
+  const managers = data ?? [];
+  return managers.length === 1 && managers[0].user_id === userId;
+}
+
+async function createHandoffHousehold(
+  adminClient: ReturnType<typeof createClient>,
+  userId: string,
+  propertyName: string,
+) {
   const { data: household, error: householdError } = await adminClient
     .from('households')
-    .insert({ name: 'My household', created_by: userId })
+    .insert({ name: `${propertyName} handoff`, created_by: userId })
     .select('id')
     .single();
 

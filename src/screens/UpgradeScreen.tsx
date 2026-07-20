@@ -119,7 +119,7 @@ const UpgradeScreen: React.FC = () => {
 
         <SectionTitle
           title="Privacy and account"
-          subtitle="HomeDoc stores home details, addresses, and photos. Uploaded images currently use public storage URLs during beta."
+          subtitle="HomeDoc stores home details, addresses, and photos. Uploaded images are private to people with record access."
         />
         <View style={styles.accountCard}>
           <TouchableOpacity

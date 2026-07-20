@@ -50,7 +50,7 @@ serve(async (req: Request) => {
 
     const { data: property, error: propertyError } = await userClient
       .from('properties')
-      .select('id, name, household_id')
+      .select('id, name')
       .eq('id', propertyId)
       .single();
 
@@ -59,52 +59,15 @@ serve(async (req: Request) => {
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
-    let householdId = property.household_id as string | null;
+    const { data: canShare, error: canShareError } = await userClient.rpc(
+      'current_user_can_manage_property',
+      { p_property_id: property.id },
+    );
 
-    if (!householdId) {
-      const { data: household, error: householdError } = await adminClient
-        .from('households')
-        .insert({
-          name: `${property.name} household`,
-          created_by: currentUser.id,
-        })
-        .select('id')
-        .single();
-
-      if (householdError || !household) {
-        return jsonError(500, 'Failed to create household');
-      }
-
-      householdId = household.id;
-
-      const { error: updatePropertyError } = await adminClient
-        .from('properties')
-        .update({ household_id: householdId })
-        .eq('id', property.id);
-
-      if (updatePropertyError) {
-        return jsonError(500, 'Failed to prepare property sharing');
-      }
-
-      await adminClient.from('household_members').upsert({
-        household_id: householdId,
-        user_id: currentUser.id,
-        role: 'owner',
-        invited_by: currentUser.id,
-      });
-    }
-
-    const { data: callerMember } = await adminClient
-      .from('household_members')
-      .select('role')
-      .eq('household_id', householdId)
-      .eq('user_id', currentUser.id)
-      .maybeSingle();
-
-    if (!callerMember || !['owner', 'admin'].includes(callerMember.role)) {
+    if (canShareError || !canShare) {
       return jsonError(
         403,
-        'Only household owners and admins can share this property',
+        'Only property owners and admins can share this property',
       );
     }
 
@@ -120,29 +83,31 @@ serve(async (req: Request) => {
       return jsonError(400, 'You already have access to this property');
     }
 
-    const { data: member, error: memberError } = await adminClient
-      .from('household_members')
+    const { data: collaborator, error: collaboratorError } = await adminClient
+      .from('property_collaborators')
       .upsert(
         {
-          household_id: householdId,
+          property_id: property.id,
           user_id: recipient.id,
           role,
+          status: 'active',
           invited_by: currentUser.id,
         },
-        { onConflict: 'household_id,user_id' },
+        { onConflict: 'property_id,user_id' },
       )
-      .select('role')
+      .select('role, status')
       .single();
 
-    if (memberError) {
-      return jsonError(500, memberError.message);
+    if (collaboratorError) {
+      return jsonError(500, collaboratorError.message);
     }
 
     return jsonResponse({
       propertyId: property.id,
       propertyName: property.name,
       recipientEmail: recipient.email,
-      role: member.role,
+      role: collaborator.role,
+      status: collaborator.status,
     });
   } catch (err) {
     console.error('share-property error:', err);

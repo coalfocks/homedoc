@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -12,8 +12,11 @@ import {
   PageHeader,
   Screen,
   SectionTitle,
+  SortControl,
   StatusBanner,
 } from '../components/AppChrome';
+import { SignedImage } from '../components/SignedImage';
+import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { theme } from '../utils/theme';
 
 type AreasScreenProps = {
@@ -28,6 +31,20 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
     loading: assignmentsLoading,
     error: assignmentsError,
   } = useAssignedContractorAreas(user?.id);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('alphabetical');
+  const sortedAreas = useMemo(
+    () => sortRecords(areas, sortOrder, (area) => area.name),
+    [areas, sortOrder],
+  );
+  const sortedAssignments = useMemo(
+    () =>
+      sortRecords(
+        assignments,
+        sortOrder,
+        (assignment: any) => assignment.areas?.name || '',
+      ),
+    [assignments, sortOrder],
+  );
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -61,7 +78,16 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.list}>
-              {assignments.map((assignment: any) => {
+              <SortControl
+                value={sortOrder}
+                onChange={setSortOrder}
+                options={[
+                  { label: 'A-Z', value: 'alphabetical' },
+                  { label: 'Newest', value: 'newest' },
+                  { label: 'Oldest', value: 'oldest' },
+                ]}
+              />
+              {sortedAssignments.map((assignment: any) => {
                 const assignedArea = assignment.areas;
                 if (!assignedArea) return null;
                 return (
@@ -117,15 +143,24 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
         />
       ) : (
         <View style={styles.list}>
-          {areas.map((item: any) => (
+          <SortControl
+            value={sortOrder}
+            onChange={setSortOrder}
+            options={[
+              { label: 'A-Z', value: 'alphabetical' },
+              { label: 'Newest', value: 'newest' },
+              { label: 'Oldest', value: 'oldest' },
+            ]}
+          />
+          {sortedAreas.map((item: any) => (
             <TouchableOpacity
               key={item.id}
               onPress={() => navigation.navigate('Area', { areaId: item.id })}
               style={styles.card}
             >
               {item.image_url ? (
-                <Image
-                  source={{ uri: item.image_url }}
+                <SignedImage
+                  imagePath={item.image_url}
                   style={styles.areaImage}
                   resizeMode="cover"
                 />
