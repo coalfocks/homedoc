@@ -3,7 +3,7 @@
     "name": "homedoc",
     "slug": "homedoc",
     "scheme": "homedoc",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "202607202220"
+      "buildNumber": "202607202352"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +39,6 @@
         "projectId": "055ce70c-4115-4c28-af17-e36f6de1123e"
       }
     },
-    "owner": "coalfocks",
-    "plugins": ["expo-secure-store"]
+    "owner": "coalfocks"
   }
 }
