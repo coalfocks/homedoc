@@ -5,6 +5,7 @@ import {
   ScrollView,
   Keyboard,
   Image,
+  Platform,
   TouchableOpacity,
 } from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
@@ -115,7 +116,10 @@ const EditAreaScreen: React.FC<EditAreaScreenProps> = ({
   return (
     <ScrollView
       style={styles.container}
-      keyboardDismissMode="on-drag"
+      contentContainerStyle={styles.scrollContent}
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       keyboardShouldPersistTaps="handled"
       onScrollBeginDrag={Keyboard.dismiss}
     >
@@ -193,6 +197,9 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  scrollContent: {
+    paddingBottom: 220,
   },
   imageUpload: {
     width: '100%',

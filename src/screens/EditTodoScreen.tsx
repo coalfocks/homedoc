@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ScrollView,
   Keyboard,
+  Platform,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -124,8 +125,10 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scrollContent}
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       onScrollBeginDrag={Keyboard.dismiss}
     >
       <View style={styles.section}>
@@ -271,7 +274,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: theme.spacing.lg,
-    paddingBottom: 120,
+    paddingBottom: 220,
   },
   center: {
     flex: 1,

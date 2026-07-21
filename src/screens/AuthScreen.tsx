@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   Keyboard,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
@@ -19,6 +19,7 @@ import { openFeedbackEmail } from '../utils/feedback';
 type AuthMode = 'magic' | 'password';
 
 const AuthScreen: React.FC = () => {
+  const { height } = useWindowDimensions();
   const { signIn, signUp, signInWithMagicLink } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +29,7 @@ const AuthScreen: React.FC = () => {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   const normalizedEmail = email.trim().toLowerCase();
+  const isCompactViewport = height < 700;
 
   const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
@@ -134,33 +136,47 @@ const AuthScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <View style={styles.content}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+          contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode={
+            Platform.OS === 'ios' ? 'interactive' : 'on-drag'
+          }
           onScrollBeginDrag={Keyboard.dismiss}
         >
-          <View style={styles.header}>
-            <Logo size={72} color={theme.colors.primary.main} />
+          <View
+            style={[styles.header, isCompactViewport && styles.headerCompact]}
+          >
+            <Logo
+              size={isCompactViewport ? 48 : 72}
+              color={theme.colors.primary.main}
+            />
             <Text h3 style={styles.eyebrow}>
               HOME CARE, WITHOUT THE CHAOS
             </Text>
-            <Text h1 style={styles.heroTitle}>
+            <Text
+              h1
+              style={[
+                styles.heroTitle,
+                isCompactViewport && styles.heroTitleCompact,
+              ]}
+            >
               {authMode === 'magic'
                 ? 'Open HomeDoc with one tap.'
                 : isSignUp
                   ? 'Create your HomeDoc account.'
                   : 'Sign back into HomeDoc.'}
             </Text>
-            <Text style={styles.heroSubtitle}>
-              Preserve the stuff every home loses: warranties, paint colors,
-              appliance details, maintenance plans, and the story a future buyer
-              or property manager will wish they had.
-            </Text>
+            {!isCompactViewport ? (
+              <Text style={styles.heroSubtitle}>
+                Preserve the stuff every home loses: warranties, paint colors,
+                appliance details, maintenance plans, and the story a future
+                buyer or property manager will wish they had.
+              </Text>
+            ) : null}
           </View>
 
           <View style={styles.authCard}>
@@ -273,22 +289,24 @@ const AuthScreen: React.FC = () => {
             </Text>
           </View>
 
-          <View style={styles.valueStrip}>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>Move-in memory</Text>
-              <Text style={styles.valueBody}>Capture the details once.</Text>
+          {!isCompactViewport ? (
+            <View style={styles.valueStrip}>
+              <View style={styles.valueItem}>
+                <Text style={styles.valueTitle}>Move-in memory</Text>
+                <Text style={styles.valueBody}>Capture the details once.</Text>
+              </View>
+              <View style={styles.valueItem}>
+                <Text style={styles.valueTitle}>AI planning</Text>
+                <Text style={styles.valueBody}>
+                  Scope repairs before you start.
+                </Text>
+              </View>
+              <View style={styles.valueItem}>
+                <Text style={styles.valueTitle}>Home handoff</Text>
+                <Text style={styles.valueBody}>Transfer records cleanly.</Text>
+              </View>
             </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>AI planning</Text>
-              <Text style={styles.valueBody}>
-                Scope repairs before you start.
-              </Text>
-            </View>
-            <View style={styles.valueItem}>
-              <Text style={styles.valueTitle}>Home handoff</Text>
-              <Text style={styles.valueBody}>Transfer records cleanly.</Text>
-            </View>
-          </View>
+          ) : null}
 
           <View style={styles.betaNotice}>
             <Text style={styles.betaNoticeTitle}>Free beta</Text>
@@ -321,7 +339,7 @@ const AuthScreen: React.FC = () => {
             </View>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };
@@ -339,11 +357,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-start',
     paddingTop: 28,
-    paddingBottom: 32,
+    paddingBottom: 180,
   },
   header: {
     alignItems: 'center',
     marginBottom: 20,
+  },
+  headerCompact: {
+    marginBottom: 10,
   },
   eyebrow: {
     color: theme.colors.primary.light,
@@ -359,6 +380,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 36,
     marginBottom: 8,
+  },
+  heroTitleCompact: {
+    fontSize: 24,
+    lineHeight: 29,
+    marginBottom: 0,
   },
   heroSubtitle: {
     color: theme.colors.text.secondary,

@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Keyboard, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Input, Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -82,14 +75,13 @@ const InviteContractorScreen: React.FC<InviteContractorScreenProps> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
-        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         keyboardShouldPersistTaps="handled"
         onScrollBeginDrag={Keyboard.dismiss}
       >
@@ -176,7 +168,7 @@ const InviteContractorScreen: React.FC<InviteContractorScreenProps> = ({
           disabled={loading || !isReady}
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -187,7 +179,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: theme.spacing.md,
-    paddingBottom: 120,
+    paddingBottom: 220,
   },
   inputContainer: {
     paddingHorizontal: 0,

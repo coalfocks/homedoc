@@ -6,7 +6,6 @@ import {
   Keyboard,
   Image,
   TouchableOpacity,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Text, Input } from '@rneui/themed';
@@ -129,15 +128,14 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
@@ -239,7 +237,7 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
           disabled={loading || !title.trim()}
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -250,7 +248,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 120,
+    paddingBottom: 220,
   },
   inputContainer: {
     paddingHorizontal: 0,

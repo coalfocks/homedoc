@@ -1,9 +1,13 @@
 import { supabase } from '../lib/supabase';
 
 const DIRECT_URI_PATTERN = /^(https?:|file:|content:|data:|blob:)/i;
+const LOCAL_UPLOAD_URI_PATTERN = /^(file:|content:|data:|blob:)/i;
 
 export const isDirectImageUri = (value: string | null | undefined) =>
   Boolean(value && DIRECT_URI_PATTERN.test(value));
+
+export const isLocalUploadImageUri = (value: string | null | undefined) =>
+  Boolean(value && LOCAL_UPLOAD_URI_PATTERN.test(value));
 
 export const uploadPrivateImage = async (
   uri: string,

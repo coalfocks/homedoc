@@ -5,6 +5,7 @@ import {
   ScrollView,
   Keyboard,
   Image,
+  Platform,
   TouchableOpacity,
 } from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
@@ -17,7 +18,10 @@ import { supabase } from '../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
 import { SignedImage } from '../components/SignedImage';
-import { uploadPrivateImage } from '../utils/privateImages';
+import {
+  isLocalUploadImageUri,
+  uploadPrivateImage,
+} from '../utils/privateImages';
 
 type EditNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
@@ -60,11 +64,10 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
   const uploadImages = async (uris: string[]) => {
     try {
       const uploadPromises = uris.map(async (uri, index) => {
-        // Only upload if it's a local URI (not already uploaded)
-        if (uri.startsWith('file://') || uri.startsWith('content://')) {
+        if (isLocalUploadImageUri(uri)) {
           return uploadPrivateImage(uri, `notes/${note?.area_id}/${index}`);
         }
-        return uri; // Return existing URL as-is
+        return uri;
       });
 
       return await Promise.all(uploadPromises);
@@ -127,7 +130,10 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
   return (
     <ScrollView
       style={styles.container}
-      keyboardDismissMode="on-drag"
+      contentContainerStyle={styles.scrollContent}
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       keyboardShouldPersistTaps="handled"
       onScrollBeginDrag={Keyboard.dismiss}
     >
@@ -214,6 +220,9 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  scrollContent: {
+    paddingBottom: 220,
   },
   inputContainer: {
     paddingHorizontal: 16,

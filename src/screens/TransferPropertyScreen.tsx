@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Keyboard } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -124,7 +131,10 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   return (
     <ScrollView
       style={styles.container}
-      keyboardDismissMode="on-drag"
+      contentContainerStyle={styles.scrollContent}
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       keyboardShouldPersistTaps="handled"
       onScrollBeginDrag={Keyboard.dismiss}
     >
@@ -214,6 +224,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.default,
+  },
+  scrollContent: {
+    paddingBottom: 220,
   },
   form: {
     padding: theme.spacing.md,

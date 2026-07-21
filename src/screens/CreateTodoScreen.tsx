@@ -6,7 +6,6 @@ import {
   Keyboard,
   TouchableOpacity,
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Text, Input } from '@rneui/themed';
@@ -98,15 +97,14 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
@@ -263,7 +261,7 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
           disabled={saving || !title.trim() || !areaId}
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -274,7 +272,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: theme.spacing.lg,
-    paddingBottom: 120,
+    paddingBottom: 220,
   },
   section: {
     marginBottom: theme.spacing.lg,

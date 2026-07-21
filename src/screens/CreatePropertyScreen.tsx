@@ -6,7 +6,6 @@ import {
   Keyboard,
   Image,
   TouchableOpacity,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Text, Input } from '@rneui/themed';
@@ -122,15 +121,14 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <View style={styles.content}>
@@ -266,7 +264,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
           />
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -279,7 +277,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 220,
   },
   imageUpload: {
     width: '100%',
