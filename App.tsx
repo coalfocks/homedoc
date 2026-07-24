@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Platform, View, ActivityIndicator, Text } from 'react-native';
+import {
+  Platform,
+  View,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@rneui/themed';
@@ -92,7 +98,15 @@ const AppContent = () => {
     );
   }
 
-  return session ? <AppNavigator /> : <AuthScreen />;
+  return session ? (
+    <View style={styles.appShellHost}>
+      <View style={styles.appShell}>
+        <AppNavigator />
+      </View>
+    </View>
+  ) : (
+    <AuthScreen />
+  );
 };
 
 const App = () => {
@@ -128,5 +142,23 @@ const App = () => {
     </SafeAreaProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  appShellHost: {
+    flex: 1,
+    backgroundColor: theme.colors.background.default,
+  },
+  appShell: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
+    ...Platform.select({
+      web: {
+        maxWidth: 1040,
+      },
+      default: {},
+    }),
+  },
+});
 
 export default App;
