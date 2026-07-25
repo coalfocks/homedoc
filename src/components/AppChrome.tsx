@@ -69,6 +69,9 @@ export const Screen: React.FC<ScreenProps> = ({
         <BackgroundWash />
         <ScrollView
           ref={scrollRef}
+          nativeID={
+            Platform.OS === 'web' ? `app-screen-scroll-${routeKey}` : undefined
+          }
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}

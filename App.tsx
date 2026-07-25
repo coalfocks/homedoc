@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Platform,
   View,
@@ -83,6 +83,33 @@ const ConfigErrorScreen = () => (
 const AppContent = () => {
   const { session, loading } = useAuth();
 
+  const handleAppShellHostWheel = useCallback(
+    (event: React.WheelEvent<HTMLElement>) => {
+      if (Platform.OS !== 'web') return;
+
+      const shell = document.getElementById('app-shell');
+      if (!shell || shell.contains(event.target as Node)) return;
+
+      const scrollViews = Array.from(
+        document.querySelectorAll<HTMLElement>('[id^="app-screen-scroll-"]'),
+      );
+      const scrollView = scrollViews.find((element) => {
+        const rect = element.getBoundingClientRect();
+        return (
+          rect.width > 0 &&
+          rect.height > 0 &&
+          element.scrollHeight > element.clientHeight
+        );
+      });
+
+      if (!scrollView) return;
+
+      scrollView.scrollTop += event.deltaY;
+      event.preventDefault();
+    },
+    [],
+  );
+
   if (loading) {
     return (
       <View
@@ -99,8 +126,13 @@ const AppContent = () => {
   }
 
   return session ? (
-    <View style={styles.appShellHost}>
-      <View style={styles.appShell}>
+    <View
+      style={styles.appShellHost}
+      {...(Platform.OS === 'web'
+        ? ({ onWheel: handleAppShellHostWheel } as object)
+        : {})}
+    >
+      <View nativeID="app-shell" style={styles.appShell}>
         <AppNavigator />
       </View>
     </View>
