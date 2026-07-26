@@ -18,7 +18,9 @@ export const uploadPrivateImage = async (
   const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
   const path = `${pathPrefix}/${fileName}`;
 
-  const { error } = await supabase.storage.from('images').upload(path, blob);
+  const { error } = await supabase.storage.from('images').upload(path, blob, {
+    contentType: blob.type || 'image/jpeg',
+  });
 
   if (error) throw error;
 

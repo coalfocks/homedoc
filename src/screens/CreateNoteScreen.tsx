@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ScrollView,
   Keyboard,
-  Image,
   TouchableOpacity,
   Platform,
 } from 'react-native';
@@ -18,8 +17,10 @@ import { useContractorAreaAccess } from '../hooks/useData';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
+import { SignedImage } from '../components/SignedImage';
 import { uploadPrivateImage } from '../utils/privateImages';
 import { getErrorMessage } from '../utils/errors';
+import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
 import { createUuid } from '../utils/uuid';
 import {
   CreationCard,
@@ -58,11 +59,12 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
+      base64: true,
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      const newImages = result.assets.map((asset) => asset.uri);
+      const newImages = imagePickerAssetsToUris(result.assets);
       setImages([...images, ...newImages]);
     }
   };
@@ -202,7 +204,11 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
             <View style={styles.imageContainer}>
               {images.map((image, index) => (
                 <View key={index} style={styles.imageWrapper}>
-                  <Image source={{ uri: image }} style={styles.image} />
+                  <SignedImage
+                    imagePath={image}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
                   <TouchableOpacity
                     style={styles.removeImage}
                     onPress={() => handleRemoveImage(index)}

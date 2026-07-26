@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ScrollView,
   Keyboard,
-  Image,
   Platform,
   TouchableOpacity,
 } from 'react-native';
@@ -22,6 +21,7 @@ import {
   isLocalUploadImageUri,
   uploadPrivateImage,
 } from '../utils/privateImages';
+import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
 
 type EditNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
@@ -52,11 +52,12 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
+      base64: true,
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      const newImages = result.assets.map((asset) => asset.uri);
+      const newImages = imagePickerAssetsToUris(result.assets);
       setImages([...images, ...newImages]);
     }
   };
