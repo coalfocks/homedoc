@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import {
-  Platform,
-  View,
   ActivityIndicator,
-  Text,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -83,6 +84,32 @@ const ConfigErrorScreen = () => (
 const AppContent = () => {
   const { session, loading } = useAuth();
 
+  const handleWebInputFocus = useCallback(
+    (event: React.FocusEvent<HTMLElement>) => {
+      if (Platform.OS !== 'web') return;
+
+      const target = event.target as HTMLElement;
+      const isTextField =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.getAttribute('contenteditable') === 'true';
+
+      if (!isTextField) return;
+
+      const scrollFocusedFieldIntoView = () => {
+        target.scrollIntoView({
+          block: 'center',
+          inline: 'nearest',
+          behavior: 'smooth',
+        });
+      };
+
+      window.setTimeout(scrollFocusedFieldIntoView, 80);
+      window.setTimeout(scrollFocusedFieldIntoView, 320);
+    },
+    [],
+  );
+
   const handleAppShellHostWheel = useCallback(
     (event: React.WheelEvent<HTMLElement>) => {
       if (Platform.OS !== 'web') return;
@@ -125,19 +152,33 @@ const AppContent = () => {
     );
   }
 
-  return session ? (
+  return (
     <View
-      style={styles.appShellHost}
+      style={styles.keyboardFocusHost}
       {...(Platform.OS === 'web'
-        ? ({ onWheel: handleAppShellHostWheel } as object)
+        ? ({ onFocusCapture: handleWebInputFocus } as object)
         : {})}
     >
-      <View nativeID="app-shell" style={styles.appShell}>
-        <AppNavigator />
-      </View>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingHost}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {session ? (
+          <View
+            style={styles.appShellHost}
+            {...(Platform.OS === 'web'
+              ? ({ onWheel: handleAppShellHostWheel } as object)
+              : {})}
+          >
+            <View nativeID="app-shell" style={styles.appShell}>
+              <AppNavigator />
+            </View>
+          </View>
+        ) : (
+          <AuthScreen />
+        )}
+      </KeyboardAvoidingView>
     </View>
-  ) : (
-    <AuthScreen />
   );
 };
 
@@ -176,6 +217,12 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+  keyboardFocusHost: {
+    flex: 1,
+  },
+  keyboardAvoidingHost: {
+    flex: 1,
+  },
   appShellHost: {
     flex: 1,
     backgroundColor: theme.colors.background.default,
