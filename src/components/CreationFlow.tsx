@@ -319,7 +319,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   submitButton: {
-    minHeight: 50,
+    minHeight: 54,
+    paddingVertical: 12,
+    paddingHorizontal: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.secondary.main,
     flexDirection: 'row',
@@ -337,6 +339,8 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
     fontWeight: '800',
     fontSize: 16,
+    lineHeight: 22,
+    paddingBottom: 2,
   },
   submitButtonTextDisabled: {
     color: 'rgba(255,255,255,0.54)',

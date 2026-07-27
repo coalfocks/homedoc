@@ -212,20 +212,30 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
                   <TouchableOpacity
                     style={styles.removeImage}
                     onPress={() => handleRemoveImage(index)}
+                    activeOpacity={0.85}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="Remove image"
                   >
-                    <Text style={styles.removeImageIcon}>x</Text>
+                    <Icon name="close" color="#FFFFFF" size={14} />
                   </TouchableOpacity>
                 </View>
               ))}
               <TouchableOpacity
                 style={styles.addImageButton}
                 onPress={pickImage}
+                activeOpacity={0.82}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Add images"
               >
-                <Icon
-                  name="image"
-                  color={theme.colors.primary.main}
-                  size={32}
-                />
+                <View style={styles.addImageIconBadge}>
+                  <Icon
+                    name="image"
+                    color={theme.colors.accent.dark}
+                    size={28}
+                  />
+                </View>
                 <Text style={styles.addImageText}>Add Images</Text>
               </TouchableOpacity>
             </View>
@@ -292,43 +302,59 @@ const styles = StyleSheet.create({
     width: '47%',
     aspectRatio: 1,
     marginBottom: 12,
+    borderRadius: 10,
+    backgroundColor: theme.colors.background.dark,
   },
   image: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 10,
   },
   removeImage: {
     position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: theme.colors.error.main,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(31, 42, 55, 0.82)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  removeImageIcon: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.7)',
   },
   addImageButton: {
     width: '47%',
     aspectRatio: 1,
-    backgroundColor: 'rgba(31, 77, 107, 0.06)',
-    borderRadius: 8,
+    minHeight: 144,
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(63, 127, 104, 0.1)',
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: theme.colors.border.strong,
+    borderColor: 'rgba(63, 127, 104, 0.42)',
     borderStyle: 'dashed',
+    marginBottom: 12,
+  },
+  addImageIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background.paper,
+    marginBottom: 10,
+    ...theme.shadows.sm,
   },
   addImageText: {
     fontSize: 14,
-    color: theme.colors.text.primary,
-    marginTop: 8,
+    lineHeight: 20,
+    fontWeight: '700',
+    color: theme.colors.accent.dark,
+    textAlign: 'center',
+    paddingBottom: 2,
   },
 });
 
