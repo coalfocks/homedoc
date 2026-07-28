@@ -85,6 +85,7 @@ export type Note = {
   contractor_area_access_id?: string | null;
   contractor_name?: string | null;
   contractor_company?: string | null;
+  reminder_at?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -151,6 +152,7 @@ export type Todo = {
   status: 'pending' | 'in_progress' | 'done';
   priority: 'low' | 'medium' | 'high';
   area_id: string;
+  reminder_at?: string | null;
   created_at: string;
   updated_at: string;
   plan?: GeneratedPlan | null;

@@ -13,6 +13,7 @@ import {
 } from '../components/AppChrome';
 import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
+import { formatReminder } from '../utils/reminders';
 
 type NoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Note'>;
@@ -53,6 +54,8 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
     );
   }
 
+  const reminderLabel = formatReminder(note.reminder_at);
+
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
@@ -68,6 +71,16 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
       <View style={styles.bodyCard}>
         <Text style={styles.bodyText}>{note.content}</Text>
       </View>
+
+      {reminderLabel ? (
+        <>
+          <SectionTitle title="Reminder" />
+          <View style={styles.reminderCard}>
+            <Text style={styles.reminderLabel}>Reminder set for</Text>
+            <Text style={styles.reminderValue}>{reminderLabel}</Text>
+          </View>
+        </>
+      ) : null}
 
       {note.images.length > 0 ? (
         <>
@@ -114,6 +127,27 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: theme.typography.body1.fontSize,
     lineHeight: theme.typography.body1.lineHeight,
+  },
+  reminderCard: {
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 77, 107, 0.16)',
+    marginBottom: theme.spacing.xl,
+  },
+  reminderLabel: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '700',
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  reminderValue: {
+    color: theme.colors.primary.dark,
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: '800',
   },
   imageGrid: {
     gap: theme.spacing.md,

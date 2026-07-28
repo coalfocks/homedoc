@@ -21,6 +21,7 @@ import { SignedImage } from '../components/SignedImage';
 import { uploadPrivateImage } from '../utils/privateImages';
 import { getErrorMessage } from '../utils/errors';
 import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
+import { parseReminderInput } from '../utils/reminders';
 import { createUuid } from '../utils/uuid';
 import {
   CreationCard,
@@ -44,6 +45,8 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   const { access } = useContractorAreaAccess(areaId, user?.id);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
@@ -87,6 +90,14 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
       setLoading(true);
       setError(null);
       const noteId = createUuid();
+      const reminder = parseReminderInput({
+        date: reminderDate,
+        time: reminderTime,
+      });
+      if (reminder.error) {
+        setError(reminder.error);
+        return;
+      }
 
       let imageUrls: string[] = [];
       if (images.length > 0) {
@@ -100,6 +111,7 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
           content,
           images: imageUrls,
           area_id: areaId,
+          reminder_at: reminder.reminderAt,
           ...(contractorAccess
             ? {
                 note_source: 'contractor',
@@ -199,6 +211,35 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
             labelStyle={styles.label}
           />
 
+          <View style={styles.reminderSection}>
+            <Text style={styles.sectionTitle}>Reminder</Text>
+            <View style={styles.reminderRow}>
+              <Input
+                value={reminderDate}
+                onChangeText={setReminderDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#666"
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+                containerStyle={[styles.inputContainer, styles.reminderInput]}
+                inputStyle={styles.input}
+              />
+              <Input
+                value={reminderTime}
+                onChangeText={setReminderTime}
+                placeholder="HH:MM"
+                placeholderTextColor="#666"
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+                containerStyle={[styles.inputContainer, styles.reminderTime]}
+                inputStyle={styles.input}
+              />
+            </View>
+            <Text style={styles.helperText}>
+              Optional. Leave time blank to remind at 9:00 AM.
+            </Text>
+          </View>
+
           <View style={styles.imageSection}>
             <Text style={styles.sectionTitle}>Images</Text>
             <View style={styles.imageContainer}>
@@ -277,6 +318,27 @@ const styles = StyleSheet.create({
   textArea: {
     paddingTop: 12,
     textAlignVertical: 'top',
+  },
+  reminderSection: {
+    marginTop: 8,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'flex-start',
+  },
+  reminderInput: {
+    flex: 1,
+  },
+  reminderTime: {
+    width: 116,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
+    paddingHorizontal: 16,
+    marginTop: -8,
   },
   label: {
     color: theme.colors.text.primary,

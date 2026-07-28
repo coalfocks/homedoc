@@ -17,6 +17,7 @@ import {
 } from '../components/AppChrome';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { theme } from '../utils/theme';
+import { formatReminder } from '../utils/reminders';
 
 type NotesScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
@@ -107,6 +108,11 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
                         : ''}
                     </Text>
                   ) : null}
+                  {item.reminder_at ? (
+                    <Text style={styles.reminderMeta}>
+                      Reminder: {formatReminder(item.reminder_at)}
+                    </Text>
+                  ) : null}
                 </View>
                 <Text style={styles.cardDate}>
                   {formatDate(item.created_at)}
@@ -182,6 +188,12 @@ const styles = StyleSheet.create({
   contractorMeta: {
     marginTop: 4,
     color: theme.colors.accent.dark,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
+  },
+  reminderMeta: {
+    marginTop: 4,
+    color: theme.colors.primary.dark,
     fontSize: theme.typography.caption.fontSize,
     fontWeight: '800',
   },

@@ -17,6 +17,7 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import { useTodo, useAllAreas } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
+import { parseReminderInput, splitReminderAt } from '../utils/reminders';
 
 type EditTodoScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditTodo'>;
@@ -48,6 +49,8 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [status, setStatus] = useState<Status>('pending');
   const [areaId, setAreaId] = useState<string | undefined>(undefined);
@@ -58,6 +61,9 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
     if (todo) {
       setTitle(todo.title);
       setDescription(todo.description || '');
+      const reminder = splitReminderAt(todo.reminder_at);
+      setReminderDate(reminder.date);
+      setReminderTime(reminder.time);
       setPriority(todo.priority);
       setStatus(todo.status);
       setAreaId(todo.area_id);
@@ -69,6 +75,14 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
     try {
       setSaving(true);
       setSaveError(null);
+      const reminder = parseReminderInput({
+        date: reminderDate,
+        time: reminderTime,
+      });
+      if (reminder.error) {
+        setSaveError(reminder.error);
+        return;
+      }
       const { error: updateError } = await supabase
         .from('todos')
         .update({
@@ -77,6 +91,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
           status,
           priority,
           area_id: areaId,
+          reminder_at: reminder.reminderAt,
         })
         .eq('id', todo!.id);
       if (updateError) throw updateError;
@@ -155,6 +170,35 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
           containerStyle={styles.inputContainer}
           inputStyle={[styles.input, styles.textArea]}
         />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>Reminder</Text>
+        <View style={styles.reminderRow}>
+          <Input
+            value={reminderDate}
+            onChangeText={setReminderDate}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={theme.colors.text.hint}
+            autoCapitalize="none"
+            keyboardType="numbers-and-punctuation"
+            containerStyle={[styles.inputContainer, styles.reminderInput]}
+            inputStyle={styles.input}
+          />
+          <Input
+            value={reminderTime}
+            onChangeText={setReminderTime}
+            placeholder="HH:MM"
+            placeholderTextColor={theme.colors.text.hint}
+            autoCapitalize="none"
+            keyboardType="numbers-and-punctuation"
+            containerStyle={[styles.inputContainer, styles.reminderTime]}
+            inputStyle={styles.input}
+          />
+        </View>
+        <Text style={styles.helperText}>
+          Clear both fields to remove the reminder.
+        </Text>
       </View>
 
       {/* Area picker */}
@@ -298,6 +342,23 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: 16,
     paddingHorizontal: theme.spacing.md,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    alignItems: 'flex-start',
+  },
+  reminderInput: {
+    flex: 1,
+  },
+  reminderTime: {
+    width: 116,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
+    marginTop: -theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,

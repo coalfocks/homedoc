@@ -18,6 +18,7 @@ import {
 } from '../components/AppChrome';
 import { theme } from '../utils/theme';
 import type { Todo } from '../lib/supabase';
+import { formatReminder } from '../utils/reminders';
 
 type TodosScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
@@ -140,6 +141,11 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
                       {todo.description}
                     </Text>
                   ) : null}
+                  {todo.reminder_at ? (
+                    <Text style={styles.reminderMeta}>
+                      Reminder: {formatReminder(todo.reminder_at)}
+                    </Text>
+                  ) : null}
                   <View style={styles.cardBottom}>
                     <StatusBadge status={todo.status} />
                     <Text style={styles.cardArea}>
@@ -247,6 +253,12 @@ const styles = StyleSheet.create({
   cardDesc: {
     color: theme.colors.text.slate,
     lineHeight: theme.typography.body2.lineHeight,
+    marginBottom: theme.spacing.sm,
+  },
+  reminderMeta: {
+    color: theme.colors.primary.dark,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
     marginBottom: theme.spacing.sm,
   },
   cardBottom: {

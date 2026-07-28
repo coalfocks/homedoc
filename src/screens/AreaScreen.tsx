@@ -25,6 +25,7 @@ import {
 import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
+import { formatReminder } from '../utils/reminders';
 
 type AreaScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Area'>;
@@ -262,6 +263,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                         {todo.description}
                       </Text>
                     ) : null}
+                    {todo.reminder_at ? (
+                      <Text style={styles.reminderMeta}>
+                        Reminder: {formatReminder(todo.reminder_at)}
+                      </Text>
+                    ) : null}
                   </TouchableOpacity>
                 ))}
               {todos.filter((t) => t.status !== 'done').length > 3 ? (
@@ -341,6 +347,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
               <Text style={styles.cardContent} numberOfLines={3}>
                 {item.content}
               </Text>
+              {item.reminder_at ? (
+                <Text style={styles.reminderMeta}>
+                  Reminder: {formatReminder(item.reminder_at)}
+                </Text>
+              ) : null}
               <Text style={styles.cardDate}>{formatDate(item.created_at)}</Text>
             </TouchableOpacity>
           ))}
@@ -530,6 +541,12 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
+  },
+  reminderMeta: {
+    marginTop: theme.spacing.xs,
+    color: theme.colors.primary.dark,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
   },
   todoCard: {
     padding: theme.spacing.md,

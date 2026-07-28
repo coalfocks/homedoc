@@ -22,6 +22,7 @@ import {
   uploadPrivateImage,
 } from '../utils/privateImages';
 import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
+import { parseReminderInput, splitReminderAt } from '../utils/reminders';
 
 type EditNoteScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditNote'>;
@@ -36,6 +37,8 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -44,6 +47,9 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     if (note) {
       setTitle(note.title);
       setContent(note.content || '');
+      const reminder = splitReminderAt(note.reminder_at);
+      setReminderDate(reminder.date);
+      setReminderTime(reminder.time);
       setImages(note.images || []);
     }
   }, [note]);
@@ -106,12 +112,25 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
     try {
       setSaving(true);
       setSaveError(null);
+      const reminder = parseReminderInput({
+        date: reminderDate,
+        time: reminderTime,
+      });
+      if (reminder.error) {
+        setSaveError(reminder.error);
+        return;
+      }
 
       let imageUrls = await uploadImages(images);
 
       const { error: updateError } = await supabase
         .from('notes')
-        .update({ title, content, images: imageUrls })
+        .update({
+          title,
+          content,
+          images: imageUrls,
+          reminder_at: reminder.reminderAt,
+        })
         .eq('id', note.id);
 
       if (updateError) throw updateError;
@@ -161,6 +180,34 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
           inputStyle={[styles.input, styles.textArea]}
           labelStyle={styles.label}
         />
+        <View style={styles.reminderSection}>
+          <Text style={styles.sectionTitle}>Reminder</Text>
+          <View style={styles.reminderRow}>
+            <Input
+              value={reminderDate}
+              onChangeText={setReminderDate}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor="#666"
+              autoCapitalize="none"
+              keyboardType="numbers-and-punctuation"
+              containerStyle={[styles.inputContainer, styles.reminderInput]}
+              inputStyle={styles.input}
+            />
+            <Input
+              value={reminderTime}
+              onChangeText={setReminderTime}
+              placeholder="HH:MM"
+              placeholderTextColor="#666"
+              autoCapitalize="none"
+              keyboardType="numbers-and-punctuation"
+              containerStyle={[styles.inputContainer, styles.reminderTime]}
+              inputStyle={styles.input}
+            />
+          </View>
+          <Text style={styles.helperText}>
+            Clear both fields to remove the reminder.
+          </Text>
+        </View>
         <View style={styles.imageSection}>
           <Text style={styles.sectionTitle}>Images</Text>
           <View style={styles.imageContainer}>
@@ -249,6 +296,27 @@ const styles = StyleSheet.create({
   textArea: {
     paddingTop: 12,
     textAlignVertical: 'top',
+  },
+  reminderSection: {
+    marginTop: 8,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'flex-start',
+  },
+  reminderInput: {
+    flex: 1,
+  },
+  reminderTime: {
+    width: 116,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
+    paddingHorizontal: 16,
+    marginTop: -8,
   },
   label: {
     color: theme.colors.text.primary,

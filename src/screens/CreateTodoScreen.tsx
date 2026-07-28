@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { useAllAreas } from '../hooks/useData';
+import { parseReminderInput } from '../utils/reminders';
 import {
   CreationCard,
   CreationIntro,
@@ -54,6 +55,8 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [status, setStatus] = useState<Status>('pending');
   const [areaId, setAreaId] = useState<string | undefined>(preselectedAreaId);
@@ -77,6 +80,14 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
     try {
       setSaving(true);
       setError(null);
+      const reminder = parseReminderInput({
+        date: reminderDate,
+        time: reminderTime,
+      });
+      if (reminder.error) {
+        setError(reminder.error);
+        return;
+      }
       const { error: insertError } = await supabase.from('todos').insert([
         {
           title: title.trim(),
@@ -84,6 +95,7 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
           status,
           priority,
           area_id: areaId,
+          reminder_at: reminder.reminderAt,
         },
       ]);
       if (insertError) throw insertError;
@@ -151,6 +163,35 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
               containerStyle={styles.inputContainer}
               inputStyle={[styles.input, styles.textArea]}
             />
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Reminder (optional)</Text>
+            <View style={styles.reminderRow}>
+              <Input
+                value={reminderDate}
+                onChangeText={setReminderDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={theme.colors.text.hint}
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+                containerStyle={[styles.inputContainer, styles.reminderInput]}
+                inputStyle={styles.input}
+              />
+              <Input
+                value={reminderTime}
+                onChangeText={setReminderTime}
+                placeholder="HH:MM"
+                placeholderTextColor={theme.colors.text.hint}
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+                containerStyle={[styles.inputContainer, styles.reminderTime]}
+                inputStyle={styles.input}
+              />
+            </View>
+            <Text style={styles.helperText}>
+              Leave time blank to remind at 9:00 AM.
+            </Text>
           </View>
 
           <View style={styles.section}>
@@ -290,6 +331,23 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: 16,
     paddingHorizontal: theme.spacing.md,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    alignItems: 'flex-start',
+  },
+  reminderInput: {
+    flex: 1,
+  },
+  reminderTime: {
+    width: 116,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    lineHeight: theme.typography.caption.lineHeight,
+    marginTop: -theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,
