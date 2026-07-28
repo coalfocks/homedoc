@@ -185,7 +185,11 @@ export const useTodo = (todoId: string | undefined) => {
   const result = useSupabaseQuery<Todo | null>(
     () => {
       if (!todoId) return Promise.resolve({ data: null, error: null });
-      return supabase.from('todos').select('*').eq('id', todoId).single();
+      return supabase
+        .from('todos')
+        .select('*, areas(id, name, properties(name))')
+        .eq('id', todoId)
+        .single();
     },
     [todoId],
     null,

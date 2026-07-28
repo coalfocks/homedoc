@@ -64,11 +64,7 @@ const InviteContractorScreen: React.FC<InviteContractorScreenProps> = ({
       setSent(true);
       setTimeout(() => navigation.goBack(), 650);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Could not grant contractor access right now.',
-      );
+      setError(await getInviteErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -171,6 +167,26 @@ const InviteContractorScreen: React.FC<InviteContractorScreenProps> = ({
     </View>
   );
 };
+
+async function getInviteErrorMessage(error: unknown) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'context' in error &&
+    error.context instanceof Response
+  ) {
+    try {
+      const body = await error.context.json();
+      if (typeof body?.error === 'string') return body.error;
+      if (typeof body?.message === 'string') return body.message;
+    } catch {
+      // Fall through to the generic message below.
+    }
+  }
+
+  if (error instanceof Error) return error.message;
+  return 'Could not grant contractor access right now.';
+}
 
 const styles = StyleSheet.create({
   container: {

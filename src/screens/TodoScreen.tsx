@@ -78,7 +78,8 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
     if (!updateError) refetch();
   };
 
-  const areaName = (todo as any).areas?.name || 'Area';
+  const areaName = todo.areas?.name || 'Unknown area';
+  const propertyName = todo.areas?.properties?.name;
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -139,6 +140,9 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
       <View style={styles.locationCard}>
         <Text style={styles.locationLabel}>Area</Text>
         <Text style={styles.locationValue}>{areaName}</Text>
+        {propertyName ? (
+          <Text style={styles.locationMeta}>{propertyName}</Text>
+        ) : null}
       </View>
 
       <SectionTitle title="Planning" />
@@ -225,6 +229,12 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: theme.typography.h4.fontSize,
     fontWeight: '700',
+  },
+  locationMeta: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
+    marginTop: 4,
   },
 });
 

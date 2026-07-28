@@ -136,6 +136,7 @@ const MainTabs = () => {
         name="Properties"
         component={HomeScreen}
         options={{
+          tabBarLabel: 'Homes',
           tabBarIcon: ({ color, size }) => (
             <Icon name="home" color={color} size={size} />
           ),

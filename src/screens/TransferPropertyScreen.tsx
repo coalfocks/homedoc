@@ -42,6 +42,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const recipientEmail = email.trim().toLowerCase();
+  const hasEmail = recipientEmail.length > 0;
+  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail);
+  const visibleError =
+    error ||
+    (hasEmail && !hasValidEmail ? 'Please enter a valid email address' : null);
 
   if (propertyLoading || areasLoading) {
     return (
@@ -60,15 +66,12 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
   }
 
   const handleTransfer = async () => {
-    const recipientEmail = email.trim().toLowerCase();
-
     if (!recipientEmail) {
       setError('Please enter recipient email');
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(recipientEmail)) {
+    if (!hasValidEmail) {
       setError('Please enter a valid email address');
       return;
     }
@@ -158,11 +161,16 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
           autoCorrect={false}
           inputContainerStyle={styles.inputContainer}
           labelStyle={styles.labelStyle}
-          inputStyle={styles.inputStyle}
+          inputStyle={[
+            styles.inputStyle,
+            visibleError && styles.inputStyleError,
+          ]}
           placeholderTextColor={theme.colors.text.secondary}
         />
 
-        {error ? <Text style={styles.formError}>{error}</Text> : null}
+        {visibleError ? (
+          <Text style={styles.formError}>{visibleError}</Text>
+        ) : null}
 
         <View style={styles.propertyInfo}>
           <Text style={styles.propertyTitle}>Property Details</Text>
@@ -184,9 +192,11 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
           title={isTransfer ? 'Transfer Property' : 'Share Property'}
           onPress={handleTransfer}
           loading={isLoading}
-          disabled={isLoading || !email.trim()}
+          disabled={isLoading || !hasValidEmail}
           buttonStyle={styles.transferButton}
           titleStyle={styles.buttonTitle}
+          disabledStyle={styles.disabledTransferButton}
+          disabledTitleStyle={styles.disabledButtonTitle}
         />
         <Button
           title="Cancel"
@@ -267,6 +277,9 @@ const styles = StyleSheet.create({
   inputStyle: {
     color: theme.colors.text.primary,
   },
+  inputStyleError: {
+    color: theme.colors.error.dark,
+  },
   propertyInfo: {
     marginTop: theme.spacing.xl,
     padding: theme.spacing.md,
@@ -311,7 +324,17 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     height: 50,
   },
+  disabledTransferButton: {
+    backgroundColor: theme.colors.neutral[200],
+    borderRadius: theme.borderRadius.md,
+    height: 50,
+  },
   buttonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  disabledButtonTitle: {
+    color: theme.colors.text.secondary,
     fontSize: 16,
     fontWeight: '600',
   },

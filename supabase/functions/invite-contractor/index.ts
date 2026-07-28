@@ -87,7 +87,7 @@ serve(async (req: Request) => {
     contractor.email ||
     contractorEmail;
 
-  const { data: access, error: accessError } = await adminClient
+  const { data: access, error: upsertError } = await adminClient
     .from('contractor_area_access')
     .upsert(
       {
@@ -107,8 +107,8 @@ serve(async (req: Request) => {
     .select()
     .single();
 
-  if (accessError) {
-    return jsonError(500, accessError.message);
+  if (upsertError) {
+    return jsonError(500, upsertError.message);
   }
 
   return jsonResponse({

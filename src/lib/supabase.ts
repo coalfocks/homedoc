@@ -156,4 +156,11 @@ export type Todo = {
   plan?: GeneratedPlan | null;
   plan_status?: string | null;
   plan_chat?: PlanChatMessage[] | null;
+  areas?: {
+    id?: string;
+    name?: string | null;
+    properties?: {
+      name?: string | null;
+    } | null;
+  } | null;
 };
