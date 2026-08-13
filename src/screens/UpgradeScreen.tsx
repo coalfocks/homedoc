@@ -148,12 +148,12 @@ const UpgradeScreen: React.FC = () => {
         title={
           betaAccess
             ? 'Pro is included while HomeDoc is in beta'
-            : 'Keep the house knowledge worth paying for'
+            : 'Keep every property record in one place'
         }
         subtitle={
           betaAccess
-            ? 'Use everything, then tell us what should stay, what should change, and what would eventually be worth paying for.'
-            : 'HomeDoc Pro is for AI planning, unlimited records, and clean handoffs when a home changes hands.'
+            ? 'Use everything, then tell us what feels useful, confusing, or missing before paid plans go live.'
+            : 'HomeDoc Pro adds AI planning, unlimited properties, and clean handoffs when a home changes hands.'
         }
       />
 
@@ -207,7 +207,7 @@ const UpgradeScreen: React.FC = () => {
 
       <SectionTitle
         title="What Pro unlocks"
-        subtitle="The paid tier should feel like the operational layer for a real home, not a prettier notes list."
+        subtitle="Practical tools for owners, rentals, moves, and repairs."
       />
 
       <View style={styles.featureList}>
@@ -220,8 +220,8 @@ const UpgradeScreen: React.FC = () => {
       </View>
 
       <SectionTitle
-        title="Why people buy"
-        subtitle="The wedge is not organization. It is avoiding expensive forgotten home knowledge."
+        title="Where it helps"
+        subtitle="The value shows up when old home details suddenly matter."
       />
 
       <View style={styles.useCaseList}>
@@ -235,8 +235,8 @@ const UpgradeScreen: React.FC = () => {
 
       <EmptyStateCard
         icon="home"
-        title="Best GTM wedge"
-        description="Start with realtors, inspectors, property managers, and move-in moments. Transfer/share creates the loop; AI planning creates retention."
+        title="Good starting points"
+        description="Realtors, inspectors, property managers, move-ins, and pre-sale cleanup all create moments where a complete home record is useful."
       />
     </Screen>
   );
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   activeCard: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(47, 133, 90, 0.10)',
     borderWidth: 1,
     borderColor: 'rgba(47, 133, 90, 0.22)',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   errorCard: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(200, 85, 61, 0.10)',
     borderWidth: 1,
     borderColor: 'rgba(200, 85, 61, 0.18)',
@@ -301,8 +301,8 @@ const styles = StyleSheet.create({
   accountCard: {
     gap: theme.spacing.sm,
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
     marginBottom: theme.spacing.lg,
@@ -326,8 +326,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.spacing.sm,
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.86)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
@@ -346,12 +346,11 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   useCaseCard: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   useCaseTitle: {
     color: theme.colors.text.primary,

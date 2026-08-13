@@ -312,6 +312,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.default,
   },
   scrollContent: {
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
     padding: theme.spacing.lg,
     paddingBottom: 220,
   },

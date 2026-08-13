@@ -42,9 +42,9 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="THE PAPER TRAIL"
+        eyebrow="NOTE LIBRARY"
         title="Notes"
-        subtitle="Maintenance records, measurements, reminders, and the tiny details you’ll absolutely forget six months from now."
+        subtitle="Maintenance records, measurements, reminders, and details worth keeping out of texts and camera rolls."
       />
 
       <View style={styles.metricRow}>
@@ -72,7 +72,7 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
         <EmptyStateCard
           icon="note"
           title="No notes yet"
-          description="Once you add notes inside an area, they’ll show up here as a clean timeline."
+          description="Add notes inside an area and they will appear here as a searchable record."
         />
       ) : (
         <View style={styles.list}>
@@ -158,12 +158,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   card: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   cardTop: {
     flexDirection: 'row',

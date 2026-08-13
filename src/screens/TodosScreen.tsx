@@ -54,9 +54,9 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="THE CHECKLIST"
+        eyebrow="TASK LIST"
         title="Todos"
-        subtitle="Track maintenance, repairs, and improvements across every property."
+        subtitle="Maintenance, repairs, and improvements across every property."
       />
 
       <View style={styles.metricRow}>
@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
   filterTab: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 8,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
@@ -226,12 +226,12 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xs,
   },
   card: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   cardTop: {
     flexDirection: 'row',

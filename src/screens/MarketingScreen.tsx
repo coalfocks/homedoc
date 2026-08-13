@@ -106,14 +106,14 @@ export const MarketingScreen = () => {
 
       <View style={[styles.hero, isNarrow && styles.heroNarrow]}>
         <View style={[styles.heroCopy, isNarrow && styles.heroCopyNarrow]}>
-          <Text style={styles.kicker}>PRIVATE HOME RECORDS</Text>
+          <Text style={styles.kicker}>HOME RECORDS</Text>
           <Text style={[styles.heroTitle, isNarrow && styles.heroTitleNarrow]}>
-            The memory your home never had.
+            HomeDoc
           </Text>
           <Text style={[styles.heroBody, isNarrow && styles.heroBodyNarrow]}>
-            HomeDoc keeps the details every homeowner loses: project notes,
-            photos, appliance info, contractor history, maintenance todos, and
-            the little facts you only remember when something breaks.
+            A private property file for project notes, photos, appliance info,
+            contractor history, maintenance todos, and the facts that usually
+            disappear into texts and camera rolls.
           </Text>
           <Text style={styles.heroExample}>
             Find the furnace filter size, last service date, or paint color in
@@ -147,7 +147,7 @@ export const MarketingScreen = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Built for real home chaos</Text>
+        <Text style={styles.sectionTitle}>Built for real home upkeep</Text>
         <View style={styles.featureGrid}>
           <FeatureRow
             icon="home"
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   pageContent: {
     width: '100%',
-    maxWidth: 1180,
+    maxWidth: 1080,
     alignSelf: 'center',
     paddingHorizontal: 24,
     paddingTop: 22,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 48,
+    marginBottom: 36,
   },
   brand: {
     flexDirection: 'row',
@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
   hero: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 48,
-    marginBottom: 72,
+    gap: 36,
+    marginBottom: 56,
   },
   heroNarrow: {
     flexDirection: 'column',
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   kicker: {
-    color: theme.colors.secondary.dark,
+    color: theme.colors.text.secondary,
     fontSize: 12,
     fontWeight: '900',
     letterSpacing: 0,
@@ -259,8 +259,8 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: theme.colors.text.primary,
-    fontSize: 56,
-    lineHeight: 62,
+    fontSize: 52,
+    lineHeight: 58,
     fontWeight: '900',
     maxWidth: 620,
     marginBottom: 20,
@@ -271,8 +271,8 @@ const styles = StyleSheet.create({
   },
   heroBody: {
     color: theme.colors.text.slate,
-    fontSize: 19,
-    lineHeight: 30,
+    fontSize: 18,
+    lineHeight: 28,
     maxWidth: 620,
     marginBottom: 16,
   },
@@ -331,14 +331,14 @@ const styles = StyleSheet.create({
   },
   mockFrame: {
     backgroundColor: theme.colors.background.paper,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
     padding: 18,
     shadowColor: '#6F6254',
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.16,
-    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
   },
   mockHeader: {
     flexDirection: 'row',
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 24,
     padding: 24,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.primary.dark,
     marginBottom: 32,
   },

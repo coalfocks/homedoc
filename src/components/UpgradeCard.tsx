@@ -40,12 +40,12 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.primary.dark,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.16)',
     marginBottom: theme.spacing.lg,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   cardCompact: {
     padding: theme.spacing.md,
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: 9,
     paddingVertical: 5,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: 'rgba(255,255,255,0.14)',
     marginBottom: theme.spacing.sm,
   },

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -16,6 +16,7 @@ import {
   SectionTitle,
   SortControl,
 } from '../components/AppChrome';
+import { InspectableImage } from '../components/InspectableImage';
 import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
 import { formatAddressBlock } from '../utils/address';
@@ -43,7 +44,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
     return (
       <Screen>
         <PageHeader
-          eyebrow="PROPERTY DETAIL"
+          eyebrow="PROPERTY FILE"
           title="Loading property"
           subtitle="Pulling rooms, notes, and photos together."
         />
@@ -96,7 +97,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="PROPERTY DETAIL"
+        eyebrow="PROPERTY FILE"
         title={heroTitle}
         subtitle={subtitle}
         actionLabel="Edit"
@@ -106,10 +107,11 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
       />
 
       {property.image_url ? (
-        <SignedImage
+        <InspectableImage
           imagePath={property.image_url}
           style={styles.heroImage}
           resizeMode="cover"
+          fileName={`homedoc-property-${property.id}.jpg`}
         />
       ) : (
         <View style={styles.heroFallback}>
@@ -173,8 +175,8 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
       ) : null}
 
       <SectionTitle
-        title="Areas in this property"
-        subtitle="Build a reliable inventory of rooms, systems, and spaces."
+        title="Areas"
+        subtitle="Rooms, systems, and spaces that need their own record."
       />
 
       <AddButton
@@ -241,7 +243,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                   </Text>
                 ) : (
                   <Text style={styles.cardDescriptionMuted}>
-                    Add a description so future-you knows what belongs here.
+                    Add a short note about what belongs here.
                   </Text>
                 )}
               </View>
@@ -259,20 +261,20 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 220,
-    borderRadius: theme.borderRadius.xl,
+    height: 190,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.background.dark,
     marginBottom: theme.spacing.lg,
   },
   heroFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 220,
-    borderRadius: theme.borderRadius.xl,
+    height: 190,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
     borderWidth: 1,
     borderColor: 'rgba(63, 127, 104, 0.20)',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   heroFallbackText: {
     color: theme.colors.accent.dark,
@@ -286,12 +288,13 @@ const styles = StyleSheet.create({
   },
   actionStrip: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   handoffCard: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.primary.dark,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.16)',
@@ -330,8 +333,8 @@ const styles = StyleSheet.create({
   actionButton: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.08)',
   },
   actionButtonText: {
     color: theme.colors.primary.dark,
@@ -340,7 +343,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: 'rgba(200, 85, 61, 0.10)',
   },
   deleteButtonText: {
@@ -351,21 +354,23 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   card: {
+    flexDirection: 'row',
     overflow: 'hidden',
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   areaImage: {
-    width: '100%',
-    height: 140,
+    width: 112,
+    height: 112,
   },
   areaFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 140,
+    width: 112,
+    height: 112,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
   },
   areaFallbackText: {
@@ -374,6 +379,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   cardBody: {
+    flex: 1,
+    minWidth: 0,
     padding: theme.spacing.md,
   },
   cardTop: {

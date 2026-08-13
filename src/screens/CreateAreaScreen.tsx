@@ -185,6 +185,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.default,
   },
   content: {
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
     padding: 16,
     paddingBottom: 220,
   },

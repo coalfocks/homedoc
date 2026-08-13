@@ -19,7 +19,7 @@ import { openFeedbackEmail } from '../utils/feedback';
 type AuthMode = 'magic' | 'password';
 
 const AuthScreen: React.FC = () => {
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const { signIn, signUp, signInWithMagicLink } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,6 +30,7 @@ const AuthScreen: React.FC = () => {
 
   const normalizedEmail = email.trim().toLowerCase();
   const isCompactViewport = height < 700;
+  const isWideViewport = width >= 760;
 
   const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
@@ -87,13 +88,11 @@ const AuthScreen: React.FC = () => {
   if (magicLinkSent) {
     return (
       <View style={styles.container}>
-        <View style={styles.content}>
+        <View style={[styles.content, isWideViewport && styles.contentWide]}>
           <View style={styles.authCard}>
             <View style={styles.header}>
               <Logo size={64} color={theme.colors.primary.main} />
-              <Text h3 style={styles.title}>
-                Check your email
-              </Text>
+              <Text style={styles.title}>Check your email</Text>
               <Text style={styles.subtitle}>
                 We sent a sign-in link to{'\n'}
                 <Text style={styles.emailText}>{normalizedEmail}</Text>
@@ -136,7 +135,7 @@ const AuthScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <View style={[styles.content, isWideViewport && styles.contentWide]}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
@@ -154,11 +153,8 @@ const AuthScreen: React.FC = () => {
               size={isCompactViewport ? 48 : 72}
               color={theme.colors.primary.main}
             />
-            <Text h3 style={styles.eyebrow}>
-              HOME CARE, WITHOUT THE CHAOS
-            </Text>
+            <Text style={styles.eyebrow}>HOME RECORDS</Text>
             <Text
-              h1
               style={[
                 styles.heroTitle,
                 isCompactViewport && styles.heroTitleCompact,
@@ -168,13 +164,12 @@ const AuthScreen: React.FC = () => {
                 ? 'Open HomeDoc with one tap.'
                 : isSignUp
                   ? 'Create your HomeDoc account.'
-                  : 'Sign back into HomeDoc.'}
+                  : 'Welcome back to HomeDoc.'}
             </Text>
             {!isCompactViewport ? (
               <Text style={styles.heroSubtitle}>
-                Preserve the stuff every home loses: warranties, paint colors,
-                appliance details, maintenance plans, and the story a future
-                buyer or property manager will wish they had.
+                Warranties, paint colors, appliance details, maintenance plans,
+                and handoff notes kept with the property.
               </Text>
             ) : null}
           </View>
@@ -353,6 +348,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  contentWide: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'flex-start',
@@ -398,12 +398,12 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
-    backgroundColor: 'rgba(42, 47, 62, 0.92)',
-    borderRadius: 24,
-    padding: 22,
+    backgroundColor: theme.colors.background.elevated,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    ...theme.shadows.lg,
+    borderColor: theme.colors.border.subtle,
+    ...theme.shadows.md,
   },
   valueStrip: {
     width: '100%',
@@ -414,8 +414,8 @@ const styles = StyleSheet.create({
   },
   valueItem: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.84)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
@@ -430,10 +430,10 @@ const styles = StyleSheet.create({
   },
   betaNotice: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.14)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.md,
   },
   betaNoticeTitle: {
@@ -479,14 +479,14 @@ const styles = StyleSheet.create({
   },
   modeSwitcher: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: 14,
+    backgroundColor: 'rgba(40, 80, 106, 0.06)',
+    borderRadius: theme.borderRadius.sm,
     padding: 4,
     marginBottom: 20,
   },
   modeButton: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.xs,
     backgroundColor: 'transparent',
     minHeight: 42,
   },
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   },
   inputInner: {
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 14,
+    borderRadius: theme.borderRadius.sm,
     borderBottomWidth: 0,
     minHeight: 58,
     paddingHorizontal: 14,
@@ -525,12 +525,12 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: theme.colors.primary.main,
-    borderRadius: 14,
+    borderRadius: theme.borderRadius.sm,
     minHeight: 54,
   },
   socialButton: {
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 14,
+    borderRadius: theme.borderRadius.sm,
     minHeight: 54,
     marginBottom: 10,
     borderWidth: 1,
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   helperText: {
-    color: 'rgba(255,255,255,0.72)',
+    color: theme.colors.text.secondary,
     fontSize: 14,
     lineHeight: 21,
     marginTop: 6,
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   linkButtonText: {
-    color: theme.colors.secondary.light,
+    color: theme.colors.primary.main,
     fontSize: 15,
     fontWeight: '700',
   },

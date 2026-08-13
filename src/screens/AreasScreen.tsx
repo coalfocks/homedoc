@@ -49,9 +49,9 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="ROOM BY ROOM"
+        eyebrow="AREA INDEX"
         title="Areas"
-        subtitle="Every kitchen, crawl space, utility closet, and weird hallway that needs its own paper trail."
+        subtitle="Every room, utility closet, crawl space, and hallway with its own paper trail."
       />
 
       <View style={styles.metricRow}>
@@ -124,8 +124,8 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
       ) : null}
 
       <SectionTitle
-        title="All areas"
-        subtitle="Jump straight into any room without remembering which property it belongs to."
+        title="Area records"
+        subtitle="Jump into any room without remembering which property it belongs to."
       />
 
       {loading ? (
@@ -221,19 +221,19 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     overflow: 'hidden',
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   areaImage: {
-    width: 120,
-    height: 120,
+    width: 104,
+    height: 104,
   },
   areaFallback: {
-    width: 120,
-    height: 120,
+    width: 104,
+    height: 104,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
@@ -259,11 +259,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   contractorCard: {
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.16)',
-    ...theme.shadows.sm,
+    borderColor: 'rgba(40, 80, 106, 0.14)',
   },
   contractorTopRow: {
     flexDirection: 'row',

@@ -3,7 +3,7 @@
     "name": "homedoc",
     "slug": "homedoc",
     "scheme": "homedoc",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "202607280350"
+      "buildNumber": "202608132235"
     },
     "android": {
       "adaptiveIcon": {

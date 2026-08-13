@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
@@ -34,8 +35,10 @@ export const Screen: React.FC<ScreenProps> = ({
 }) => {
   const route = useRoute();
   const isFocused = useIsFocused();
+  const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const routeKey = route.key;
+  const horizontalPadding = width < 420 ? theme.spacing.md : theme.spacing.lg;
 
   const restoreScrollOffset = useCallback(() => {
     if (!scroll || !isFocused) return;
@@ -72,7 +75,11 @@ export const Screen: React.FC<ScreenProps> = ({
           nativeID={
             Platform.OS === 'web' ? `app-screen-scroll-${routeKey}` : undefined
           }
-          contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingHorizontal: horizontalPadding },
+            contentContainerStyle,
+          ]}
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           contentInsetAdjustmentBehavior="automatic"
@@ -94,7 +101,15 @@ export const Screen: React.FC<ScreenProps> = ({
   return (
     <View style={[styles.screen, style]} removeClippedSubviews>
       <BackgroundWash />
-      <View style={[styles.content, contentContainerStyle]}>{children}</View>
+      <View
+        style={[
+          styles.content,
+          { paddingHorizontal: horizontalPadding },
+          contentContainerStyle,
+        ]}
+      >
+        {children}
+      </View>
     </View>
   );
 };
@@ -113,24 +128,32 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   subtitle,
   actionLabel,
   onActionPress,
-}) => (
-  <View style={styles.headerBlock}>
-    <View style={styles.headerRow}>
-      <View style={styles.headerText}>
-        {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
-        <Text style={styles.headerTitle}>{title}</Text>
-        {subtitle ? (
-          <Text style={styles.headerSubtitle}>{subtitle}</Text>
+}) => {
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 520;
+
+  return (
+    <View style={styles.headerBlock}>
+      <View style={[styles.headerRow, isNarrow && styles.headerRowNarrow]}>
+        <View style={styles.headerText}>
+          {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
+          <Text style={styles.headerTitle}>{title}</Text>
+          {subtitle ? (
+            <Text style={styles.headerSubtitle}>{subtitle}</Text>
+          ) : null}
+        </View>
+        {actionLabel && onActionPress ? (
+          <TouchableOpacity
+            style={[styles.headerAction, isNarrow && styles.headerActionNarrow]}
+            onPress={onActionPress}
+          >
+            <Text style={styles.headerActionText}>{actionLabel}</Text>
+          </TouchableOpacity>
         ) : null}
       </View>
-      {actionLabel && onActionPress ? (
-        <TouchableOpacity style={styles.headerAction} onPress={onActionPress}>
-          <Text style={styles.headerActionText}>{actionLabel}</Text>
-        </TouchableOpacity>
-      ) : null}
     </View>
-  </View>
-);
+  );
+};
 
 type MetricPillProps = {
   label: string;
@@ -367,12 +390,12 @@ const addButtonStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.spacing.sm,
-    paddingVertical: 14,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.06)',
-    borderWidth: 1.5,
+    minHeight: 44,
+    paddingVertical: 11,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.06)',
+    borderWidth: 1,
     borderColor: theme.colors.primary.main,
-    borderStyle: 'dashed',
     marginBottom: theme.spacing.md,
   },
   label: {
@@ -394,19 +417,19 @@ const sortControlStyles = StyleSheet.create({
   },
   optionRow: {
     flexDirection: 'row',
-    padding: 4,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.06)',
+    padding: 3,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.12)',
+    borderColor: 'rgba(40, 80, 106, 0.12)',
   },
   option: {
     flex: 1,
     alignItems: 'center',
-    minHeight: 38,
+    minHeight: 34,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.xs,
   },
   optionSelected: {
     backgroundColor: theme.colors.background.paper,
@@ -429,12 +452,18 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: theme.spacing.lg,
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
+    paddingHorizontal: theme.spacing.md,
     paddingTop: theme.spacing.lg,
     paddingBottom: 96,
   },
   scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
+    width: '100%',
+    maxWidth: 960,
+    alignSelf: 'center',
+    paddingHorizontal: theme.spacing.md,
     paddingTop: theme.spacing.lg,
     paddingBottom: 120,
   },
@@ -443,32 +472,36 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 132,
-    backgroundColor: 'rgba(255,255,255,0.30)',
+    height: 84,
+    backgroundColor: 'rgba(255,255,255,0.22)',
   },
   washBottom: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 96,
-    backgroundColor: 'rgba(31, 77, 107, 0.04)',
+    height: 64,
+    backgroundColor: 'rgba(40, 80, 106, 0.03)',
   },
   headerBlock: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
   },
+  headerRowNarrow: {
+    flexDirection: 'column',
+    gap: theme.spacing.sm,
+  },
   headerText: {
     flex: 1,
   },
   eyebrow: {
-    color: theme.colors.secondary.dark,
+    color: theme.colors.text.secondary,
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
     letterSpacing: 0,
     marginBottom: theme.spacing.xs,
   },
@@ -479,79 +512,84 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   headerSubtitle: {
-    marginTop: theme.spacing.sm,
+    marginTop: 6,
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.body1.fontSize,
-    lineHeight: theme.typography.body1.lineHeight,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
+    maxWidth: 620,
   },
   headerAction: {
     alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 10,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: theme.colors.background.paper,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
+  },
+  headerActionNarrow: {
+    width: '100%',
+    alignItems: 'center',
   },
   headerActionText: {
     color: theme.colors.primary.main,
     fontWeight: '700',
   },
   metricPill: {
-    minWidth: 104,
+    minWidth: 92,
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.86)',
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
   metricValue: {
     color: theme.colors.text.primary,
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '800',
   },
   metricLabel: {
     marginTop: 2,
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
+    fontWeight: '600',
   },
   emptyCard: {
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.86)',
+    alignItems: 'flex-start',
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
   },
   emptyIconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 42,
+    height: 42,
+    borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(31, 77, 107, 0.10)',
-    marginBottom: theme.spacing.md,
+    backgroundColor: 'rgba(40, 80, 106, 0.09)',
+    marginBottom: theme.spacing.sm,
   },
   emptyTitle: {
     color: theme.colors.text.primary,
     fontSize: theme.typography.h3.fontSize,
     fontWeight: '700',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   emptyDescription: {
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.body1.fontSize,
-    lineHeight: theme.typography.body1.lineHeight,
-    textAlign: 'center',
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
+    textAlign: 'left',
   },
   emptyButton: {
     marginTop: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 12,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.primary.main,
   },
   emptyButtonText: {
@@ -563,8 +601,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: theme.spacing.sm,
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.86)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
     marginBottom: theme.spacing.lg,
@@ -575,16 +613,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionTitleWrap: {
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
   sectionTitle: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.h3.fontSize,
+    fontSize: theme.typography.h4.fontSize,
     fontWeight: '700',
   },
   sectionSubtitle: {
     marginTop: 4,
     color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.lineHeight,
   },
   fab: {
     position: 'absolute',
@@ -605,14 +645,14 @@ const styles = StyleSheet.create({
   },
   banner: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.14)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.lg,
   },
   bannerTitle: {
-    color: theme.colors.primary.dark,
+    color: theme.colors.text.primary,
     fontWeight: '700',
     marginBottom: 2,
   },

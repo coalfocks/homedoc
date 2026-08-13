@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
   filterTab: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 8,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
@@ -265,12 +265,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   card: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   cardRow: {
     flexDirection: 'row',

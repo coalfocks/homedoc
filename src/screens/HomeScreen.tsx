@@ -59,7 +59,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return (
       <Screen>
         <PageHeader
-          eyebrow="YOUR HOME BASE"
+          eyebrow="HOME RECORDS"
           title="Properties"
           subtitle="Loading your homes and the records attached to them."
         />
@@ -82,9 +82,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="YOUR HOME BASE"
+        eyebrow="HOME RECORDS"
         title="Properties"
-        subtitle="Room-by-room records for the homes you manage."
+        subtitle="The homes, rentals, and handoff records you are responsible for."
       />
 
       <BetaFeedbackCard
@@ -128,8 +128,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       ) : null}
 
       <SectionTitle
-        title="Your places"
-        subtitle="Open a property to manage rooms, maintenance notes, and photos."
+        title="Property file"
+        subtitle="Open a place to manage its rooms, maintenance notes, and photos."
       />
 
       <AddButton
@@ -147,7 +147,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </Text>
             <Text style={styles.startGuideBody}>
               Add a property, create an area like Kitchen or Utility Room, then
-              capture one note or todo you would normally forget.
+              save one note or todo you would normally have to hunt for later.
             </Text>
           </View>
           <EmptyStateCard
@@ -203,9 +203,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                         <Text style={styles.cardSubtitle}>{item.name}</Text>
                       ) : null}
                     </View>
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>Property</Text>
-                    </View>
+                    <Text style={styles.badge}>Open</Text>
                   </View>
                   {addressLines.length > 0 ? (
                     <>
@@ -237,7 +235,7 @@ const styles = StyleSheet.create({
   metricRow: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   noticeCard: {
     marginBottom: theme.spacing.lg,
@@ -256,11 +254,11 @@ const styles = StyleSheet.create({
     color: theme.colors.text.slate,
   },
   startGuide: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.14)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.md,
   },
   startGuideTitle: {
@@ -277,30 +275,34 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   card: {
+    flexDirection: 'row',
     overflow: 'hidden',
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   propertyImage: {
-    width: '100%',
-    height: 190,
+    width: 132,
+    height: 132,
   },
   imageFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 190,
-    backgroundColor: theme.colors.primary.light,
+    width: 132,
+    height: 132,
+    backgroundColor: 'rgba(40, 80, 106, 0.12)',
   },
   imageFallbackText: {
-    color: theme.colors.primary.contrast,
-    fontSize: 40,
+    color: theme.colors.primary.dark,
+    fontSize: 34,
     fontWeight: '800',
   },
   cardBody: {
-    padding: theme.spacing.lg,
+    flex: 1,
+    minWidth: 0,
+    padding: theme.spacing.md,
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -313,7 +315,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.h3.fontSize,
+    fontSize: theme.typography.h4.fontSize,
     fontWeight: '700',
   },
   cardSubtitle: {
@@ -322,15 +324,9 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
-  },
-  badgeText: {
     color: theme.colors.primary.dark,
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: '800',
   },
   address: {
     color: theme.colors.text.slate,

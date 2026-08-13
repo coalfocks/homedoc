@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     ...Platform.select({
       web: {
-        maxWidth: 1040,
+        maxWidth: 1280,
       },
       default: {},
     }),

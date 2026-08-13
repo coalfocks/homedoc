@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -71,26 +71,53 @@ const sharedHeader = {
 
 const MainTabs = () => {
   const { user } = useAuth();
+  const { width } = useWindowDimensions();
+  const isWideWeb = Platform.OS === 'web' && width >= 900;
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary.main,
+        tabBarPosition: isWideWeb ? 'left' : 'bottom',
+        tabBarLabelPosition: isWideWeb ? 'beside-icon' : 'below-icon',
+        tabBarActiveTintColor: theme.colors.primary.dark,
         tabBarInactiveTintColor: theme.colors.text.secondary,
+        tabBarActiveBackgroundColor: isWideWeb
+          ? 'rgba(40, 80, 106, 0.07)'
+          : 'transparent',
+        tabBarInactiveBackgroundColor: 'transparent',
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginBottom: 4,
+          fontSize: isWideWeb ? 14 : 12,
+          fontWeight: isWideWeb ? '700' : '600',
+          marginBottom: isWideWeb ? 0 : 4,
         },
         tabBarStyle: {
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          borderTopColor: theme.colors.border.subtle,
-          height: 68,
-          paddingTop: 8,
+          backgroundColor: isWideWeb
+            ? theme.colors.neutral[100]
+            : 'rgba(255,255,255,0.95)',
+          borderTopColor: isWideWeb
+            ? 'transparent'
+            : theme.colors.border.subtle,
+          borderRightColor: isWideWeb ? 'rgba(191, 175, 158, 0.55)' : undefined,
+          borderRightWidth: isWideWeb ? 1 : 0,
+          height: isWideWeb ? '100%' : 68,
+          width: isWideWeb ? 196 : undefined,
+          paddingTop: isWideWeb ? 56 : 8,
+          paddingBottom: isWideWeb ? theme.spacing.xl : 0,
+          paddingHorizontal: isWideWeb ? theme.spacing.md : 0,
+        },
+        tabBarItemStyle: {
+          borderRadius: isWideWeb ? theme.borderRadius.sm : 0,
+          minHeight: isWideWeb ? 50 : undefined,
+          marginBottom: isWideWeb ? 6 : 0,
+          paddingHorizontal: isWideWeb ? theme.spacing.sm : 0,
+        },
+        tabBarIconStyle: {
+          marginRight: isWideWeb ? theme.spacing.xs : 0,
         },
         sceneStyle: {
           backgroundColor: theme.colors.background.default,
         },
+        headerTitle: '',
         headerStyle: {
           backgroundColor: theme.colors.background.default,
         },
@@ -123,7 +150,7 @@ const MainTabs = () => {
               style={{
                 color: theme.colors.text.secondary,
                 fontWeight: '700',
-                marginLeft: theme.spacing.md,
+                marginLeft: isWideWeb ? theme.spacing.lg : theme.spacing.md,
               }}
             >
               Sign out

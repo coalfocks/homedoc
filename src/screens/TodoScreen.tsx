@@ -48,7 +48,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
     return (
       <Screen>
         <PageHeader
-          eyebrow="TODO DETAIL"
+          eyebrow="TODO FILE"
           title="Loading todo"
           subtitle="Pulling the full record."
         />
@@ -86,7 +86,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="TODO DETAIL"
+        eyebrow="TODO FILE"
         title={todo.title}
         subtitle={`Created ${formatDate(todo.created_at)} • Updated ${formatDate(todo.updated_at)}`}
         actionLabel="Edit"
@@ -187,8 +187,8 @@ const styles = StyleSheet.create({
   statusPill: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 10,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
@@ -205,12 +205,11 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
   },
   bodyCard: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
     marginBottom: theme.spacing.xl,
   },
   bodyText: {
@@ -220,10 +219,10 @@ const styles = StyleSheet.create({
   },
   reminderCard: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.16)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.lg,
   },
   reminderLabel: {
@@ -240,12 +239,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   locationCard: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
   },
   locationLabel: {
     color: theme.colors.text.secondary,

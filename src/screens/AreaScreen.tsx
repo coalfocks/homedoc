@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -22,7 +22,7 @@ import {
   SectionTitle,
   SortControl,
 } from '../components/AppChrome';
-import { SignedImage } from '../components/SignedImage';
+import { InspectableImage } from '../components/InspectableImage';
 import { theme } from '../utils/theme';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { formatReminder } from '../utils/reminders';
@@ -58,7 +58,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
     return (
       <Screen>
         <PageHeader
-          eyebrow="AREA DETAIL"
+          eyebrow="AREA FILE"
           title="Loading area"
           subtitle="Pulling note history and attached images."
         />
@@ -110,11 +110,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="AREA DETAIL"
+        eyebrow="AREA FILE"
         title={area.name}
         subtitle={
           area.description ||
-          'Document this space with notes, photos, and maintenance records.'
+          'Keep notes, photos, todos, and maintenance history for this space.'
         }
         actionLabel={canManageArea ? 'Edit' : undefined}
         onActionPress={
@@ -125,10 +125,11 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
       />
 
       {area.image_url ? (
-        <SignedImage
+        <InspectableImage
           imagePath={area.image_url}
           style={styles.heroImage}
           resizeMode="cover"
+          fileName={`homedoc-area-${area.id}.jpg`}
         />
       ) : (
         <View style={styles.heroFallback}>
@@ -298,7 +299,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         <EmptyStateCard
           icon="note"
           title="No notes yet"
-          description="Start with the next real-world thing you’ll want to look up later: paint color, filter size, warranty, or a repair note."
+          description="Start with the next thing you will want to look up later: paint color, filter size, warranty, or a repair note."
           actionLabel="Create first note"
           onActionPress={() =>
             navigation.navigate('CreateNote', { areaId: area.id })
@@ -367,17 +368,17 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 220,
-    borderRadius: theme.borderRadius.xl,
-    marginBottom: theme.spacing.lg,
+    height: 190,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
   },
   heroFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 220,
-    borderRadius: theme.borderRadius.xl,
+    height: 190,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   heroFallbackText: {
     color: theme.colors.accent.dark,
@@ -397,8 +398,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.08)',
   },
   contractorButtonText: {
     color: theme.colors.primary.dark,
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: 'rgba(200, 85, 61, 0.10)',
   },
   deleteButtonText: {
@@ -417,10 +418,10 @@ const styles = StyleSheet.create({
   },
   contractorModeCard: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.16)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.lg,
   },
   contractorModeTitle: {
@@ -446,8 +447,8 @@ const styles = StyleSheet.create({
   },
   accessList: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.86)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
     marginBottom: theme.spacing.xl,
@@ -502,12 +503,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   card: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
+    ...theme.shadows.sm,
   },
   cardTop: {
     flexDirection: 'row',
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
   todoCard: {
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.82)',
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
     ...theme.shadows.sm,

@@ -11,7 +11,7 @@ import {
   Screen,
   SectionTitle,
 } from '../components/AppChrome';
-import { SignedImage } from '../components/SignedImage';
+import { InspectableImage } from '../components/InspectableImage';
 import { theme } from '../utils/theme';
 import { formatReminder } from '../utils/reminders';
 
@@ -59,7 +59,7 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="NOTE DETAIL"
+        eyebrow="NOTE FILE"
         title={note.title}
         subtitle={`Created ${formatDate(note.created_at)} • Updated ${formatDate(note.updated_at)}`}
         actionLabel="Edit"
@@ -90,11 +90,12 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
           />
           <View style={styles.imageGrid}>
             {note.images.map((image, index) => (
-              <SignedImage
+              <InspectableImage
                 key={`${image}-${index}`}
                 imagePath={image}
                 style={styles.image}
                 resizeMode="cover"
+                fileName={`homedoc-note-${note.id}-${index + 1}.jpg`}
               />
             ))}
           </View>
@@ -115,12 +116,11 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   bodyCard: {
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
     marginBottom: theme.spacing.xl,
   },
   bodyText: {
@@ -130,10 +130,10 @@ const styles = StyleSheet.create({
   },
   reminderCard: {
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(40, 80, 106, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.16)',
+    borderColor: 'rgba(40, 80, 106, 0.14)',
     marginBottom: theme.spacing.xl,
   },
   reminderLabel: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 210,
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: theme.borderRadius.md,
   },
 });
 
