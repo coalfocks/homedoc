@@ -76,6 +76,7 @@ const freeMonthlyAiCallLimit = 20;
 const proMonthlyAiCallLimit = 300;
 const maxAnswersPayloadLength = 6000;
 const maxChatMessageLength = 2000;
+const aiModel = 'gpt-5.6-luna';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -166,7 +167,7 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
         .eq('id', todoId);
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
@@ -219,7 +220,7 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
       if (quotaError) return quotaError;
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
@@ -300,7 +301,7 @@ Be specific, practical, and realistic. Prices should reflect US averages. When a
       const trimmedChat = existingChat.slice(-12);
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
