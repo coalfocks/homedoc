@@ -27,13 +27,13 @@ const previewRecords = [
   {
     icon: 'camera' as const,
     label: 'Kitchen sink',
-    detail: 'Under-sink shutoff, disposal model, plumber note',
+    detail: 'Shutoff location, disposal model, plumber note',
     tone: 'blue' as const,
   },
   {
     icon: 'area' as const,
     label: 'Utility room',
-    detail: 'Water shutoff photo, furnace filter size, service note',
+    detail: 'Main shutoff photo, filter size, service history',
     tone: 'green' as const,
   },
   {
@@ -45,36 +45,36 @@ const previewRecords = [
 ];
 
 const messyRecords = [
-  'Paint color in an old text thread',
-  'Warranty photo buried in camera roll',
-  'Contractor notes split across messages',
-  'Inspection PDF no one can find later',
+  'Paint colors buried in text threads',
+  'Warranty photos lost in camera rolls',
+  'Contractor details split across messages',
+  'Inspection PDFs detached from the property',
 ];
 
 const organizedRecords = [
-  'Room records with notes and photos',
-  'Product details kept with the property',
-  'Contractor context scoped to the job',
-  'Buyer-ready handoff when the home changes hands',
+  'Room-by-room records with photos and notes',
+  'Product and warranty details tied to the property',
+  'Scoped context for contractors and repairs',
+  'A clean handoff when ownership or management changes',
 ];
 
 const essentials = [
   {
     icon: 'home' as const,
-    title: 'One property file',
-    body: 'Rooms, projects, repairs, photos, products, and documents stay tied to the house instead of scattered across apps.',
+    title: 'A durable property record',
+    body: 'Rooms, projects, repairs, photos, products, and documents stay connected to the place they belong.',
     tone: 'blue' as const,
   },
   {
     icon: 'lock' as const,
     title: 'Private by default',
-    body: 'Keep the home record to yourself, then share only the room or handoff context someone else needs.',
+    body: 'Keep the full record private, then share only the room, repair, or handoff context someone else needs.',
     tone: 'green' as const,
   },
   {
     icon: 'swap-horiz' as const,
-    title: 'Useful later',
-    body: 'HomeDoc is built for the second time you need the detail: touch-ups, repairs, rentals, sales, and new contractors.',
+    title: 'Built for the next request',
+    body: 'Find the detail again for touch-ups, repairs, rentals, sales, insurance, and new contractors.',
     tone: 'gold' as const,
   },
 ];
@@ -254,14 +254,13 @@ export const MarketingScreen = () => {
 
       <View style={[styles.hero, isNarrow && styles.heroNarrow]}>
         <View style={styles.heroCopy}>
-          <Text style={styles.kicker}>PRIVATE HOME RECORDS</Text>
+          <Text style={styles.kicker}>PRIVATE PROPERTY RECORDS</Text>
           <Text style={[styles.heroTitle, isNarrow && styles.heroTitleNarrow]}>
-            Stop re-learning your house every time something breaks.
+            Give every property a memory that lasts.
           </Text>
           <Text style={[styles.heroBody, isNarrow && styles.heroBodyNarrow]}>
-            HomeDoc keeps the details of a property in one useful place: rooms,
-            repairs, photos, appliance info, contractor context, and clean
-            handoffs.
+            HomeDoc keeps repairs, room notes, photos, appliance details,
+            contractor context, and handoff records in one private place.
           </Text>
           <View style={styles.heroActions}>
             <TouchableOpacity
@@ -275,13 +274,13 @@ export const MarketingScreen = () => {
               onPress={() => openUrl(appUrl)}
             >
               <Text style={styles.secondaryActionText}>
-                I already have an invite
+                Open existing invite
               </Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.heroNote}>
-            Built for owners, landlords, short-term rentals, remodels, and
-            property handoffs.
+            Designed for owners, landlords, remodels, rentals, and property
+            handoffs.
           </Text>
         </View>
 
@@ -294,7 +293,7 @@ export const MarketingScreen = () => {
         <View style={styles.compareIntro}>
           <Text style={styles.sectionKicker}>THE ACTUAL PROBLEM</Text>
           <Text style={styles.sectionTitle}>
-            A home creates records whether you organize them or not.
+            Every property creates a trail. HomeDoc makes it usable.
           </Text>
         </View>
         <View
@@ -330,9 +329,8 @@ export const MarketingScreen = () => {
           <Text style={styles.betaEyebrow}>EARLY ACCESS</Text>
           <Text style={styles.betaTitle}>Start with one real property.</Text>
           <Text style={styles.betaBody}>
-            The beta is best if you already have inspections, repairs,
-            contractor texts, photos, warranties, or project notes you keep
-            meaning to organize.
+            The beta is built for people who already have inspections, repairs,
+            contractor texts, photos, warranties, or project notes worth keeping.
           </Text>
         </View>
         <TouchableOpacity
