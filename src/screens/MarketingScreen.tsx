@@ -25,16 +25,19 @@ const previewRecords = [
     icon: 'area' as const,
     label: 'Kitchen',
     detail: 'Swiss Coffee paint, appliance warranty, backsplash tile source',
+    tone: 'blue' as const,
   },
   {
     icon: 'camera' as const,
     label: 'Utility room',
     detail: 'Water shutoff photo, furnace filter size, service note',
+    tone: 'green' as const,
   },
   {
     icon: 'todo' as const,
     label: 'Inspection follow-up',
     detail: 'GFCI outlet, gutter extension, crawlspace vapor barrier',
+    tone: 'gold' as const,
   },
 ];
 
@@ -57,16 +60,19 @@ const essentials = [
     icon: 'home' as const,
     title: 'One property file',
     body: 'Rooms, projects, repairs, photos, products, and documents stay tied to the house instead of scattered across apps.',
+    tone: 'blue' as const,
   },
   {
     icon: 'lock' as const,
     title: 'Private by default',
     body: 'Keep the home record to yourself, then share only the room or handoff context someone else needs.',
+    tone: 'green' as const,
   },
   {
     icon: 'swap-horiz' as const,
     title: 'Useful later',
     body: 'HomeDoc is built for the second time you need the detail: touch-ups, repairs, rentals, sales, and new contractors.',
+    tone: 'gold' as const,
   },
 ];
 
@@ -92,6 +98,9 @@ const AppPreview = () => (
       </View>
 
       <View style={styles.homePhoto}>
+        <View style={styles.homeSky} />
+        <View style={styles.homeSun} />
+        <View style={styles.homeGround} />
         <View style={styles.homeRoof} />
         <View style={styles.homeBody}>
           <View style={styles.homeWindow} />
@@ -106,8 +115,21 @@ const AppPreview = () => (
       </View>
 
       {previewRecords.map((record) => (
-        <View key={record.label} style={styles.recordRow}>
-          <View style={styles.recordIcon}>
+        <View
+          key={record.label}
+          style={[
+            styles.recordRow,
+            record.tone === 'green' && styles.recordRowGreen,
+            record.tone === 'gold' && styles.recordRowGold,
+          ]}
+        >
+          <View
+            style={[
+              styles.recordIcon,
+              record.tone === 'green' && styles.recordIconGreen,
+              record.tone === 'gold' && styles.recordIconGold,
+            ]}
+          >
             <Icon
               name={record.icon}
               size={17}
@@ -138,7 +160,20 @@ const RecordColumn = ({
   items: string[];
   tone: 'messy' | 'organized';
 }) => (
-  <View style={styles.recordColumn}>
+  <View
+    style={[
+      styles.recordColumn,
+      tone === 'messy'
+        ? styles.recordColumnMessy
+        : styles.recordColumnOrganized,
+    ]}
+  >
+    <View
+      style={[
+        styles.recordColumnStripe,
+        tone === 'organized' && styles.recordColumnStripeOrganized,
+      ]}
+    />
     <Text
       style={[
         styles.recordColumnTitle,
@@ -168,13 +203,21 @@ const Essential = ({
   icon,
   title,
   body,
+  tone,
 }: {
   icon: React.ComponentProps<typeof Icon>['name'];
   title: string;
   body: string;
+  tone: 'blue' | 'green' | 'gold';
 }) => (
   <View style={styles.essentialRow}>
-    <View style={styles.essentialIcon}>
+    <View
+      style={[
+        styles.essentialIcon,
+        tone === 'green' && styles.essentialIconGreen,
+        tone === 'gold' && styles.essentialIconGold,
+      ]}
+    >
       <Icon name={icon} size={19} color={theme.colors.primary.dark} />
     </View>
     <View style={styles.essentialCopy}>
@@ -274,6 +317,7 @@ export const MarketingScreen = () => {
             icon={item.icon}
             title={item.title}
             body={item.body}
+            tone={item.tone}
           />
         ))}
       </View>
@@ -519,8 +563,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 18,
     marginBottom: 16,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: '#E7E1D6',
+    backgroundColor: '#DDEBF3',
     overflow: 'hidden',
+  },
+  homeSky: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#DDEBF3',
+  },
+  homeSun: {
+    position: 'absolute',
+    top: 18,
+    right: 24,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E7BE71',
+  },
+  homeGround: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 38,
+    backgroundColor: 'rgba(63, 127, 104, 0.30)',
   },
   homeRoof: {
     alignSelf: 'center',
@@ -541,6 +606,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.borderRadius.sm,
     borderTopRightRadius: theme.borderRadius.sm,
     backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#DDD6CB',
   },
   homeWindow: {
     width: 30,
@@ -584,6 +651,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border.subtle,
+    backgroundColor: '#FFFFFF',
+  },
+  recordRowGreen: {
+    backgroundColor: 'rgba(63, 127, 104, 0.05)',
+  },
+  recordRowGold: {
+    backgroundColor: 'rgba(217, 164, 65, 0.08)',
   },
   recordIcon: {
     width: 36,
@@ -592,6 +666,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
     backgroundColor: 'rgba(40, 80, 106, 0.09)',
+  },
+  recordIconGreen: {
+    backgroundColor: 'rgba(63, 127, 104, 0.12)',
+  },
+  recordIconGold: {
+    backgroundColor: 'rgba(217, 164, 65, 0.16)',
   },
   recordCopy: {
     flex: 1,
@@ -665,6 +745,31 @@ const styles = StyleSheet.create({
   recordColumn: {
     flex: 1,
     gap: 12,
+    overflow: 'hidden',
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: 16,
+    paddingRight: 16,
+    paddingLeft: 18,
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    backgroundColor: '#FFFFFF',
+  },
+  recordColumnMessy: {
+    backgroundColor: 'rgba(200, 85, 61, 0.05)',
+  },
+  recordColumnOrganized: {
+    backgroundColor: 'rgba(63, 127, 104, 0.06)',
+  },
+  recordColumnStripe: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    backgroundColor: theme.colors.error.main,
+  },
+  recordColumnStripeOrganized: {
+    backgroundColor: theme.colors.accent.main,
   },
   recordColumnTitle: {
     color: theme.colors.error.dark,
@@ -690,9 +795,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 18,
-    paddingTop: 30,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border.subtle,
+    padding: 22,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(40, 80, 106, 0.06)',
     marginBottom: 46,
   },
   essentialRow: {
@@ -711,6 +816,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
+  },
+  essentialIconGreen: {
+    backgroundColor: 'rgba(63, 127, 104, 0.12)',
+    borderColor: 'rgba(63, 127, 104, 0.24)',
+  },
+  essentialIconGold: {
+    backgroundColor: 'rgba(217, 164, 65, 0.18)',
+    borderColor: 'rgba(217, 164, 65, 0.30)',
   },
   essentialCopy: {
     flex: 1,
@@ -735,9 +848,9 @@ const styles = StyleSheet.create({
     gap: 24,
     padding: 26,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF8EA',
     borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
+    borderColor: 'rgba(217, 164, 65, 0.34)',
     marginBottom: 32,
   },
   betaBandNarrow: {
