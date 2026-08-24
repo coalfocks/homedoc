@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Image,
   Linking,
   Platform,
   ScrollView,
@@ -15,6 +16,8 @@ import { theme } from '../utils/theme';
 
 const appUrl = 'https://app.homedocumentation.com';
 const betaEmail = 'mailto:cfox@skriber.com?subject=HomeDoc beta access';
+const recordPhotoUrl =
+  'https://images.unsplash.com/photo-1676210134188-4c05dd172f89?auto=format&fit=crop&w=900&q=80';
 
 const openUrl = (url: string) => {
   Linking.openURL(url).catch(() => undefined);
@@ -22,13 +25,13 @@ const openUrl = (url: string) => {
 
 const previewRecords = [
   {
-    icon: 'area' as const,
-    label: 'Kitchen',
-    detail: 'Swiss Coffee paint, appliance warranty, backsplash tile source',
+    icon: 'camera' as const,
+    label: 'Kitchen sink',
+    detail: 'Under-sink shutoff, disposal model, plumber note',
     tone: 'blue' as const,
   },
   {
-    icon: 'camera' as const,
+    icon: 'area' as const,
     label: 'Utility room',
     detail: 'Water shutoff photo, furnace filter size, service note',
     tone: 'green' as const,
@@ -98,14 +101,14 @@ const AppPreview = () => (
       </View>
 
       <View style={styles.homePhoto}>
-        <View style={styles.homeSky} />
-        <View style={styles.homeSun} />
-        <View style={styles.homeGround} />
-        <View style={styles.homeRoof} />
-        <View style={styles.homeBody}>
-          <View style={styles.homeWindow} />
-          <View style={styles.homeDoor} />
-          <View style={styles.homeWindow} />
+        <Image
+          source={{ uri: recordPhotoUrl }}
+          style={styles.recordPhoto}
+          resizeMode="cover"
+        />
+        <View style={styles.photoBadge}>
+          <Icon name="camera" size={13} color={theme.colors.primary.dark} />
+          <Text style={styles.photoBadgeText}>Kitchen sink record</Text>
         </View>
       </View>
 
@@ -564,71 +567,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(63, 127, 104, 0.12)',
   },
   homePhoto: {
-    height: 128,
-    justifyContent: 'flex-end',
+    height: 146,
     marginHorizontal: 18,
     marginBottom: 16,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: '#DDEBF3',
+    backgroundColor: '#D8D4CB',
     overflow: 'hidden',
   },
-  homeSky: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#DDEBF3',
+  recordPhoto: {
+    width: '100%',
+    height: '100%',
   },
-  homeSun: {
+  photoBadge: {
     position: 'absolute',
-    top: 18,
-    right: 24,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#E7BE71',
-  },
-  homeGround: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 38,
-    backgroundColor: 'rgba(63, 127, 104, 0.30)',
-  },
-  homeRoof: {
-    alignSelf: 'center',
-    width: 142,
-    height: 42,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    backgroundColor: theme.colors.primary.dark,
-  },
-  homeBody: {
-    alignSelf: 'center',
-    width: 192,
-    height: 74,
+    left: 10,
+    bottom: 10,
+    minHeight: 30,
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-around',
-    paddingBottom: 12,
-    borderTopLeftRadius: theme.borderRadius.sm,
-    borderTopRightRadius: theme.borderRadius.sm,
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#DDD6CB',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 9,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
   },
-  homeWindow: {
-    width: 30,
-    height: 28,
-    borderRadius: 4,
-    backgroundColor: '#C9DBE8',
-    borderWidth: 1,
-    borderColor: '#9FB8C9',
-  },
-  homeDoor: {
-    width: 34,
-    height: 48,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
-    backgroundColor: theme.colors.secondary.main,
+  photoBadgeText: {
+    color: theme.colors.primary.dark,
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '800',
   },
   deviceSectionHeader: {
     flexDirection: 'row',
