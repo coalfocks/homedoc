@@ -20,68 +20,151 @@ const openUrl = (url: string) => {
   Linking.openURL(url).catch(() => undefined);
 };
 
-const rooms = [
-  {
-    title: 'Kitchen',
-    meta: 'Last updated 2 days ago',
-    body: 'Paint: Swiss Coffee. Dishwasher warranty and installer note saved.',
-    icon: 'home' as const,
-  },
-  {
-    title: 'Utility Room',
-    meta: '4 open tasks',
-    body: 'Furnace filter: 16x25x1. Water shutoff photos attached.',
-    icon: 'area' as const,
-  },
-  {
-    title: 'Inspection Punch List',
-    meta: 'Shared with contractor',
-    body: 'Prioritize GFCI outlet, gutter extension, and crawlspace vapor barrier.',
-    icon: 'todo' as const,
-  },
-];
-
-const featureRows = [
+const previewRecords = [
   {
     icon: 'area' as const,
-    title: 'Rooms',
-    body: 'Photos, measurements, paint colors, model numbers, documents, and notes stay attached to the room where they matter.',
+    label: 'Kitchen',
+    detail: 'Swiss Coffee paint, appliance warranty, backsplash tile source',
   },
   {
     icon: 'camera' as const,
-    title: 'Repairs',
-    body: 'Capture what broke, who fixed it, which part was used, and what to check next time.',
-  },
-  {
-    icon: 'note' as const,
-    title: 'Products and warranties',
-    body: 'Keep appliance details, filter sizes, warranty terms, manuals, and service notes where you can actually find them.',
+    label: 'Utility room',
+    detail: 'Water shutoff photo, furnace filter size, service note',
   },
   {
     icon: 'todo' as const,
-    title: 'Projects',
-    body: 'Turn inspections, quotes, and half-finished ideas into useful next steps instead of another forgotten note.',
+    label: 'Inspection follow-up',
+    detail: 'GFCI outlet, gutter extension, crawlspace vapor barrier',
+  },
+];
+
+const messyRecords = [
+  'Paint color in an old text thread',
+  'Warranty photo buried in camera roll',
+  'Contractor notes split across messages',
+  'Inspection PDF no one can find later',
+];
+
+const organizedRecords = [
+  'Room records with notes and photos',
+  'Product details kept with the property',
+  'Contractor context scoped to the job',
+  'Buyer-ready handoff when the home changes hands',
+];
+
+const essentials = [
+  {
+    icon: 'home' as const,
+    title: 'One property file',
+    body: 'Rooms, projects, repairs, photos, products, and documents stay tied to the house instead of scattered across apps.',
   },
   {
     icon: 'lock' as const,
-    title: 'Contractor access',
-    body: 'Share the room-specific context a contractor needs without giving away the whole home record.',
+    title: 'Private by default',
+    body: 'Keep the home record to yourself, then share only the room or handoff context someone else needs.',
   },
   {
     icon: 'swap-horiz' as const,
-    title: 'Handoffs',
-    body: 'Package the facts someone else needs without forwarding old texts or rebuilding context from scratch.',
+    title: 'Useful later',
+    body: 'HomeDoc is built for the second time you need the detail: touch-ups, repairs, rentals, sales, and new contractors.',
   },
 ];
 
-const useCases = [
-  'Find the exact paint color before touching up a wall.',
-  'Send a handyman room-specific context before they arrive.',
-  'Pull appliance details, filters, warranties, and service dates in seconds.',
-  'Give a buyer or property manager a clean record instead of a folder mess.',
-];
+const AppPreview = () => (
+  <View style={styles.deviceShadow}>
+    <View style={styles.deviceFrame}>
+      <View style={styles.deviceStatus}>
+        <Text style={styles.deviceStatusText}>9:41</Text>
+        <View style={styles.deviceStatusPills}>
+          <View style={styles.statusPill} />
+          <View style={[styles.statusPill, styles.statusPillShort]} />
+        </View>
+      </View>
 
-const FeatureRow = ({
+      <View style={styles.deviceHeader}>
+        <View>
+          <Text style={styles.deviceEyebrow}>PROPERTY</Text>
+          <Text style={styles.deviceTitle}>Maple House</Text>
+        </View>
+        <View style={styles.deviceLock}>
+          <Icon name="lock" size={14} color={theme.colors.accent.dark} />
+        </View>
+      </View>
+
+      <View style={styles.homePhoto}>
+        <View style={styles.homeRoof} />
+        <View style={styles.homeBody}>
+          <View style={styles.homeWindow} />
+          <View style={styles.homeDoor} />
+          <View style={styles.homeWindow} />
+        </View>
+      </View>
+
+      <View style={styles.deviceSectionHeader}>
+        <Text style={styles.deviceSectionTitle}>Records worth keeping</Text>
+        <Text style={styles.deviceSectionMeta}>Updated today</Text>
+      </View>
+
+      {previewRecords.map((record) => (
+        <View key={record.label} style={styles.recordRow}>
+          <View style={styles.recordIcon}>
+            <Icon
+              name={record.icon}
+              size={17}
+              color={theme.colors.primary.dark}
+            />
+          </View>
+          <View style={styles.recordCopy}>
+            <Text style={styles.recordLabel}>{record.label}</Text>
+            <Text style={styles.recordDetail}>{record.detail}</Text>
+          </View>
+        </View>
+      ))}
+
+      <View style={styles.deviceFooter}>
+        <Icon name="download" size={15} color={theme.colors.primary.dark} />
+        <Text style={styles.deviceFooterText}>Exportable handoff packet</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const RecordColumn = ({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  tone: 'messy' | 'organized';
+}) => (
+  <View style={styles.recordColumn}>
+    <Text
+      style={[
+        styles.recordColumnTitle,
+        tone === 'organized' && styles.recordColumnTitleOrganized,
+      ]}
+    >
+      {title}
+    </Text>
+    {items.map((item) => (
+      <View key={item} style={styles.recordColumnRow}>
+        <Icon
+          name={tone === 'organized' ? 'check' : 'close'}
+          size={15}
+          color={
+            tone === 'organized'
+              ? theme.colors.accent.dark
+              : theme.colors.error.dark
+          }
+        />
+        <Text style={styles.recordColumnText}>{item}</Text>
+      </View>
+    ))}
+  </View>
+);
+
+const Essential = ({
   icon,
   title,
   body,
@@ -90,83 +173,20 @@ const FeatureRow = ({
   title: string;
   body: string;
 }) => (
-  <View style={styles.featureRow}>
-    <View style={styles.featureIcon}>
+  <View style={styles.essentialRow}>
+    <View style={styles.essentialIcon}>
       <Icon name={icon} size={19} color={theme.colors.primary.dark} />
     </View>
-    <View style={styles.featureCopy}>
-      <Text style={styles.featureTitle}>{title}</Text>
-      <Text style={styles.featureBody}>{body}</Text>
+    <View style={styles.essentialCopy}>
+      <Text style={styles.essentialTitle}>{title}</Text>
+      <Text style={styles.essentialBody}>{body}</Text>
     </View>
-  </View>
-);
-
-const MockAppPanel = () => (
-  <View style={styles.productShot}>
-    <View style={styles.productTopBar}>
-      <View style={styles.windowDots}>
-        <View style={[styles.windowDot, styles.windowDotWarm]} />
-        <View style={[styles.windowDot, styles.windowDotGold]} />
-        <View style={[styles.windowDot, styles.windowDotGreen]} />
-      </View>
-      <Text style={styles.productTopLabel}>homedoc/property</Text>
-    </View>
-
-    <View style={styles.productHeader}>
-      <View>
-        <Text style={styles.mockEyebrow}>PROPERTY FILE</Text>
-        <Text style={styles.mockTitle}>Maple House</Text>
-        <Text style={styles.mockSubTitle}>8 areas, 24 notes, 11 todos</Text>
-      </View>
-      <View style={styles.mockBadge}>
-        <Icon name="lock" size={14} color={theme.colors.accent.dark} />
-        <Text style={styles.mockBadgeText}>Private</Text>
-      </View>
-    </View>
-
-    <View style={styles.snapshotRow}>
-      <View style={styles.snapshotCard}>
-        <Text style={styles.snapshotValue}>3</Text>
-        <Text style={styles.snapshotLabel}>shared contractors</Text>
-      </View>
-      <View style={styles.snapshotCard}>
-        <Text style={styles.snapshotValue}>14</Text>
-        <Text style={styles.snapshotLabel}>photos with context</Text>
-      </View>
-    </View>
-
-    <View style={styles.priorityPanel}>
-      <View style={styles.priorityIcon}>
-        <Icon name="priority" size={18} color={theme.colors.warning.dark} />
-      </View>
-      <View style={styles.priorityCopy}>
-        <Text style={styles.priorityTitle}>Next useful thing</Text>
-        <Text style={styles.priorityBody}>
-          Confirm gutter extension quote before the next storm.
-        </Text>
-      </View>
-    </View>
-
-    {rooms.map((room) => (
-      <View key={room.title} style={styles.mockCard}>
-        <View style={styles.mockCardIcon}>
-          <Icon name={room.icon} size={18} color={theme.colors.primary.dark} />
-        </View>
-        <View style={styles.mockCardCopy}>
-          <View style={styles.mockCardTopRow}>
-            <Text style={styles.mockCardTitle}>{room.title}</Text>
-            <Text style={styles.mockCardMeta}>{room.meta}</Text>
-          </View>
-          <Text style={styles.mockCardBody}>{room.body}</Text>
-        </View>
-      </View>
-    ))}
   </View>
 );
 
 export const MarketingScreen = () => {
   const { width } = useWindowDimensions();
-  const isNarrow = width < 780;
+  const isNarrow = width < 820;
 
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.pageContent}>
@@ -187,25 +207,16 @@ export const MarketingScreen = () => {
       </View>
 
       <View style={[styles.hero, isNarrow && styles.heroNarrow]}>
-        <View style={[styles.heroCopy, isNarrow && styles.heroCopyNarrow]}>
-          <View style={styles.kickerPill}>
-            <Icon name="home" size={14} color={theme.colors.primary.dark} />
-            <Text style={styles.kicker}>PRIVATE HOME RECORDS</Text>
-          </View>
+        <View style={styles.heroCopy}>
+          <Text style={styles.kicker}>PRIVATE HOME RECORDS</Text>
           <Text style={[styles.heroTitle, isNarrow && styles.heroTitleNarrow]}>
-            Your house should remember things for you.
+            Stop re-learning your house every time something breaks.
           </Text>
           <Text style={[styles.heroBody, isNarrow && styles.heroBodyNarrow]}>
-            HomeDoc keeps room notes, repair photos, appliance details,
-            contractor context, and handoff-ready records in one calm property
-            file.
+            HomeDoc keeps the details of a property in one useful place: rooms,
+            repairs, photos, appliance info, contractor context, and clean
+            handoffs.
           </Text>
-          <View style={styles.heroProof}>
-            <Text style={styles.heroProofText}>
-              Built for homeowners, landlords, Airbnb hosts, and anyone who has
-              ever asked, "where did we save that?"
-            </Text>
-          </View>
           <View style={styles.heroActions}>
             <TouchableOpacity
               style={styles.primaryAction}
@@ -222,43 +233,49 @@ export const MarketingScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
+          <Text style={styles.heroNote}>
+            Built for owners, landlords, short-term rentals, remodels, and
+            property handoffs.
+          </Text>
         </View>
 
-        <View style={[styles.heroVisual, isNarrow && styles.heroVisualNarrow]}>
-          <MockAppPanel />
+        <View style={styles.heroVisual}>
+          <AppPreview />
         </View>
       </View>
 
-      <View style={[styles.momentsBand, isNarrow && styles.momentsBandNarrow]}>
-        <Text style={styles.momentsTitle}>
-          Made for the moments homes create
-        </Text>
-        <View style={styles.momentList}>
-          {useCases.map((item) => (
-            <View key={item} style={styles.momentItem}>
-              <Icon name="check" size={16} color={theme.colors.accent.dark} />
-              <Text style={styles.momentText}>{item}</Text>
-            </View>
-          ))}
+      <View style={[styles.compareSection, isNarrow && styles.compareNarrow]}>
+        <View style={styles.compareIntro}>
+          <Text style={styles.sectionKicker}>THE ACTUAL PROBLEM</Text>
+          <Text style={styles.sectionTitle}>
+            A home creates records whether you organize them or not.
+          </Text>
+        </View>
+        <View
+          style={[styles.compareGrid, isNarrow && styles.compareGridNarrow]}
+        >
+          <RecordColumn
+            title="Where details live now"
+            items={messyRecords}
+            tone="messy"
+          />
+          <RecordColumn
+            title="Where HomeDoc puts them"
+            items={organizedRecords}
+            tone="organized"
+          />
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionKicker}>WHAT HOMEDOC HOLDS</Text>
-        <Text style={styles.sectionTitle}>
-          The details that usually get scattered across texts, camera rolls, and
-          memory.
-        </Text>
-        <View style={styles.featureGrid}>
-          {featureRows.map((feature) => (
-            <FeatureRow
-              key={feature.title}
-              icon={feature.icon}
-              title={feature.title}
-              body={feature.body}
-            />
-          ))}
-        </View>
+      <View style={styles.essentialsSection}>
+        {essentials.map((item) => (
+          <Essential
+            key={item.title}
+            icon={item.icon}
+            title={item.title}
+            body={item.body}
+          />
+        ))}
       </View>
 
       <View style={[styles.betaBand, isNarrow && styles.betaBandNarrow]}>
@@ -291,7 +308,7 @@ const styles = StyleSheet.create({
   },
   pageContent: {
     width: '100%',
-    maxWidth: 1120,
+    maxWidth: 1080,
     alignSelf: 'center',
     paddingHorizontal: 24,
     paddingTop: 20,
@@ -301,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 42,
+    marginBottom: 46,
   },
   brand: {
     flexDirection: 'row',
@@ -336,81 +353,56 @@ const styles = StyleSheet.create({
   hero: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 42,
-    marginBottom: 42,
+    gap: 54,
+    marginBottom: 62,
   },
   heroNarrow: {
     flexDirection: 'column',
     alignItems: 'stretch',
-    gap: 28,
-    marginBottom: 34,
+    gap: 36,
+    marginBottom: 46,
   },
   heroCopy: {
-    flex: 1,
+    flex: 1.02,
     minWidth: 0,
   },
-  heroCopyNarrow: {
-    width: '100%',
-  },
-  kickerPill: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.08)',
-    marginBottom: 18,
-  },
   kicker: {
-    color: theme.colors.primary.dark,
+    color: theme.colors.secondary.dark,
     fontSize: 12,
-    lineHeight: 15,
+    lineHeight: 16,
     fontWeight: '800',
     letterSpacing: 0,
+    marginBottom: 16,
   },
   heroTitle: {
     color: theme.colors.text.primary,
-    fontSize: 56,
-    lineHeight: 61,
+    fontSize: 50,
+    lineHeight: 55,
     fontWeight: '800',
-    maxWidth: 620,
+    maxWidth: 640,
     marginBottom: 18,
   },
   heroTitleNarrow: {
-    fontSize: 40,
-    lineHeight: 45,
+    fontSize: 38,
+    lineHeight: 43,
   },
   heroBody: {
     color: theme.colors.text.slate,
     fontSize: 18,
     lineHeight: 28,
-    maxWidth: 610,
-    marginBottom: 18,
+    maxWidth: 620,
+    marginBottom: 26,
   },
   heroBodyNarrow: {
     fontSize: 17,
     lineHeight: 26,
-  },
-  heroProof: {
-    maxWidth: 590,
-    paddingLeft: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: theme.colors.secondary.main,
-    marginBottom: 28,
-  },
-  heroProofText: {
-    color: theme.colors.primary.dark,
-    fontSize: 15,
-    lineHeight: 23,
-    fontWeight: '700',
   },
   heroActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: 12,
+    marginBottom: 18,
   },
   primaryAction: {
     minHeight: 48,
@@ -436,297 +428,302 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.dark,
     fontWeight: '800',
   },
+  heroNote: {
+    color: theme.colors.text.secondary,
+    fontSize: 14,
+    lineHeight: 21,
+    maxWidth: 560,
+  },
   heroVisual: {
-    flex: 1,
-    minWidth: 340,
+    flex: 0.92,
+    alignItems: 'center',
+    minWidth: 320,
   },
-  heroVisualNarrow: {
+  deviceShadow: {
     width: '100%',
-    minWidth: 0,
-  },
-  productShot: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
-    overflow: 'hidden',
+    maxWidth: 360,
+    borderRadius: 36,
+    backgroundColor: '#302C28',
+    padding: 10,
     shadowColor: '#62584F',
     shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.16,
-    shadowRadius: 32,
+    shadowOpacity: 0.18,
+    shadowRadius: 30,
   },
-  productTopBar: {
-    minHeight: 42,
+  deviceFrame: {
+    overflow: 'hidden',
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+  },
+  deviceStatus: {
+    height: 34,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.subtle,
+    paddingHorizontal: 20,
     backgroundColor: theme.colors.background.elevated,
   },
-  windowDots: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  windowDot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-  },
-  windowDotWarm: {
-    backgroundColor: '#D77B68',
-  },
-  windowDotGold: {
-    backgroundColor: '#E7BE71',
-  },
-  windowDotGreen: {
-    backgroundColor: '#6DA28E',
-  },
-  productTopLabel: {
-    color: theme.colors.text.secondary,
+  deviceStatusText: {
+    color: theme.colors.text.primary,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '800',
   },
-  productHeader: {
+  deviceStatusPills: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
-    padding: 18,
-    paddingBottom: 14,
+    gap: 5,
   },
-  mockEyebrow: {
+  statusPill: {
+    width: 18,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: theme.colors.text.primary,
+  },
+  statusPillShort: {
+    width: 10,
+    backgroundColor: theme.colors.text.secondary,
+  },
+  deviceHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 12,
+  },
+  deviceEyebrow: {
     color: theme.colors.secondary.dark,
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '800',
     marginBottom: 4,
   },
-  mockTitle: {
+  deviceTitle: {
     color: theme.colors.text.primary,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: '800',
   },
-  mockSubTitle: {
-    color: theme.colors.text.secondary,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '700',
-    marginTop: 2,
-  },
-  mockBadge: {
-    height: 30,
-    flexDirection: 'row',
+  deviceLock: {
+    width: 32,
+    height: 32,
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
-    paddingHorizontal: 10,
     backgroundColor: 'rgba(63, 127, 104, 0.12)',
   },
-  mockBadgeText: {
-    color: theme.colors.accent.dark,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '800',
-  },
-  snapshotRow: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 18,
-    marginBottom: 10,
-  },
-  snapshotCard: {
-    flex: 1,
-    borderRadius: theme.borderRadius.sm,
-    padding: 12,
-    backgroundColor: '#F4F1EA',
-    borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
-  },
-  snapshotValue: {
-    color: theme.colors.primary.dark,
-    fontSize: 25,
-    lineHeight: 30,
-    fontWeight: '800',
-  },
-  snapshotLabel: {
-    color: theme.colors.text.secondary,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '700',
-  },
-  priorityPanel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  homePhoto: {
+    height: 128,
+    justifyContent: 'flex-end',
     marginHorizontal: 18,
-    marginBottom: 10,
-    padding: 12,
+    marginBottom: 16,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(217, 164, 65, 0.14)',
+    backgroundColor: '#E7E1D6',
+    overflow: 'hidden',
   },
-  priorityIcon: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(217, 164, 65, 0.18)',
-  },
-  priorityCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  priorityTitle: {
-    color: theme.colors.warning.dark,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '800',
-  },
-  priorityBody: {
-    color: theme.colors.text.primary,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '700',
-  },
-  mockCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 13,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border.subtle,
-  },
-  mockCardIcon: {
-    width: 42,
+  homeRoof: {
+    alignSelf: 'center',
+    width: 142,
     height: 42,
-    borderRadius: theme.borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(40, 80, 106, 0.09)',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    backgroundColor: theme.colors.primary.dark,
   },
-  mockCardCopy: {
-    flex: 1,
-    minWidth: 0,
+  homeBody: {
+    alignSelf: 'center',
+    width: 192,
+    height: 74,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-around',
+    paddingBottom: 12,
+    borderTopLeftRadius: theme.borderRadius.sm,
+    borderTopRightRadius: theme.borderRadius.sm,
+    backgroundColor: '#F9FAFB',
   },
-  mockCardTopRow: {
+  homeWindow: {
+    width: 30,
+    height: 28,
+    borderRadius: 4,
+    backgroundColor: '#C9DBE8',
+    borderWidth: 1,
+    borderColor: '#9FB8C9',
+  },
+  homeDoor: {
+    width: 34,
+    height: 48,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    backgroundColor: theme.colors.secondary.main,
+  },
+  deviceSectionHeader: {
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 3,
+    gap: 12,
+    paddingHorizontal: 18,
+    marginBottom: 6,
   },
-  mockCardTitle: {
+  deviceSectionTitle: {
     color: theme.colors.text.primary,
     fontSize: 15,
     lineHeight: 20,
     fontWeight: '800',
   },
-  mockCardMeta: {
+  deviceSectionMeta: {
     color: theme.colors.text.secondary,
     fontSize: 11,
     lineHeight: 15,
     fontWeight: '700',
   },
-  mockCardBody: {
-    color: theme.colors.text.slate,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  momentsBand: {
+  recordRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 28,
-    paddingVertical: 28,
-    paddingHorizontal: 28,
+    gap: 11,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.subtle,
+  },
+  recordIcon: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.primary.dark,
-    marginBottom: 52,
+    backgroundColor: 'rgba(40, 80, 106, 0.09)',
   },
-  momentsBandNarrow: {
-    flexDirection: 'column',
-    gap: 18,
-  },
-  momentsTitle: {
+  recordCopy: {
     flex: 1,
-    color: theme.colors.text.inverse,
-    fontSize: 25,
-    lineHeight: 31,
+    minWidth: 0,
+  },
+  recordLabel: {
+    color: theme.colors.text.primary,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  recordDetail: {
+    color: theme.colors.text.slate,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  deviceFooter: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: theme.colors.background.elevated,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.subtle,
+  },
+  deviceFooterText: {
+    color: theme.colors.primary.dark,
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: '800',
   },
-  momentList: {
-    flex: 1.35,
-    gap: 12,
-  },
-  momentItem: {
+  compareSection: {
     flexDirection: 'row',
+    gap: 36,
     alignItems: 'flex-start',
-    gap: 10,
+    marginBottom: 54,
   },
-  momentText: {
-    flex: 1,
-    color: 'rgba(255,255,255,0.84)',
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '700',
+  compareNarrow: {
+    flexDirection: 'column',
+    gap: 22,
   },
-  section: {
-    marginBottom: 52,
+  compareIntro: {
+    flex: 0.95,
+    minWidth: 0,
   },
   sectionKicker: {
     color: theme.colors.secondary.dark,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '800',
+    letterSpacing: 0,
     marginBottom: 10,
   },
   sectionTitle: {
     color: theme.colors.text.primary,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 31,
+    lineHeight: 38,
     fontWeight: '800',
-    maxWidth: 760,
-    marginBottom: 22,
   },
-  featureGrid: {
+  compareGrid: {
+    flex: 1.25,
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 16,
   },
-  featureRow: {
-    flexBasis: 320,
+  compareGridNarrow: {
+    width: '100%',
+    flexDirection: 'column',
+  },
+  recordColumn: {
+    flex: 1,
+    gap: 12,
+  },
+  recordColumnTitle: {
+    color: theme.colors.error.dark,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '800',
+  },
+  recordColumnTitleOrganized: {
+    color: theme.colors.accent.dark,
+  },
+  recordColumnRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 9,
+  },
+  recordColumnText: {
+    flex: 1,
+    color: theme.colors.text.slate,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  essentialsSection: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 18,
+    paddingTop: 30,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border.subtle,
+    marginBottom: 46,
+  },
+  essentialRow: {
+    flexBasis: 300,
     flexGrow: 1,
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 14,
-    padding: 18,
+  },
+  essentialIcon: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
-  featureIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(40, 80, 106, 0.09)',
-  },
-  featureCopy: {
+  essentialCopy: {
     flex: 1,
     minWidth: 0,
   },
-  featureTitle: {
+  essentialTitle: {
     color: theme.colors.text.primary,
     fontSize: 17,
     lineHeight: 22,
     fontWeight: '800',
-    marginBottom: 6,
+    marginBottom: 5,
   },
-  featureBody: {
+  essentialBody: {
     color: theme.colors.text.slate,
     fontSize: 15,
     lineHeight: 22,
