@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(40, 80, 106, 0.06)',
+    backgroundColor: 'rgba(23, 59, 53, 0.06)',
     borderWidth: 1,
     borderColor: theme.colors.primary.main,
     borderStyle: 'dashed',
@@ -780,7 +780,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
   },
   materialLinkText: {
     color: theme.colors.primary.main,
@@ -888,7 +888,7 @@ const styles = StyleSheet.create({
   },
   assistantBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },

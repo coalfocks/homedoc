@@ -1,15 +1,15 @@
 export const theme = {
   colors: {
     primary: {
-      main: '#28506A',
-      light: '#5C7F95',
-      dark: '#18384A',
+      main: '#173B35',
+      light: '#3E665F',
+      dark: '#102B28',
       contrast: '#FFFFFF',
     },
     secondary: {
-      main: '#B96F32',
-      light: '#D2945B',
-      dark: '#815128',
+      main: '#D95F26',
+      light: '#F2BA85',
+      dark: '#A9471F',
       contrast: '#FFFFFF',
     },
     accent: {
@@ -19,16 +19,16 @@ export const theme = {
       contrast: '#FFFFFF',
     },
     neutral: {
-      50: '#F7F6F2',
-      100: '#ECE8DF',
-      200: '#DCD5C9',
-      300: '#C6BCAF',
-      400: '#A99C8D',
-      500: '#817669',
-      600: '#62584F',
-      700: '#47413B',
-      800: '#302C28',
-      900: '#1F1D1A',
+      50: '#FAF7F1',
+      100: '#EFE5D8',
+      200: '#DED1C2',
+      300: '#C9BAA9',
+      400: '#AA9A88',
+      500: '#817266',
+      600: '#5F564D',
+      700: '#463F39',
+      800: '#2D2925',
+      900: '#1E1B18',
     },
     success: {
       main: '#2F855A',
@@ -55,10 +55,10 @@ export const theme = {
       contrast: '#FFFFFF',
     },
     background: {
-      default: '#F4F1EA',
+      default: '#FAF7F1',
       paper: '#FFFFFF',
-      elevated: '#FBFAF7',
-      dark: '#E5DED3',
+      elevated: '#FCFAF6',
+      dark: '#EFE5D8',
     },
     text: {
       primary: '#1F2A37',
@@ -69,8 +69,8 @@ export const theme = {
       inverse: '#FFFFFF',
     },
     border: {
-      subtle: '#DDD6CB',
-      strong: '#BFAF9E',
+      subtle: '#D8CABD',
+      strong: '#BDAA98',
     },
   },
   spacing: {
@@ -140,21 +140,21 @@ export const theme = {
   },
   shadows: {
     sm: {
-      shadowColor: '#62584F',
+      shadowColor: '#5F564D',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
       shadowRadius: 6,
       elevation: 1,
     },
     md: {
-      shadowColor: '#62584F',
+      shadowColor: '#5F564D',
       shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.08,
       shadowRadius: 14,
       elevation: 3,
     },
     lg: {
-      shadowColor: '#62584F',
+      shadowColor: '#5F564D',
       shadowOffset: { width: 0, height: 12 },
       shadowOpacity: 0.12,
       shadowRadius: 22,

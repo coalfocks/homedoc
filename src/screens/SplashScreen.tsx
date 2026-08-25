@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 999,
-    backgroundColor: 'rgba(201, 122, 43, 0.12)',
+    backgroundColor: 'rgba(217, 95, 38, 0.12)',
   },
   bottomWash: {
     position: 'absolute',
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     width: 260,
     height: 260,
     borderRadius: 999,
-    backgroundColor: 'rgba(31, 77, 107, 0.10)',
+    backgroundColor: 'rgba(23, 59, 53, 0.10)',
   },
   card: {
     width: '100%',
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: 62,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
     marginBottom: theme.spacing.lg,
   },
   eyebrow: {

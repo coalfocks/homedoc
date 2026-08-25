@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   areaSelected: {
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },

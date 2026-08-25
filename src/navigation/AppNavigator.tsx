@@ -82,7 +82,7 @@ const MainTabs = () => {
         tabBarActiveTintColor: theme.colors.primary.dark,
         tabBarInactiveTintColor: theme.colors.text.secondary,
         tabBarActiveBackgroundColor: isWideWeb
-          ? 'rgba(40, 80, 106, 0.07)'
+          ? 'rgba(23, 59, 53, 0.07)'
           : 'transparent',
         tabBarInactiveBackgroundColor: 'transparent',
         tabBarLabelStyle: {
