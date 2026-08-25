@@ -19,6 +19,19 @@ const betaEmail = 'mailto:cfox@skriber.com?subject=HomeDoc beta access';
 const recordPhotoUrl =
   'https://images.unsplash.com/photo-1676210134188-4c05dd172f89?auto=format&fit=crop&w=900&q=80';
 
+const marketingPalette = {
+  ink: '#173B35',
+  inkDark: '#102B28',
+  inkSoft: '#E0E9E3',
+  orange: '#D95F26',
+  orangeDark: '#A9471F',
+  orangeSoft: '#F6DED0',
+  paper: '#FAF7F1',
+  paperWarm: '#F3E9DD',
+  clay: '#8B5138',
+  slate: '#31433F',
+};
+
 const openUrl = (url: string) => {
   Linking.openURL(url).catch(() => undefined);
 };
@@ -28,7 +41,7 @@ const previewRecords = [
     icon: 'camera' as const,
     label: 'Kitchen sink',
     detail: 'Shutoff location, disposal model, plumber note',
-    tone: 'blue' as const,
+    tone: 'orange' as const,
   },
   {
     icon: 'area' as const,
@@ -40,7 +53,7 @@ const previewRecords = [
     icon: 'todo' as const,
     label: 'Inspection follow-up',
     detail: 'GFCI outlet, gutter extension, crawlspace vapor barrier',
-    tone: 'gold' as const,
+    tone: 'clay' as const,
   },
 ];
 
@@ -63,7 +76,7 @@ const essentials = [
     icon: 'home' as const,
     title: 'A durable property record',
     body: 'Rooms, projects, repairs, photos, products, and documents stay connected to the place they belong.',
-    tone: 'blue' as const,
+    tone: 'orange' as const,
   },
   {
     icon: 'lock' as const,
@@ -75,7 +88,7 @@ const essentials = [
     icon: 'swap-horiz' as const,
     title: 'Built for the next request',
     body: 'Find the detail again for touch-ups, repairs, rentals, sales, insurance, and new contractors.',
-    tone: 'gold' as const,
+    tone: 'clay' as const,
   },
 ];
 
@@ -96,7 +109,7 @@ const AppPreview = () => (
           <Text style={styles.deviceTitle}>Maple House</Text>
         </View>
         <View style={styles.deviceLock}>
-          <Icon name="lock" size={14} color={theme.colors.accent.dark} />
+          <Icon name="lock" size={14} color={marketingPalette.orangeDark} />
         </View>
       </View>
 
@@ -107,7 +120,7 @@ const AppPreview = () => (
           resizeMode="cover"
         />
         <View style={styles.photoBadge}>
-          <Icon name="camera" size={13} color={theme.colors.primary.dark} />
+          <Icon name="camera" size={13} color={marketingPalette.inkDark} />
           <Text style={styles.photoBadgeText}>Kitchen sink record</Text>
         </View>
       </View>
@@ -123,20 +136,20 @@ const AppPreview = () => (
           style={[
             styles.recordRow,
             record.tone === 'green' && styles.recordRowGreen,
-            record.tone === 'gold' && styles.recordRowGold,
+            record.tone === 'clay' && styles.recordRowClay,
           ]}
         >
           <View
             style={[
               styles.recordIcon,
               record.tone === 'green' && styles.recordIconGreen,
-              record.tone === 'gold' && styles.recordIconGold,
+              record.tone === 'clay' && styles.recordIconClay,
             ]}
           >
             <Icon
               name={record.icon}
               size={17}
-              color={theme.colors.primary.dark}
+              color={marketingPalette.inkDark}
             />
           </View>
           <View style={styles.recordCopy}>
@@ -147,7 +160,7 @@ const AppPreview = () => (
       ))}
 
       <View style={styles.deviceFooter}>
-        <Icon name="download" size={15} color={theme.colors.primary.dark} />
+        <Icon name="download" size={15} color={marketingPalette.inkDark} />
         <Text style={styles.deviceFooterText}>Exportable handoff packet</Text>
       </View>
     </View>
@@ -158,14 +171,17 @@ const RecordColumn = ({
   title,
   items,
   tone,
+  isNarrow,
 }: {
   title: string;
   items: string[];
   tone: 'messy' | 'organized';
+  isNarrow: boolean;
 }) => (
   <View
     style={[
       styles.recordColumn,
+      isNarrow && styles.recordColumnNarrow,
       tone === 'messy'
         ? styles.recordColumnMessy
         : styles.recordColumnOrganized,
@@ -211,17 +227,17 @@ const Essential = ({
   icon: React.ComponentProps<typeof Icon>['name'];
   title: string;
   body: string;
-  tone: 'blue' | 'green' | 'gold';
+  tone: 'orange' | 'green' | 'clay';
 }) => (
   <View style={styles.essentialRow}>
     <View
       style={[
         styles.essentialIcon,
         tone === 'green' && styles.essentialIconGreen,
-        tone === 'gold' && styles.essentialIconGold,
+        tone === 'clay' && styles.essentialIconClay,
       ]}
     >
-      <Icon name={icon} size={19} color={theme.colors.primary.dark} />
+      <Icon name={icon} size={19} color={marketingPalette.inkDark} />
     </View>
     <View style={styles.essentialCopy}>
       <Text style={styles.essentialTitle}>{title}</Text>
@@ -238,7 +254,7 @@ export const MarketingScreen = () => {
     <ScrollView style={styles.page} contentContainerStyle={styles.pageContent}>
       <View style={styles.nav}>
         <View style={styles.brand}>
-          <Logo size={34} color={theme.colors.primary.main} />
+          <Logo size={34} color={marketingPalette.ink} />
           <View>
             <Text style={styles.brandName}>HomeDoc</Text>
             <Text style={styles.brandTag}>Property memory</Text>
@@ -254,7 +270,9 @@ export const MarketingScreen = () => {
 
       <View style={[styles.hero, isNarrow && styles.heroNarrow]}>
         <View style={styles.heroCopy}>
-          <Text style={styles.kicker}>PRIVATE PROPERTY RECORDS</Text>
+          <Text style={styles.kicker}>
+            Home records that survive the handoff
+          </Text>
           <Text style={[styles.heroTitle, isNarrow && styles.heroTitleNarrow]}>
             Give every property a memory that lasts.
           </Text>
@@ -290,8 +308,9 @@ export const MarketingScreen = () => {
       </View>
 
       <View style={[styles.compareSection, isNarrow && styles.compareNarrow]}>
-        <View style={styles.compareIntro}>
-          <Text style={styles.sectionKicker}>THE ACTUAL PROBLEM</Text>
+        <View
+          style={[styles.compareIntro, isNarrow && styles.compareIntroNarrow]}
+        >
           <Text style={styles.sectionTitle}>
             Every property creates a trail. HomeDoc makes it usable.
           </Text>
@@ -303,11 +322,13 @@ export const MarketingScreen = () => {
             title="Where details live now"
             items={messyRecords}
             tone="messy"
+            isNarrow={isNarrow}
           />
           <RecordColumn
             title="Where HomeDoc puts them"
             items={organizedRecords}
             tone="organized"
+            isNarrow={isNarrow}
           />
         </View>
       </View>
@@ -326,11 +347,11 @@ export const MarketingScreen = () => {
 
       <View style={[styles.betaBand, isNarrow && styles.betaBandNarrow]}>
         <View style={styles.betaCopy}>
-          <Text style={styles.betaEyebrow}>EARLY ACCESS</Text>
           <Text style={styles.betaTitle}>Start with one real property.</Text>
           <Text style={styles.betaBody}>
             The beta is built for people who already have inspections, repairs,
-            contractor texts, photos, warranties, or project notes worth keeping.
+            contractor texts, photos, warranties, or project notes worth
+            keeping.
           </Text>
         </View>
         <TouchableOpacity
@@ -349,7 +370,7 @@ export const MarketingScreen = () => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: '#F8F6F1',
+    backgroundColor: marketingPalette.paper,
   },
   pageContent: {
     width: '100%',
@@ -371,13 +392,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   brandName: {
-    color: theme.colors.text.primary,
+    color: marketingPalette.inkDark,
     fontSize: 19,
     lineHeight: 22,
     fontWeight: '800',
   },
   brandTag: {
-    color: theme.colors.text.secondary,
+    color: marketingPalette.clay,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '700',
@@ -388,11 +409,11 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.sm,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
+    borderColor: '#D8CABD',
     backgroundColor: '#FFFFFF',
   },
   navButtonText: {
-    color: theme.colors.primary.dark,
+    color: marketingPalette.inkDark,
     fontWeight: '700',
   },
   hero: {
@@ -404,7 +425,7 @@ const styles = StyleSheet.create({
     paddingVertical: 42,
     borderTopWidth: 0,
     borderBottomWidth: 0,
-    backgroundColor: theme.colors.primary.dark,
+    backgroundColor: marketingPalette.inkDark,
     marginBottom: 62,
   },
   heroNarrow: {
@@ -418,9 +439,9 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   kicker: {
-    color: '#E7BE71',
-    fontSize: 12,
-    lineHeight: 16,
+    color: '#F2BA85',
+    fontSize: 15,
+    lineHeight: 21,
     fontWeight: '800',
     letterSpacing: 0,
     marginBottom: 16,
@@ -460,10 +481,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
     paddingHorizontal: 20,
-    backgroundColor: '#E7BE71',
+    backgroundColor: marketingPalette.orange,
   },
   primaryActionText: {
-    color: '#2D2114',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   secondaryAction: {
@@ -473,7 +494,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.35)',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.07)',
   },
   secondaryActionText: {
     color: theme.colors.text.inverse,
@@ -494,11 +515,11 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     borderRadius: 36,
-    backgroundColor: '#0F2633',
+    backgroundColor: marketingPalette.ink,
     padding: 10,
-    shadowColor: '#0B1E29',
+    shadowColor: '#0B211E',
     shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.3,
     shadowRadius: 34,
   },
   deviceFrame: {
@@ -512,7 +533,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    backgroundColor: theme.colors.background.elevated,
+    backgroundColor: '#FCFAF6',
   },
   deviceStatusText: {
     color: theme.colors.text.primary,
@@ -544,7 +565,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   deviceEyebrow: {
-    color: theme.colors.secondary.dark,
+    color: marketingPalette.orangeDark,
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '800',
@@ -562,14 +583,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(63, 127, 104, 0.12)',
+    backgroundColor: marketingPalette.orangeSoft,
   },
   homePhoto: {
     height: 146,
     marginHorizontal: 18,
     marginBottom: 16,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: '#D8D4CB',
+    backgroundColor: '#D9D0C4',
     overflow: 'hidden',
   },
   recordPhoto: {
@@ -589,7 +610,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.90)',
   },
   photoBadgeText: {
-    color: theme.colors.primary.dark,
+    color: marketingPalette.inkDark,
     fontSize: 11,
     lineHeight: 15,
     fontWeight: '800',
@@ -620,14 +641,14 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingHorizontal: 18,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border.subtle,
+    borderTopColor: '#E6DDD2',
     backgroundColor: '#FFFFFF',
   },
   recordRowGreen: {
     backgroundColor: 'rgba(63, 127, 104, 0.05)',
   },
-  recordRowGold: {
-    backgroundColor: 'rgba(217, 164, 65, 0.08)',
+  recordRowClay: {
+    backgroundColor: 'rgba(139, 81, 56, 0.08)',
   },
   recordIcon: {
     width: 36,
@@ -635,13 +656,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.09)',
+    backgroundColor: marketingPalette.orangeSoft,
   },
   recordIconGreen: {
     backgroundColor: 'rgba(63, 127, 104, 0.12)',
   },
-  recordIconGold: {
-    backgroundColor: 'rgba(217, 164, 65, 0.16)',
+  recordIconClay: {
+    backgroundColor: 'rgba(139, 81, 56, 0.13)',
   },
   recordCopy: {
     flex: 1,
@@ -665,12 +686,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: theme.colors.background.elevated,
+    backgroundColor: '#FCFAF6',
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border.subtle,
+    borderTopColor: '#E6DDD2',
   },
   deviceFooterText: {
-    color: theme.colors.primary.dark,
+    color: marketingPalette.inkDark,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '800',
@@ -684,28 +705,26 @@ const styles = StyleSheet.create({
     paddingVertical: 34,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.18)',
-    backgroundColor: '#E6F0EE',
+    borderColor: 'rgba(23, 59, 53, 0.16)',
+    backgroundColor: marketingPalette.inkSoft,
     marginBottom: 54,
   },
   compareNarrow: {
     flexDirection: 'column',
+    alignItems: 'stretch',
     gap: 22,
   },
   compareIntro: {
     flex: 0.95,
     minWidth: 0,
   },
-  sectionKicker: {
-    color: theme.colors.secondary.dark,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '800',
-    letterSpacing: 0,
-    marginBottom: 10,
+  compareIntroNarrow: {
+    flexBasis: 'auto',
+    flexGrow: 0,
+    flexShrink: 0,
   },
   sectionTitle: {
-    color: theme.colors.primary.dark,
+    color: marketingPalette.inkDark,
     fontSize: 31,
     lineHeight: 38,
     fontWeight: '800',
@@ -718,6 +737,9 @@ const styles = StyleSheet.create({
   compareGridNarrow: {
     width: '100%',
     flexDirection: 'column',
+    flexBasis: 'auto',
+    flexGrow: 0,
+    flexShrink: 0,
   },
   recordColumn: {
     flex: 1,
@@ -728,11 +750,16 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingLeft: 18,
     borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
+    borderColor: '#D3C7BA',
     backgroundColor: '#FFFFFF',
   },
+  recordColumnNarrow: {
+    flexBasis: 'auto',
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   recordColumnMessy: {
-    backgroundColor: 'rgba(200, 85, 61, 0.05)',
+    backgroundColor: 'rgba(217, 95, 38, 0.06)',
   },
   recordColumnOrganized: {
     backgroundColor: 'rgba(63, 127, 104, 0.06)',
@@ -743,13 +770,13 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 4,
-    backgroundColor: theme.colors.error.main,
+    backgroundColor: marketingPalette.orange,
   },
   recordColumnStripeOrganized: {
     backgroundColor: theme.colors.accent.main,
   },
   recordColumnTitle: {
-    color: theme.colors.error.dark,
+    color: marketingPalette.orangeDark,
     fontSize: 14,
     lineHeight: 19,
     fontWeight: '800',
@@ -777,8 +804,8 @@ const styles = StyleSheet.create({
     paddingVertical: 26,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(185, 111, 50, 0.24)',
-    backgroundColor: '#F8EDDC',
+    borderColor: 'rgba(139, 81, 56, 0.20)',
+    backgroundColor: marketingPalette.paperWarm,
     marginBottom: 46,
   },
   essentialRow: {
@@ -794,17 +821,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.08)',
+    backgroundColor: marketingPalette.orangeSoft,
     borderWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.16)',
+    borderColor: 'rgba(217, 95, 38, 0.22)',
   },
   essentialIconGreen: {
     backgroundColor: 'rgba(63, 127, 104, 0.12)',
     borderColor: 'rgba(63, 127, 104, 0.24)',
   },
-  essentialIconGold: {
-    backgroundColor: 'rgba(217, 164, 65, 0.18)',
-    borderColor: 'rgba(217, 164, 65, 0.30)',
+  essentialIconClay: {
+    backgroundColor: 'rgba(139, 81, 56, 0.12)',
+    borderColor: 'rgba(139, 81, 56, 0.24)',
   },
   essentialCopy: {
     flex: 1,
@@ -829,9 +856,9 @@ const styles = StyleSheet.create({
     gap: 24,
     padding: 26,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.primary.dark,
+    backgroundColor: marketingPalette.inkDark,
     borderWidth: 1,
-    borderColor: 'rgba(24, 56, 74, 0.28)',
+    borderColor: 'rgba(16, 43, 40, 0.28)',
     marginBottom: 32,
   },
   betaBandNarrow: {
@@ -841,13 +868,6 @@ const styles = StyleSheet.create({
   betaCopy: {
     flex: 1,
     minWidth: 0,
-  },
-  betaEyebrow: {
-    color: '#E7BE71',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '800',
-    marginBottom: 8,
   },
   betaTitle: {
     color: theme.colors.text.inverse,
@@ -870,7 +890,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   betaButtonText: {
-    color: theme.colors.primary.dark,
+    color: marketingPalette.inkDark,
     fontWeight: '800',
   },
   footerSpacer: {
