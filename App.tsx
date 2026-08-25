@@ -29,7 +29,7 @@ const isMarketingHost = () => {
   const hostname =
     typeof window !== 'undefined' ? window.location.hostname : '';
 
-  return marketingHosts.has(hostname);
+  return marketingHosts.has(hostname) || hostname.endsWith('.ngrok-free.app');
 };
 
 const ConfigErrorScreen = () => (
