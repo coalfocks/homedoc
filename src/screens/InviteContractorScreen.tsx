@@ -213,9 +213,9 @@ const styles = StyleSheet.create({
   notice: {
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(31, 77, 107, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(31, 77, 107, 0.14)',
+    borderColor: 'rgba(23, 59, 53, 0.14)',
   },
   noticeTitle: {
     color: theme.colors.primary.dark,

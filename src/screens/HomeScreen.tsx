@@ -256,9 +256,9 @@ const styles = StyleSheet.create({
   startGuide: {
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.07)',
+    backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.14)',
+    borderColor: 'rgba(23, 59, 53, 0.14)',
     marginBottom: theme.spacing.md,
   },
   startGuideTitle: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 132,
     height: 132,
-    backgroundColor: 'rgba(40, 80, 106, 0.12)',
+    backgroundColor: 'rgba(23, 59, 53, 0.12)',
   },
   imageFallbackText: {
     color: theme.colors.primary.dark,

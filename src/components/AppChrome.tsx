@@ -234,7 +234,7 @@ export const FloatingAction: React.FC<FloatingActionProps> = ({
   onPress,
 }) => (
   <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.9}>
-    <Icon name="add" size={18} color={theme.colors.primary.contrast} />
+    <Icon name="add" size={18} color={theme.colors.secondary.contrast} />
     <Text style={styles.fabLabel}>{label}</Text>
   </TouchableOpacity>
 );
@@ -333,7 +333,7 @@ export const AddButton: React.FC<AddButtonProps> = ({ label, onPress }) => (
     onPress={onPress}
     activeOpacity={0.8}
   >
-    <Icon name="add" size={18} color={theme.colors.primary.main} />
+    <Icon name="add" size={18} color={theme.colors.secondary.dark} />
     <Text style={addButtonStyles.label}>{label}</Text>
   </TouchableOpacity>
 );
@@ -393,13 +393,13 @@ const addButtonStyles = StyleSheet.create({
     minHeight: 44,
     paddingVertical: 11,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.06)',
+    backgroundColor: 'rgba(217, 95, 38, 0.07)',
     borderWidth: 1,
-    borderColor: theme.colors.primary.main,
+    borderColor: 'rgba(217, 95, 38, 0.28)',
     marginBottom: theme.spacing.md,
   },
   label: {
-    color: theme.colors.primary.main,
+    color: theme.colors.secondary.dark,
     fontWeight: '700',
     fontSize: 15,
   },
@@ -419,9 +419,9 @@ const sortControlStyles = StyleSheet.create({
     flexDirection: 'row',
     padding: 3,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.06)',
+    backgroundColor: 'rgba(23, 59, 53, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.12)',
+    borderColor: 'rgba(23, 59, 53, 0.12)',
   },
   option: {
     flex: 1,
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 64,
-    backgroundColor: 'rgba(40, 80, 106, 0.03)',
+    backgroundColor: 'rgba(23, 59, 53, 0.03)',
   },
   headerBlock: {
     marginBottom: theme.spacing.md,
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(40, 80, 106, 0.09)',
+    backgroundColor: 'rgba(23, 59, 53, 0.09)',
     marginBottom: theme.spacing.sm,
   },
   emptyTitle: {
@@ -590,10 +590,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.primary.main,
+    backgroundColor: theme.colors.secondary.main,
   },
   emptyButtonText: {
-    color: theme.colors.primary.contrast,
+    color: theme.colors.secondary.contrast,
     fontWeight: '700',
   },
   loadingCard: {
@@ -636,19 +636,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 14,
     borderRadius: theme.borderRadius.pill,
-    backgroundColor: theme.colors.primary.main,
+    backgroundColor: theme.colors.secondary.main,
     ...theme.shadows.lg,
   },
   fabLabel: {
-    color: theme.colors.primary.contrast,
+    color: theme.colors.secondary.contrast,
     fontWeight: '700',
   },
   banner: {
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.07)',
+    backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.14)',
+    borderColor: 'rgba(23, 59, 53, 0.14)',
     marginBottom: theme.spacing.lg,
   },
   bannerTitle: {

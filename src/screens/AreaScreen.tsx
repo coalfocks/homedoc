@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
   },
   contractorButtonText: {
     color: theme.colors.primary.dark,
@@ -419,9 +419,9 @@ const styles = StyleSheet.create({
   contractorModeCard: {
     padding: theme.spacing.lg,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(40, 80, 106, 0.07)',
+    backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
-    borderColor: 'rgba(40, 80, 106, 0.14)',
+    borderColor: 'rgba(23, 59, 53, 0.14)',
     marginBottom: theme.spacing.lg,
   },
   contractorModeTitle: {

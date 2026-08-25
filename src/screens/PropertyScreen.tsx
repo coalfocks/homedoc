@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(40, 80, 106, 0.08)',
+    backgroundColor: 'rgba(23, 59, 53, 0.08)',
   },
   actionButtonText: {
     color: theme.colors.primary.dark,
