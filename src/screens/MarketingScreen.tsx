@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { Text } from '@rneui/themed';
 import { Icon } from '../components/Icon';
 import { Logo } from '../components/Logo';
@@ -16,6 +17,12 @@ import { theme } from '../utils/theme';
 
 const appUrl = 'https://app.homedocumentation.com';
 const betaEmail = 'mailto:cfox@skriber.com?subject=HomeDoc beta access';
+const extra = Constants.expoConfig?.extra ?? {};
+const testFlightUrl =
+  process.env.EXPO_PUBLIC_HOMEDOC_TESTFLIGHT_URL ||
+  (typeof extra.testFlightUrl === 'string' && extra.testFlightUrl) ||
+  betaEmail;
+const isTestFlightConfigured = testFlightUrl !== betaEmail;
 const recordPhotoUrl =
   'https://images.unsplash.com/photo-1676210134188-4c05dd172f89?auto=format&fit=crop&w=900&q=80';
 
@@ -283,9 +290,9 @@ export const MarketingScreen = () => {
           <View style={styles.heroActions}>
             <TouchableOpacity
               style={styles.primaryAction}
-              onPress={() => openUrl(betaEmail)}
+              onPress={() => openUrl(testFlightUrl)}
             >
-              <Text style={styles.primaryActionText}>Request beta access</Text>
+              <Text style={styles.primaryActionText}>Try the beta</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.secondaryAction}
@@ -297,8 +304,9 @@ export const MarketingScreen = () => {
             </TouchableOpacity>
           </View>
           <Text style={styles.heroNote}>
-            Designed for owners, landlords, remodels, rentals, and property
-            handoffs.
+            {isTestFlightConfigured
+              ? 'iOS beta available through TestFlight. Designed for owners, landlords, remodels, rentals, and property handoffs.'
+              : 'Designed for owners, landlords, remodels, rentals, and property handoffs.'}
           </Text>
         </View>
 
@@ -356,9 +364,9 @@ export const MarketingScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.betaButton}
-          onPress={() => openUrl(betaEmail)}
+          onPress={() => openUrl(testFlightUrl)}
         >
-          <Text style={styles.betaButtonText}>Join the beta</Text>
+          <Text style={styles.betaButtonText}>Join on TestFlight</Text>
         </TouchableOpacity>
       </View>
 
