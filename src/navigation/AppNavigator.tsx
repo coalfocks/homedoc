@@ -63,7 +63,7 @@ const sharedHeader = {
   headerTintColor: theme.colors.text.primary,
   headerTitleStyle: {
     fontSize: theme.typography.h4.fontSize,
-    fontWeight: '700' as const,
+    fontWeight: '600' as const,
     color: theme.colors.text.primary,
   },
   headerBackTitleVisible: false,
@@ -87,17 +87,17 @@ const MainTabs = () => {
         tabBarInactiveBackgroundColor: 'transparent',
         tabBarLabelStyle: {
           fontSize: isWideWeb ? 14 : 12,
-          fontWeight: isWideWeb ? '700' : '600',
+          fontWeight: '600',
           marginBottom: isWideWeb ? 0 : 4,
         },
         tabBarStyle: {
           backgroundColor: isWideWeb
-            ? theme.colors.neutral[100]
+            ? theme.colors.background.elevated
             : 'rgba(255,255,255,0.95)',
           borderTopColor: isWideWeb
             ? 'transparent'
             : theme.colors.border.subtle,
-          borderRightColor: isWideWeb ? 'rgba(191, 175, 158, 0.55)' : undefined,
+          borderRightColor: isWideWeb ? theme.colors.border.subtle : undefined,
           borderRightWidth: isWideWeb ? 1 : 0,
           height: isWideWeb ? '100%' : 68,
           width: isWideWeb ? 196 : undefined,
@@ -117,18 +117,21 @@ const MainTabs = () => {
         sceneStyle: {
           backgroundColor: theme.colors.background.default,
         },
-        headerTitle: '',
+        headerTitle: 'HomeDoc',
+        headerTitleAlign: 'center',
         headerStyle: {
           backgroundColor: theme.colors.background.default,
         },
         headerShadowVisible: false,
         headerTitleStyle: {
           fontSize: theme.typography.h4.fontSize,
-          fontWeight: '700',
+          fontWeight: '600',
           color: theme.colors.text.primary,
         },
         headerRight: () => (
           <TouchableOpacity
+            accessibilityRole="button"
+            hitSlop={10}
             onPress={() => openFeedbackEmail('Main navigation', user?.email)}
             style={{
               marginRight: theme.spacing.md,
@@ -137,7 +140,7 @@ const MainTabs = () => {
             <Text
               style={{
                 color: theme.colors.primary.main,
-                fontWeight: '700',
+                fontWeight: '600',
               }}
             >
               Feedback
@@ -145,11 +148,15 @@ const MainTabs = () => {
           </TouchableOpacity>
         ),
         headerLeft: () => (
-          <TouchableOpacity onPress={() => supabase.auth.signOut()}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            hitSlop={10}
+            onPress={() => supabase.auth.signOut()}
+          >
             <Text
               style={{
                 color: theme.colors.text.secondary,
-                fontWeight: '700',
+                fontWeight: '600',
                 marginLeft: isWideWeb ? theme.spacing.lg : theme.spacing.md,
               }}
             >
@@ -163,7 +170,7 @@ const MainTabs = () => {
         name="Properties"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Homes',
+          tabBarLabel: 'Properties',
           tabBarIcon: ({ color, size }) => (
             <Icon name="home" color={color} size={size} />
           ),

@@ -178,10 +178,7 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
       onScrollBeginDrag={Keyboard.dismiss}
     >
       <View style={styles.content}>
-        <TouchableOpacity
-          style={[styles.imageUpload, styles.cursorPointer]}
-          onPress={pickImage}
-        >
+        <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
           {image ? (
             <ImageWithPlaceholder uri={image} style={styles.imagePreview} />
           ) : (
@@ -272,13 +269,16 @@ const EditPropertyScreen: React.FC<EditPropertyScreenProps> = ({
           onPress={handleSave}
           loading={loading}
           disabled={loading || !name.trim()}
-          containerStyle={styles.cursorPointer}
+          buttonStyle={styles.button}
+          titleStyle={styles.buttonText}
         />
         <Button
           title="Cancel"
           onPress={() => navigation.goBack()}
           type="outline"
-          containerStyle={[styles.cancelButton, styles.cursorPointer]}
+          containerStyle={styles.cancelButton}
+          buttonStyle={styles.cancelButtonStyle}
+          titleStyle={styles.cancelButtonText}
         />
       </View>
     </ScrollView>
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.default,
   },
   content: {
-    padding: 16,
+    padding: theme.spacing.lg,
   },
   scrollContent: {
     paddingBottom: 220,
@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
     overflow: 'hidden',
   },
   imagePreview: {
@@ -321,29 +321,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
   buttonContainer: {
-    marginTop: 24,
+    marginTop: theme.spacing.md,
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
   },
-  cursorPointer: {
-    cursor: 'pointer',
-  },
   cancelButton: {
     marginTop: theme.spacing.sm,
+  },
+  button: {
+    minHeight: 48,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.primary.main,
+  },
+  buttonText: {
+    color: theme.colors.primary.contrast,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cancelButtonStyle: {
+    minHeight: 48,
+    borderRadius: theme.borderRadius.sm,
+    borderColor: theme.colors.primary.main,
+  },
+  cancelButtonText: {
+    color: theme.colors.primary.main,
+    fontSize: 16,
+    fontWeight: '700',
   },
   disabledButton: {
     backgroundColor: theme.colors.background.paper,

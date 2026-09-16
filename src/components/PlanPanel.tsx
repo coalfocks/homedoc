@@ -238,7 +238,6 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
             style={[styles.planButton, !aiConsent && { opacity: 0.5 }]}
             onPress={startPlanning}
           >
-            <RNEText style={styles.planButtonIcon}>✨</RNEText>
             <View style={styles.planButtonTextContainer}>
               <RNEText style={styles.planButtonTitle}>
                 Help me plan this
@@ -345,7 +344,7 @@ const PlanDisplay: React.FC<{
   return (
     <View style={styles.planContainer}>
       <View style={styles.planHeader}>
-        <RNEText style={styles.heading}>📋 Your Plan</RNEText>
+        <RNEText style={styles.heading}>Your plan</RNEText>
         <TouchableOpacity onPress={onRegenerate}>
           <RNEText style={styles.regenerateText}>Redo</RNEText>
         </TouchableOpacity>
@@ -386,7 +385,7 @@ const PlanDisplay: React.FC<{
       {/* Warnings */}
       {plan.warnings.length > 0 && (
         <View style={styles.section}>
-          <RNEText style={styles.sectionTitle}>⚠️ Warnings</RNEText>
+          <RNEText style={styles.sectionTitle}>Safety warnings</RNEText>
           {plan.warnings.map((w, i) => (
             <View key={i} style={styles.warningItem}>
               <RNEText style={styles.warningText}>• {w}</RNEText>
@@ -410,7 +409,7 @@ const PlanDisplay: React.FC<{
                   {step.description}
                 </RNEText>
                 {step.tips && (
-                  <RNEText style={styles.stepTip}>💡 {step.tips}</RNEText>
+                  <RNEText style={styles.stepTip}>Tip: {step.tips}</RNEText>
                 )}
                 {step.estimatedMinutes && (
                   <RNEText style={styles.stepMeta}>
@@ -597,7 +596,7 @@ const styles = StyleSheet.create({
   heading: {
     color: theme.colors.text.primary,
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '600',
     marginBottom: 4,
   },
   subheading: {
@@ -613,11 +612,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(23, 59, 53, 0.06)',
     borderWidth: 1,
-    borderColor: theme.colors.primary.main,
-    borderStyle: 'dashed',
-  },
-  planButtonIcon: {
-    fontSize: 28,
+    borderColor: theme.colors.border.subtle,
   },
   planButtonTextContainer: {
     flex: 1,
@@ -625,7 +620,7 @@ const styles = StyleSheet.create({
   planButtonTitle: {
     color: theme.colors.primary.main,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   planButtonSubtitle: {
     color: theme.colors.text.secondary,
@@ -664,7 +659,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: theme.colors.primary.contrast,
-    fontWeight: '800',
+    fontWeight: '600',
     fontSize: 16,
   },
   secondaryButton: {
@@ -726,7 +721,7 @@ const styles = StyleSheet.create({
   statValue: {
     color: theme.colors.text.primary,
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   section: {
     marginBottom: theme.spacing.lg,
@@ -734,7 +729,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '600',
     marginBottom: theme.spacing.sm,
   },
   warningItem: {
@@ -768,7 +763,7 @@ const styles = StyleSheet.create({
   },
   stepNumberText: {
     color: theme.colors.primary.contrast,
-    fontWeight: '800',
+    fontWeight: '600',
     fontSize: 15,
   },
   stepBody: {
@@ -829,12 +824,12 @@ const styles = StyleSheet.create({
   materialLinkText: {
     color: theme.colors.primary.main,
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   materialPrice: {
     color: theme.colors.text.primary,
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   materialTotal: {
     color: theme.colors.text.secondary,
@@ -869,7 +864,7 @@ const styles = StyleSheet.create({
   proType: {
     color: theme.colors.primary.dark,
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '600',
     marginBottom: 4,
   },
   proWhen: {
@@ -891,7 +886,7 @@ const styles = StyleSheet.create({
   },
   checkpointIcon: {
     color: theme.colors.accent.dark,
-    fontWeight: '800',
+    fontWeight: '600',
     fontSize: 16,
   },
   checkpointText: {
@@ -980,6 +975,6 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: theme.colors.primary.contrast,
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '600',
   },
 });

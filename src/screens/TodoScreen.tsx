@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -47,11 +47,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   if (loading) {
     return (
       <Screen>
-        <PageHeader
-          eyebrow="TODO FILE"
-          title="Loading todo"
-          subtitle="Pulling the full record."
-        />
+        <PageHeader title="Loading todo" subtitle="Loading todo." />
       </Screen>
     );
   }
@@ -86,7 +82,6 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="TODO FILE"
         title={todo.title}
         subtitle={`Created ${formatDate(todo.created_at)} • Updated ${formatDate(todo.updated_at)}`}
         actionLabel="Edit"
@@ -107,7 +102,6 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         </View>
       ) : null}
 
-      {/* Quick status toggle */}
       <View style={styles.statusRow}>
         {statusOptions.map((opt) => (
           <TouchableOpacity
@@ -138,11 +132,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
           </View>
         </>
       ) : (
-        <EmptyStateCard
-          icon="todo"
-          title="No description"
-          description="Add details by editing this todo."
-        />
+        <Text style={styles.noDescription}>No description.</Text>
       )}
 
       <SectionTitle title="Location" />
@@ -181,10 +171,12 @@ const styles = StyleSheet.create({
   statusRow: {
     flexDirection: 'row',
     gap: theme.spacing.xs,
-    marginBottom: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
     flexWrap: 'wrap',
   },
   statusPill: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 10,
     borderRadius: theme.borderRadius.sm,
@@ -218,7 +210,7 @@ const styles = StyleSheet.create({
     lineHeight: theme.typography.body1.lineHeight,
   },
   reminderCard: {
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
@@ -263,6 +255,11 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
     marginTop: 4,
+  },
+  noDescription: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    marginBottom: theme.spacing.lg,
   },
 });
 

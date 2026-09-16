@@ -44,9 +44,8 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
     return (
       <Screen>
         <PageHeader
-          eyebrow="PROPERTY FILE"
           title="Loading property"
-          subtitle="Pulling rooms, notes, and photos together."
+          subtitle="Loading property details."
         />
       </Screen>
     );
@@ -89,15 +88,11 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   };
 
   const heroTitle = property.nickname || property.name;
-  const subtitle = formatAddressBlock(
-    property,
-    'Address not added yet. Add it when the details matter.',
-  );
+  const subtitle = formatAddressBlock(property, 'Address not added.');
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="PROPERTY FILE"
         title={heroTitle}
         subtitle={subtitle}
         actionLabel="Edit"
@@ -156,28 +151,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         </TouchableOpacity>
       </View>
 
-      {!isPro ? (
-        <TouchableOpacity
-          style={styles.handoffCard}
-          onPress={() => navigation.navigate('Upgrade')}
-          activeOpacity={0.86}
-        >
-          <View style={styles.handoffBadge}>
-            <Text style={styles.handoffBadgeText}>PRO</Text>
-          </View>
-          <Text style={styles.handoffTitle}>Build a home handoff packet</Text>
-          <Text style={styles.handoffBody}>
-            Package rooms, notes, maintenance plans, and ownership transfer into
-            something a buyer, tenant, or property manager can actually use.
-          </Text>
-          <Text style={styles.handoffAction}>See Pro</Text>
-        </TouchableOpacity>
-      ) : null}
-
-      <SectionTitle
-        title="Areas"
-        subtitle="Rooms, systems, and spaces that need their own record."
-      />
+      <SectionTitle title="Areas" />
 
       <AddButton
         label="Add area"
@@ -190,7 +164,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
         <EmptyStateCard
           icon="area"
           title="No areas yet"
-          description="Add the key spaces first: kitchen, utility room, bathrooms, garage, attic, whatever will matter later."
+          description="Add a room, system, or space to begin its record."
           actionLabel="Add the first area"
           onActionPress={() =>
             navigation.navigate('CreateArea', { propertyId: property.id })
@@ -243,7 +217,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
                   </Text>
                 ) : (
                   <Text style={styles.cardDescriptionMuted}>
-                    Add a short note about what belongs here.
+                    No description
                   </Text>
                 )}
               </View>
@@ -251,6 +225,24 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
           ))}
         </View>
       )}
+
+      {!isPro ? (
+        <TouchableOpacity
+          style={styles.handoffCard}
+          onPress={() => navigation.navigate('Upgrade')}
+          activeOpacity={0.86}
+        >
+          <View style={styles.handoffBadge}>
+            <Text style={styles.handoffBadgeText}>PRO</Text>
+          </View>
+          <Text style={styles.handoffTitle}>Home handoff packet</Text>
+          <Text style={styles.handoffBody}>
+            Package areas, notes, plans, and ownership details for a buyer,
+            tenant, or property manager.
+          </Text>
+          <Text style={styles.handoffAction}>See Pro</Text>
+        </TouchableOpacity>
+      ) : null}
     </Screen>
   );
 };
@@ -261,7 +253,7 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 190,
+    height: 168,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.background.dark,
     marginBottom: theme.spacing.lg,
@@ -269,7 +261,7 @@ const styles = StyleSheet.create({
   heroFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 190,
+    height: 80,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
     borderWidth: 1,
@@ -278,7 +270,7 @@ const styles = StyleSheet.create({
   },
   heroFallbackText: {
     color: theme.colors.accent.dark,
-    fontSize: 48,
+    fontSize: 28,
     fontWeight: '800',
   },
   metricRow: {
@@ -293,13 +285,12 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   handoffCard: {
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.primary.dark,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.16)',
-    marginBottom: theme.spacing.xl,
-    ...theme.shadows.md,
+    marginTop: theme.spacing.xl,
   },
   handoffBadge: {
     alignSelf: 'flex-start',
@@ -360,17 +351,16 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   areaImage: {
-    width: 112,
-    height: 112,
+    width: 96,
+    height: 96,
   },
   areaFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 112,
-    height: 112,
+    width: 96,
+    height: 96,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
   },
   areaFallbackText: {

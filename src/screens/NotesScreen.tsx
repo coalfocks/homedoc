@@ -11,9 +11,7 @@ import {
   MetricPill,
   PageHeader,
   Screen,
-  SectionTitle,
   SortControl,
-  StatusBanner,
 } from '../components/AppChrome';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
 import { theme } from '../utils/theme';
@@ -42,24 +40,15 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="NOTE LIBRARY"
         title="Notes"
-        subtitle="Maintenance records, measurements, reminders, and details worth keeping out of texts and camera rolls."
+        subtitle="Notes and maintenance records across your properties."
       />
 
       <View style={styles.metricRow}>
         <MetricPill label="Saved notes" value={notes.length.toString()} />
       </View>
 
-      <StatusBanner
-        title="Create notes from inside an area"
-        body="Notes belong to a specific room or zone, so this screen is a library view, not the place new notes start."
-      />
-
-      <SectionTitle
-        title="All notes"
-        subtitle="Open any entry to review the full detail and attached images."
-      />
+      <Text style={styles.helperText}>Add notes from an area.</Text>
 
       {loading ? (
         <LoadingStateCard title="Loading notes..." />
@@ -72,7 +61,7 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
         <EmptyStateCard
           icon="note"
           title="No notes yet"
-          description="Add notes inside an area and they will appear here as a searchable record."
+          description="Open an area to add its first note."
         />
       ) : (
         <View style={styles.list}>
@@ -136,7 +125,12 @@ const styles = StyleSheet.create({
   metricRow: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    marginBottom: theme.spacing.md,
   },
   noticeCard: {
     marginBottom: theme.spacing.lg,
@@ -163,13 +157,12 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   cardTitleWrap: {
     flex: 1,

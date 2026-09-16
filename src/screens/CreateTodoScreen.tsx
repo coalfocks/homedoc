@@ -20,7 +20,6 @@ import { parseReminderInput } from '../utils/reminders';
 import {
   CreationCard,
   CreationIntro,
-  CreationPrompt,
   ErrorPanel,
   SubmitFooter,
 } from '../components/CreationFlow';
@@ -63,13 +62,6 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
   const [saving, setSaving] = useState(false);
   const [created, setCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const completedSteps =
-    (title.trim() ? 1 : 0) +
-    (description.trim() ? 1 : 0) +
-    (areaId ? 1 : 0) +
-    (priority ? 1 : 0) +
-    (status ? 1 : 0);
 
   useEffect(() => {
     if (preselectedAreaId) setAreaId(preselectedAreaId);
@@ -120,22 +112,12 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
-          eyebrow="New todo"
-          title="Turn the next fix into a clear action"
-          subtitle="Capture the task, where it belongs, and the priority so it is easy to come back to."
-          stepLabel={
-            title.trim() && areaId
-              ? 'Task and area are ready.'
-              : 'Title and area are required.'
-          }
-          completedSteps={completedSteps}
-          totalSteps={5}
-        />
-
-        <CreationPrompt
-          icon="todo"
-          title="Good tasks are boringly specific"
-          body="Name the action, add parts or measurements, then pick the area. The AI planning step has more to work with when the task is crisp."
+          eyebrow="Todo"
+          title="Add a task"
+          subtitle="Capture what needs doing, where it belongs, and when to remember it."
+          stepLabel=""
+          completedSteps={0}
+          totalSteps={0}
         />
 
         <CreationCard>
@@ -322,7 +304,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   label: {
-    color: theme.colors.text.primary,
+    color: theme.colors.text.slate,
     fontSize: 16,
     fontWeight: '700',
     marginBottom: theme.spacing.xs,
@@ -333,7 +315,7 @@ const styles = StyleSheet.create({
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: theme.spacing.md,
+    paddingHorizontal: theme.spacing.sm,
   },
   reminderRow: {
     flexDirection: 'row',
@@ -421,12 +403,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
+    minHeight: 44,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 10,
     borderRadius: theme.borderRadius.pill,
     backgroundColor: 'rgba(255,255,255,0.7)',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pillActive: {
     backgroundColor: theme.colors.primary.main,

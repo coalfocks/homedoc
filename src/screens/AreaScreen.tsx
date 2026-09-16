@@ -42,7 +42,7 @@ const formatDate = (value: string) =>
 const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   const { user } = useAuth();
   const { area, loading, error } = useArea(route.params.areaId);
-  const { notes, refetch: refetchNotes } = useNotes(route.params.areaId);
+  const { notes } = useNotes(route.params.areaId);
   const { todos } = useTodos(route.params.areaId);
   const { access: contractorAccess } = useContractorAreaAccess(
     route.params.areaId,
@@ -57,11 +57,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   if (loading) {
     return (
       <Screen>
-        <PageHeader
-          eyebrow="AREA FILE"
-          title="Loading area"
-          subtitle="Pulling note history and attached images."
-        />
+        <PageHeader title="Loading area" subtitle="Loading area details." />
       </Screen>
     );
   }
@@ -110,12 +106,8 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="AREA FILE"
         title={area.name}
-        subtitle={
-          area.description ||
-          'Keep notes, photos, todos, and maintenance history for this space.'
-        }
+        subtitle={area.description || 'Notes, photos, and todos for this area.'}
         actionLabel={canManageArea ? 'Edit' : undefined}
         onActionPress={
           canManageArea
@@ -151,8 +143,8 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         <View style={styles.contractorModeCard}>
           <Text style={styles.contractorModeTitle}>Contractor workspace</Text>
           <Text style={styles.contractorModeBody}>
-            You can add work notes for this area. Ownership and delete controls
-            stay with the property owner.
+            You can add work notes. Ownership controls stay with the property
+            owner.
           </Text>
           <View style={styles.contractorMetaRow}>
             <Text style={styles.contractorMetaText}>
@@ -176,9 +168,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                 navigation.navigate('InviteContractor', { areaId: area.id })
               }
             >
-              <Text style={styles.contractorButtonText}>
-                Add contractor update access
-              </Text>
+              <Text style={styles.contractorButtonText}>Contractor access</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.deleteButton}
@@ -217,11 +207,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
 
       {canManageArea ? (
         <>
-          {/* ── Todos section ── */}
-          <SectionTitle
-            title="Todos in this area"
-            subtitle="Tasks, repairs, and improvements tracked here."
-          />
+          <SectionTitle title="Todos" />
 
           <AddButton
             label="Add todo"
@@ -234,7 +220,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
             <EmptyStateCard
               icon="todo"
               title="No pending todos"
-              description="Everything's done. Add a new task when something needs attention."
+              description="Add a task when something needs attention."
               actionLabel="Add todo"
               onActionPress={() =>
                 navigation.navigate('CreateTodo', { areaId: area.id })
@@ -254,7 +240,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                     style={styles.todoCard}
                   >
                     <View style={styles.todoCardTop}>
-                      <Text style={styles.todoCardTitle} numberOfLines={1}>
+                      <Text style={styles.todoCardTitle} numberOfLines={2}>
                         {todo.title}
                       </Text>
                       <PriorityBadge priority={todo.priority} />
@@ -285,10 +271,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         </>
       ) : null}
 
-      <SectionTitle
-        title="Notes in this area"
-        subtitle="Keep receipts, measurements, to-dos, and maintenance history in one place."
-      />
+      <SectionTitle title="Notes" />
 
       <AddButton
         label={currentContractorAccess ? 'Add work note' : 'Add note'}
@@ -299,7 +282,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
         <EmptyStateCard
           icon="note"
           title="No notes yet"
-          description="Start with the next thing you will want to look up later: paint color, filter size, warranty, or a repair note."
+          description="Save a measurement, receipt, warranty, or repair note."
           actionLabel="Create first note"
           onActionPress={() =>
             navigation.navigate('CreateNote', { areaId: area.id })
@@ -368,21 +351,21 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 190,
+    height: 168,
     borderRadius: theme.borderRadius.md,
     marginBottom: theme.spacing.md,
   },
   heroFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 190,
+    height: 80,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
     marginBottom: theme.spacing.md,
   },
   heroFallbackText: {
     color: theme.colors.accent.dark,
-    fontSize: 48,
+    fontSize: 28,
     fontWeight: '800',
   },
   metricRow: {
@@ -391,8 +374,10 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   ownerActionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   contractorButton: {
     alignSelf: 'flex-start',
@@ -417,7 +402,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   contractorModeCard: {
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
@@ -508,7 +493,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   cardTop: {
     flexDirection: 'row',
@@ -551,11 +535,10 @@ const styles = StyleSheet.create({
   },
   todoCard: {
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   todoCardTop: {
     flexDirection: 'row',
