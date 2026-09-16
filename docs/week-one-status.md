@@ -58,11 +58,11 @@ Observed Edge Functions all report `verify_jwt=true`: create-checkout v3, custom
 
 ### Production quota repair
 
-Bert confirmed effective EXECUTE at `2026-09-16 16:01:05.567035 UTC`: anon=true, authenticated=true, service_role=true. This is vulnerable; granting service_role alone does not revoke PUBLIC/client access. Bounded application of the exact migration has been requested; final verification pending. Do not mark HD-01 complete until effective client permissions are false and migration history matches.
+Bert confirmed effective EXECUTE at `2026-09-16 16:01:05.567035 UTC`: anon=true, authenticated=true, service_role=true. This is vulnerable; granting service_role alone does not revoke PUBLIC/client access. Bert applied the exact repair transactionally to the app project. At `2026-09-16 16:05:21.77924 UTC`, effective EXECUTE was anon=false, authenticated=false, service_role=true; ACL contained only postgres and service_role. Migration `20260916154854` / `restrict_ai_quota_execution` was recorded and verified at `16:06:11.038588 UTC` through the supported CLI migration-repair workflow. No other migrations, function bodies, app data, billing or auth settings changed. A later duplicate ACL read hit temporary authentication failure; the successful post-repair check is the verification evidence. HD-01 is repaired in production.
 
 ## Next week-one work, in order
 
-1. Verify and record the production quota repair, including migration version. Keep source and deployed permissions aligned.
+1. Merge the reviewed source migration to preserve the already-applied production quota repair. Keep source and deployed permissions aligned.
 2. Resolve the model/source difference without accidentally redeploying unrelated functions. Record a release manifest with exact frontend SHA, web deployment, mobile build, migration head, and function versions.
 3. Run the core journey on desktop web, Safari on iPhone, and native TestFlight: signup → property → area → photo note → close/reopen → open same record on another device. Include weak network, expired session, and image permissions. Android native remains a separate required lane if included in the mobile beta.
 4. Extend the permission matrix to household membership, transfer, account deletion, Storage HTTP access, and already-issued signed URLs. Confirm intended access after transfer/revocation; table-level RLS tests alone are insufficient.
