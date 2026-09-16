@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Platform,
   ScrollView,
   Keyboard,
@@ -27,6 +26,8 @@ const AuthScreen: React.FC = () => {
   const [authMode, setAuthMode] = useState<AuthMode>('password');
   const [isSignUp, setIsSignUp] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [confirmationRequired, setConfirmationRequired] = useState(false);
 
   const normalizedEmail = email.trim().toLowerCase();
   const isCompactViewport = height < 700;
@@ -35,37 +36,39 @@ const AuthScreen: React.FC = () => {
   const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value);
 
   const handleEmailAuth = async () => {
+    if (loading) return;
+    setAuthError(null);
+    setConfirmationRequired(false);
     if (!isValidEmail(normalizedEmail)) {
-      Alert.alert('Invalid email', 'Enter a valid email address first.');
+      setAuthError('Enter a valid email address first.');
       return;
     }
 
     if (!password.trim()) {
-      Alert.alert('Missing password', 'Enter your password to continue.');
+      setAuthError('Enter your password to continue.');
       return;
     }
 
     try {
       setLoading(true);
       if (isSignUp) {
-        await signUp(normalizedEmail, password);
+        const signedIn = await signUp(normalizedEmail, password);
+        setConfirmationRequired(!signedIn);
       } else {
         await signIn(normalizedEmail, password);
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
-      Alert.alert(
-        'Authentication failed',
-        error?.message || 'Please try again.',
-      );
+      setAuthError(error?.message || 'Could not sign in. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleMagicLink = async () => {
+    if (loading) return;
+    setAuthError(null);
     if (!isValidEmail(normalizedEmail)) {
-      Alert.alert('Invalid email', 'Enter a valid email address first.');
+      setAuthError('Enter a valid email address first.');
       return;
     }
 
@@ -75,9 +78,7 @@ const AuthScreen: React.FC = () => {
       setMagicLinkSent(true);
       setIsSignUp(false);
     } catch (error: any) {
-      console.error('Magic link error:', error);
-      Alert.alert(
-        'Magic link failed',
+      setAuthError(
         error?.message || 'We could not send the magic link. Please try again.',
       );
     } finally {
@@ -117,6 +118,11 @@ const AuthScreen: React.FC = () => {
               buttonStyle={styles.primaryButton}
               containerStyle={styles.buttonContainer}
             />
+            {authError ? (
+              <Text accessibilityRole="alert" style={styles.authError}>
+                {authError}
+              </Text>
+            ) : null}
             <Button
               title="Use password instead"
               type="clear"
@@ -178,7 +184,11 @@ const AuthScreen: React.FC = () => {
             <View style={styles.modeSwitcher}>
               <Button
                 title="Magic Link"
-                onPress={() => setAuthMode('magic')}
+                onPress={() => {
+                  setAuthError(null);
+                  setConfirmationRequired(false);
+                  setAuthMode('magic');
+                }}
                 buttonStyle={[
                   styles.modeButton,
                   authMode === 'magic' && styles.modeButtonActive,
@@ -190,7 +200,11 @@ const AuthScreen: React.FC = () => {
               />
               <Button
                 title={isSignUp ? 'Create Account' : 'Password'}
-                onPress={() => setAuthMode('password')}
+                onPress={() => {
+                  setAuthError(null);
+                  setConfirmationRequired(false);
+                  setAuthMode('password');
+                }}
                 buttonStyle={[
                   styles.modeButton,
                   authMode === 'password' && styles.modeButtonActive,
@@ -204,6 +218,7 @@ const AuthScreen: React.FC = () => {
 
             <Input
               placeholder="Email address"
+              accessibilityLabel="Email address"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -227,6 +242,7 @@ const AuthScreen: React.FC = () => {
               <>
                 <Input
                   placeholder="Password"
+                  accessibilityLabel="Password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -278,9 +294,20 @@ const AuthScreen: React.FC = () => {
               </>
             )}
 
+            {authError ? (
+              <Text accessibilityRole="alert" style={styles.authError}>
+                {authError}
+              </Text>
+            ) : null}
+            {confirmationRequired ? (
+              <Text accessibilityRole="alert" style={styles.helperText}>
+                Check your email to confirm your account, then return here to
+                sign in.
+              </Text>
+            ) : null}
+
             <Text style={styles.helperText}>
-              Google and Apple sign-in are hidden during beta while native
-              redirects are verified.
+              Use email and password or a sign-in link on web and mobile.
             </Text>
           </View>
 
@@ -306,13 +333,15 @@ const AuthScreen: React.FC = () => {
           <View style={styles.betaNotice}>
             <Text style={styles.betaNoticeTitle}>Free beta</Text>
             <Text style={styles.betaNoticeBody}>
-              Use the full app while we polish the workflow. HomeDoc stores home
-              details, addresses, and photos in your account.
+              Beta access is free. HomeDoc stores home details, addresses, and
+              photos in your account.
             </Text>
             <Text style={styles.betaNoticeBody}>
               During beta, uploaded images are private to people with record
               access. AI planning may send todo context to our AI provider to
-              generate a plan.
+              generate a plan, with your permission. Beta accounts include 20 AI
+              requests per calendar month; questions, plans and chat each use a
+              request.
             </Text>
             <View style={styles.betaNoticeActions}>
               <TouchableOpacity
@@ -340,6 +369,11 @@ const AuthScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  authError: {
+    color: theme.colors.error.main,
+    marginTop: 12,
+    lineHeight: 22,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background.default,

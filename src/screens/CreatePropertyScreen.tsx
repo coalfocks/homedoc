@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -19,6 +19,9 @@ import { Icon } from '../components/Icon';
 import { uploadPrivateImage } from '../utils/privateImages';
 import { getErrorMessage } from '../utils/errors';
 import { createUuid } from '../utils/uuid';
+import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
+import { saveDraftRecord } from '../utils/saveDraftRecord';
+import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
@@ -45,6 +48,9 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
+  const [propertyId] = useState(createUuid);
+  const saving = useRef(false);
+  const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
 
   const hasAddress =
@@ -59,52 +65,54 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   const isReady = requiredFields.every(Boolean);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.8,
-    });
+    if (saving.current || created) return;
+    try {
+      setError(null);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.8,
+        base64: true,
+      });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled) {
+        setImage(imagePickerAssetsToUris(result.assets)[0] ?? null);
+      }
+    } catch (error) {
+      setError(getErrorMessage(error));
     }
   };
 
   const handleCreateProperty = async () => {
+    if (saving.current || created) return;
     if (!user) return;
 
+    saving.current = true;
     try {
       setLoading(true);
       setError(null);
-      const propertyId = createUuid();
 
-      const { error } = await supabase.from('properties').insert([
-        {
-          id: propertyId,
-          name: name.trim(),
-          nickname: nickname.trim() || null,
-          address_line_1: addressLine1.trim() || null,
-          address_line_2: addressLine2.trim() || null,
-          city: city.trim() || null,
-          state: state.trim() || null,
-          zip_code: zipCode.trim() || null,
-          image_url: null,
-          user_id: user.id,
-        },
-      ]);
-
-      if (error) throw error;
+      await saveDraftRecord('properties', {
+        id: propertyId,
+        name: name.trim(),
+        nickname: nickname.trim() || null,
+        address_line_1: addressLine1.trim() || null,
+        address_line_2: addressLine2.trim() || null,
+        city: city.trim() || null,
+        state: state.trim() || null,
+        zip_code: zipCode.trim() || null,
+        user_id: user.id,
+      });
 
       if (image) {
-        const imagePath = await uploadPrivateImage(
-          image,
-          `properties/${propertyId}`,
-        );
+        const imagePath = await uploadImage(image, `properties/${propertyId}`);
         const { error: imageUpdateError } = await supabase
           .from('properties')
           .update({ image_url: imagePath })
-          .eq('id', propertyId);
+          .eq('id', propertyId)
+          .select('id')
+          .single();
 
         if (imageUpdateError) throw imageUpdateError;
       }
@@ -116,6 +124,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
+      saving.current = false;
       setLoading(false);
     }
   };

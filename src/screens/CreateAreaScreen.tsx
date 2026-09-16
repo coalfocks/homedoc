@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,13 +12,15 @@ import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Icon } from '../components/Icon';
 import { uploadPrivateImage } from '../utils/privateImages';
 import { getErrorMessage } from '../utils/errors';
 import { createUuid } from '../utils/uuid';
+import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
+import { saveDraftRecord } from '../utils/saveDraftRecord';
+import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
@@ -42,52 +44,60 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
+  const [areaId] = useState(createUuid);
+  const saving = useRef(false);
+  const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
 
   const completedSteps =
     (name.trim() ? 1 : 0) + (description.trim() ? 1 : 0) + (image ? 1 : 0);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.8,
-    });
+    if (saving.current || created) return;
+    try {
+      setError(null);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.8,
+        base64: true,
+      });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled) {
+        setImage(imagePickerAssetsToUris(result.assets)[0] ?? null);
+      }
+    } catch (error) {
+      setError(getErrorMessage(error));
     }
   };
 
   const handleCreateArea = async () => {
+    if (saving.current || created) return;
+    saving.current = true;
     try {
       setLoading(true);
       setError(null);
-      const areaId = createUuid();
 
       let imageUrl = null;
       if (image) {
-        imageUrl = await uploadPrivateImage(image, `areas/${propertyId}`);
+        imageUrl = await uploadImage(image, `areas/${propertyId}`);
       }
 
-      const { error } = await supabase.from('areas').insert([
-        {
-          id: areaId,
-          name,
-          description,
-          property_id: propertyId,
-          image_url: imageUrl,
-        },
-      ]);
-
-      if (error) throw error;
+      await saveDraftRecord('areas', {
+        id: areaId,
+        name,
+        description,
+        property_id: propertyId,
+        image_url: imageUrl,
+      });
 
       setCreated(true);
       setTimeout(() => navigation.replace('Area', { areaId }), 550);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
+      saving.current = false;
       setLoading(false);
     }
   };

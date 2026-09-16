@@ -18,6 +18,8 @@ import {
 } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import { UpgradeCard } from './UpgradeCard';
+import { AiConsentNotice } from './AiConsentNotice';
+import { useAuth } from '../contexts/AuthContext';
 
 type PlanPanelProps = {
   todoId: string;
@@ -35,15 +37,22 @@ type Phase = 'idle' | 'questions' | 'plan';
 export const PlanPanel: React.FC<PlanPanelProps> = ({
   todoId,
   plan,
-  planStatus,
   planChat,
   isPro = false,
   upgradeLoading = false,
   onUpgradePress,
   onPlanGenerated,
 }) => {
-  const [phase, setPhase] = useState<Phase>(
-    plan ? 'plan' : planStatus === 'questioning' ? 'questions' : 'idle',
+  const [phase, setPhase] = useState<Phase>(plan ? 'plan' : 'idle');
+  const { user } = useAuth();
+  const [consentFor, setConsentFor] = useState<string | null>(null);
+  const consentKey = `${user?.id}:${todoId}`;
+  const aiConsent = consentFor === consentKey;
+  const consentNotice = (
+    <AiConsentNotice
+      accepted={aiConsent}
+      onChange={(accepted) => setConsentFor(accepted ? consentKey : null)}
+    />
   );
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -51,6 +60,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const startPlanning = async () => {
+    if (!aiConsent || loading) return;
     if (!isPro && onUpgradePress) {
       onUpgradePress();
       return;
@@ -82,6 +92,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   };
 
   const generatePlan = async () => {
+    if (!aiConsent || loading) return;
     if (!isPro && onUpgradePress) {
       onUpgradePress();
       return;
@@ -137,6 +148,8 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
     return (
       <PlanDisplay
         todoId={todoId}
+        aiConsent={aiConsent}
+        consentNotice={consentNotice}
         plan={plan}
         planChat={planChat}
         onChatUpdated={onPlanGenerated}
@@ -186,7 +199,12 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
             </View>
           ))}
         </View>
-        <TouchableOpacity style={styles.primaryButton} onPress={generatePlan}>
+        {consentNotice}
+        <TouchableOpacity
+          disabled={!aiConsent}
+          style={[styles.primaryButton, !aiConsent && { opacity: 0.5 }]}
+          onPress={generatePlan}
+        >
           <RNEText style={styles.primaryButtonText}>Generate Plan</RNEText>
         </TouchableOpacity>
         <TouchableOpacity
@@ -213,15 +231,24 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
           onPress={onUpgradePress}
         />
       ) : (
-        <TouchableOpacity style={styles.planButton} onPress={startPlanning}>
-          <RNEText style={styles.planButtonIcon}>✨</RNEText>
-          <View style={styles.planButtonTextContainer}>
-            <RNEText style={styles.planButtonTitle}>Help me plan this</RNEText>
-            <RNEText style={styles.planButtonSubtitle}>
-              Get a step-by-step plan with materials, costs, and tips
-            </RNEText>
-          </View>
-        </TouchableOpacity>
+        <View>
+          {consentNotice}
+          <TouchableOpacity
+            disabled={!aiConsent}
+            style={[styles.planButton, !aiConsent && { opacity: 0.5 }]}
+            onPress={startPlanning}
+          >
+            <RNEText style={styles.planButtonIcon}>✨</RNEText>
+            <View style={styles.planButtonTextContainer}>
+              <RNEText style={styles.planButtonTitle}>
+                Help me plan this
+              </RNEText>
+              <RNEText style={styles.planButtonSubtitle}>
+                Get a step-by-step plan with materials, costs, and tips
+              </RNEText>
+            </View>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -233,9 +260,19 @@ const PlanDisplay: React.FC<{
   todoId: string;
   plan: GeneratedPlan;
   planChat: PlanChatMessage[] | null | undefined;
+  aiConsent: boolean;
+  consentNotice: React.ReactNode;
   onChatUpdated: () => void;
   onRegenerate: () => void;
-}> = ({ todoId, plan, planChat, onChatUpdated, onRegenerate }) => {
+}> = ({
+  todoId,
+  plan,
+  planChat,
+  onChatUpdated,
+  onRegenerate,
+  aiConsent,
+  consentNotice,
+}) => {
   const [messages, setMessages] = useState<PlanChatMessage[]>(planChat ?? []);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -253,7 +290,7 @@ const PlanDisplay: React.FC<{
 
   const sendMessage = async () => {
     const message = draft.trim();
-    if (!message || sending) return;
+    if (!message || sending || !aiConsent) return;
 
     const optimisticUserMessage: PlanChatMessage = {
       role: 'user',
@@ -287,6 +324,10 @@ const PlanDisplay: React.FC<{
       }
       onChatUpdated();
     } catch (e) {
+      setMessages((previous) =>
+        previous.filter((entry) => entry !== optimisticUserMessage),
+      );
+      setDraft((current) => current || message);
       setChatError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
       setSending(false);
@@ -498,9 +539,11 @@ const PlanDisplay: React.FC<{
 
         {chatError && <RNEText style={styles.errorText}>{chatError}</RNEText>}
 
+        {consentNotice}
         <View style={styles.chatInputRow}>
           <TextInput
             style={styles.chatInput}
+            editable={!sending}
             multiline
             placeholder="Ask a follow-up..."
             placeholderTextColor={theme.colors.text.hint}
@@ -512,10 +555,11 @@ const PlanDisplay: React.FC<{
           <TouchableOpacity
             style={[
               styles.sendButton,
-              (!draft.trim() || sending) && styles.sendButtonDisabled,
+              (!draft.trim() || sending || !aiConsent) &&
+                styles.sendButtonDisabled,
             ]}
             onPress={sendMessage}
-            disabled={!draft.trim() || sending}
+            disabled={!draft.trim() || sending || !aiConsent}
           >
             {sending ? (
               <ActivityIndicator

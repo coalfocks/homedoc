@@ -20,7 +20,7 @@ const proFeatures = [
   'AI maintenance plans with materials, costs, warnings, and follow-up chat',
   'Unlimited properties for your house, rentals, cabins, and family homes',
   'Share-ready transfer flows so home knowledge moves with the property',
-  'Future handoff packets for buyers, tenants, realtors, and inspectors',
+  'Property sharing and ownership transfer',
 ];
 
 const goToMarketUseCases = [
@@ -82,6 +82,7 @@ const UpgradeScreen: React.FC = () => {
     const betaFeatures = [
       'AI planning for home todos',
       'Multiple properties while beta access is active',
+      '20 AI requests per calendar month; questions, plans, and chat each count',
       'Share and transfer flows for home handoff testing',
       'Feedback capture with app version and account context',
     ];
