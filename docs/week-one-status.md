@@ -17,7 +17,7 @@ Web and mobile are equal product targets. The shared Expo app must preserve the 
 - **HD-03/08 — Sign-in and capture:** inline auth validation/errors work on web and native; email confirmation gets an explicit message; startup has a 12-second recovery timeout and retry. Native callback handling is separate from Supabase's browser callback handling. Property/area/note creation retains the same ID during retries, rejects duplicate taps, reuses confirmed photo uploads, and handles picker failures inline. Insert-then-update is intentional: property RLS rejects a new-row UPSERT. A retry must return an authorized row before reporting success.
 - **HD-04 — Permissions regression:** every tracked migration runs in isolated PGlite/Postgres with minimal fixtures for Supabase-managed auth/storage schemas. Tests cover owner, property member/admin, assigned contractor, unrelated and anonymous clients, collaborator/contractor revocation, scoped image rows, and record retries. This does not test Storage HTTP/signed-URL expiry or Edge Function transfer behavior.
 - **HD-06 — Product promises:** marketing has distinct web and iPhone entry points; unsupported document/packet claims are removed from the edited screens. Beta screens state the current 20-request AI allowance. Shared AI UI requires permission before questions, plans, or chat send context to OpenAI. Consent is scoped to the current user/task view, can be unchecked, and is requested again after remount. Existing plans remain readable without consent. No new server-side consent audit trail is claimed.
-- **Release checks:** PR checks run TypeScript, lint, Jest, PostgreSQL permission tests, and exports for web, iOS and Android. Existing deployment workflows still operate independently; configure required branch checks before relying on this as a deployment gate.
+- **Release checks:** PR checks run TypeScript, lint, Jest, PostgreSQL permission tests, and exports for web, iOS and Android. GitHub reports `main` is unprotected. Existing deployment workflows still operate independently; configure required branch checks before relying on this as a deployment gate.
 
 ## Verification
 
@@ -27,7 +27,7 @@ Web and mobile are equal product targets. The shared Expo app must preserve the 
 | Jest                                                                | 7 suites, 18 tests pass                                                 |
 | Quota ACL and counter regression                                    | Pass, isolated PostgreSQL                                               |
 | Record/RLS/image-row boundaries                                     | Pass, isolated PostgreSQL                                               |
-| Web/iOS/Android JS and asset exports                                | Pass on final implementation, including picker error handling                         |
+| Web/iOS/Android JS and asset exports                                | Pass on final implementation, including picker error handling           |
 | Browser signed-out startup and empty-password/magic-link validation | Pass in local Chromium web build; inline feedback visible               |
 | Phone-width browser layout                                          | Checked at 390 × 844; this is responsive web, not native iPhone testing |
 | Real signup/email link delivery/session persistence                 | Pending on web and physical iPhone                                      |
