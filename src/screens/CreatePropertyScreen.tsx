@@ -25,7 +25,6 @@ import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
-  CreationPrompt,
   ErrorPanel,
   SubmitFooter,
 } from '../components/CreationFlow';
@@ -53,16 +52,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
   const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
 
-  const hasAddress =
-    addressLine1.trim() || city.trim() || state.trim() || zipCode.trim();
-  const requiredFields = [name.trim()];
-  const completedSteps =
-    requiredFields.filter(Boolean).length +
-    (image ? 1 : 0) +
-    (nickname ? 1 : 0) +
-    (hasAddress ? 1 : 0);
-  const totalSteps = 4;
-  const isReady = requiredFields.every(Boolean);
+  const isReady = Boolean(name.trim());
 
   const pickImage = async () => {
     if (saving.current || created) return;
@@ -142,22 +132,12 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
       >
         <View style={styles.content}>
           <CreationIntro
-            eyebrow="New property"
-            title="Set up the home base"
-            subtitle="Add the core details once so every area, note, and task has a clean place to land."
-            stepLabel={
-              isReady
-                ? 'You can save this property now.'
-                : 'A property name is the only required field.'
-            }
-            completedSteps={completedSteps}
-            totalSteps={totalSteps}
-          />
-
-          <CreationPrompt
-            icon="home"
-            title="Start with the parts you know"
-            body="A name is enough for beta. Add the address, photo, and nickname now if they are handy, or fill them in later."
+            eyebrow="Property"
+            title="Add a property"
+            subtitle="Save the details you want to keep together."
+            stepLabel=""
+            completedSteps={0}
+            totalSteps={0}
           />
 
           <CreationCard>
@@ -286,7 +266,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 960,
     alignSelf: 'center',
-    padding: 16,
+    padding: theme.spacing.lg,
   },
   scrollContent: {
     paddingBottom: 220,
@@ -295,8 +275,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
     overflow: 'hidden',
   },
   imagePreview: {
@@ -321,12 +301,13 @@ const styles = StyleSheet.create({
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
 });
 

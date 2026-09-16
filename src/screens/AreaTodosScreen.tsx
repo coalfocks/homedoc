@@ -76,9 +76,8 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="TODOS"
         title={area ? `${area.name}` : 'Area Todos'}
-        subtitle="Maintenance and improvement tasks for this area."
+        subtitle="Tasks for this area."
       />
 
       <View style={styles.metricRow}>
@@ -86,7 +85,13 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
         <MetricPill label="Pending" value={pendingCount.toString()} />
       </View>
 
-      {/* Filter tabs */}
+      <SectionTitle title="Tasks" />
+
+      <AddButton
+        label="Add todo"
+        onPress={() => navigation.navigate('CreateTodo', { areaId })}
+      />
+
       <View style={styles.filterRow}>
         {filterTabs.map((tab) => (
           <TouchableOpacity
@@ -109,13 +114,6 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
         ))}
       </View>
 
-      <SectionTitle title="Tasks" />
-
-      <AddButton
-        label="Add todo"
-        onPress={() => navigation.navigate('CreateTodo', { areaId })}
-      />
-
       {loading ? (
         <LoadingStateCard title="Loading tasks..." />
       ) : error ? (
@@ -127,7 +125,7 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
         <EmptyStateCard
           icon="todo"
           title="No todos here"
-          description="Add your first task — a repair, upgrade, or anything you need to get done in this area."
+          description="Add a repair, upgrade, or other task for this area."
           actionLabel="Add todo"
           onActionPress={() => navigation.navigate('CreateTodo', { areaId })}
         />
@@ -137,19 +135,23 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
             <View key={todo.id} style={styles.card}>
               <View style={styles.cardRow}>
                 <TouchableOpacity
-                  style={[
-                    styles.checkbox,
-                    todo.status === 'done' && styles.checkboxDone,
-                  ]}
+                  style={styles.checkboxTapTarget}
                   onPress={() => toggleDone(todo.id, todo.status)}
                 >
-                  {todo.status === 'done' ? (
-                    <Icon
-                      name="check"
-                      size={16}
-                      color={theme.colors.primary.contrast}
-                    />
-                  ) : null}
+                  <View
+                    style={[
+                      styles.checkbox,
+                      todo.status === 'done' && styles.checkboxDone,
+                    ]}
+                  >
+                    {todo.status === 'done' ? (
+                      <Icon
+                        name="check"
+                        size={16}
+                        color={theme.colors.primary.contrast}
+                      />
+                    ) : null}
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -164,7 +166,7 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
                         styles.cardTitle,
                         todo.status === 'done' && styles.cardTitleDone,
                       ]}
-                      numberOfLines={1}
+                      numberOfLines={2}
                     >
                       {todo.title}
                     </Text>
@@ -226,6 +228,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   filterTab: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 8,
     borderRadius: theme.borderRadius.sm,
@@ -270,12 +274,17 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
+  },
+  checkboxTapTarget: {
+    width: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkbox: {
     width: 26,
@@ -303,7 +312,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     flex: 1,
     color: theme.colors.text.primary,
-    fontSize: theme.typography.h4.fontSize,
+    fontSize: theme.typography.body1.fontSize,
     fontWeight: '700',
   },
   cardTitleDone: {

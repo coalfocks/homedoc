@@ -69,7 +69,6 @@ export const Screen: React.FC<ScreenProps> = ({
         style={[styles.screen, style]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <BackgroundWash />
         <ScrollView
           ref={scrollRef}
           nativeID={
@@ -100,7 +99,6 @@ export const Screen: React.FC<ScreenProps> = ({
 
   return (
     <View style={[styles.screen, style]} removeClippedSubviews>
-      <BackgroundWash />
       <View
         style={[
           styles.content,
@@ -315,13 +313,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   );
 };
 
-const BackgroundWash = () => (
-  <>
-    <View style={styles.washTop} pointerEvents="none" />
-    <View style={styles.washBottom} pointerEvents="none" />
-  </>
-);
-
 type AddButtonProps = {
   label: string;
   onPress: () => void;
@@ -333,7 +324,7 @@ export const AddButton: React.FC<AddButtonProps> = ({ label, onPress }) => (
     onPress={onPress}
     activeOpacity={0.8}
   >
-    <Icon name="add" size={18} color={theme.colors.secondary.dark} />
+    <Icon name="add" size={18} color={theme.colors.primary.main} />
     <Text style={addButtonStyles.label}>{label}</Text>
   </TouchableOpacity>
 );
@@ -361,6 +352,8 @@ export const SortControl = <T extends string>({
         const selected = option.value === value;
         return (
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
             key={option.value}
             style={[
               sortControlStyles.option,
@@ -386,6 +379,8 @@ export const SortControl = <T extends string>({
 
 const addButtonStyles = StyleSheet.create({
   container: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -393,13 +388,13 @@ const addButtonStyles = StyleSheet.create({
     minHeight: 44,
     paddingVertical: 11,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(217, 95, 38, 0.07)',
+    backgroundColor: theme.colors.background.paper,
     borderWidth: 1,
-    borderColor: 'rgba(217, 95, 38, 0.28)',
+    borderColor: theme.colors.border.strong,
     marginBottom: theme.spacing.md,
   },
   label: {
-    color: theme.colors.secondary.dark,
+    color: theme.colors.primary.main,
     fontWeight: '700',
     fontSize: 15,
   },
@@ -416,6 +411,8 @@ const sortControlStyles = StyleSheet.create({
     marginBottom: theme.spacing.xs,
   },
   optionRow: {
+    width: 360,
+    maxWidth: '100%',
     flexDirection: 'row',
     padding: 3,
     borderRadius: theme.borderRadius.sm,
@@ -426,7 +423,7 @@ const sortControlStyles = StyleSheet.create({
   option: {
     flex: 1,
     alignItems: 'center',
-    minHeight: 34,
+    minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: theme.spacing.sm,
     borderRadius: theme.borderRadius.xs,
@@ -467,22 +464,6 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.lg,
     paddingBottom: 120,
   },
-  washTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 84,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-  },
-  washBottom: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 64,
-    backgroundColor: 'rgba(23, 59, 53, 0.03)',
-  },
   headerBlock: {
     marginBottom: theme.spacing.md,
   },
@@ -501,7 +482,7 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: theme.colors.text.secondary,
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '600',
     letterSpacing: 0,
     marginBottom: theme.spacing.xs,
   },
@@ -509,7 +490,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: theme.typography.h1.fontSize,
     lineHeight: theme.typography.h1.lineHeight,
-    fontWeight: '800',
+    fontWeight: '600',
   },
   headerSubtitle: {
     marginTop: 6,
@@ -521,14 +502,14 @@ const styles = StyleSheet.create({
   headerAction: {
     alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: 10,
+    minHeight: 44,
+    paddingVertical: 12,
     borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
   },
   headerActionNarrow: {
-    width: '100%',
     alignItems: 'center',
   },
   headerActionText: {
@@ -536,24 +517,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   metricPill: {
-    minWidth: 92,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 10,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.background.elevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 5,
+    paddingVertical: 4,
+    paddingRight: theme.spacing.md,
   },
   metricValue: {
     color: theme.colors.text.primary,
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '600',
   },
   metricLabel: {
-    marginTop: 2,
     color: theme.colors.text.secondary,
-    fontSize: theme.typography.caption.fontSize,
-    fontWeight: '600',
+    fontSize: 14,
   },
   emptyCard: {
     alignItems: 'flex-start',
@@ -590,7 +567,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.secondary.main,
+    backgroundColor: theme.colors.primary.main,
   },
   emptyButtonText: {
     color: theme.colors.secondary.contrast,
@@ -636,8 +613,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 14,
     borderRadius: theme.borderRadius.pill,
-    backgroundColor: theme.colors.secondary.main,
-    ...theme.shadows.lg,
+    backgroundColor: theme.colors.primary.main,
+    ...theme.shadows.sm,
   },
   fabLabel: {
     color: theme.colors.secondary.contrast,

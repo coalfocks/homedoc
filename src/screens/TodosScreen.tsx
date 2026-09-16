@@ -12,9 +12,7 @@ import {
   PageHeader,
   PriorityBadge,
   Screen,
-  SectionTitle,
   StatusBadge,
-  StatusBanner,
 } from '../components/AppChrome';
 import { theme } from '../utils/theme';
 import type { Todo } from '../lib/supabase';
@@ -53,23 +51,15 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
-      <PageHeader
-        eyebrow="TASK LIST"
-        title="Todos"
-        subtitle="Maintenance, repairs, and improvements across every property."
-      />
+      <PageHeader title="Todos" subtitle="Tasks across your properties." />
 
       <View style={styles.metricRow}>
         <MetricPill label="Total" value={todos.length.toString()} />
         <MetricPill label="Pending" value={pendingCount.toString()} />
       </View>
 
-      <StatusBanner
-        title="Todos belong to areas"
-        body="Create todos from inside a specific area, or tap one below to view details."
-      />
+      <Text style={styles.helperText}>Add todos from an area.</Text>
 
-      {/* Filter tabs */}
       <View style={styles.filterRow}>
         {filterTabs.map((tab) => (
           <TouchableOpacity
@@ -91,8 +81,6 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
-
-      <SectionTitle title="All todos" subtitle="Grouped by area." />
 
       {loading ? (
         <LoadingStateCard title="Loading todos..." />
@@ -130,7 +118,7 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
                         styles.cardTitle,
                         todo.status === 'done' && styles.cardTitleDone,
                       ]}
-                      numberOfLines={1}
+                      numberOfLines={2}
                     >
                       {todo.title}
                     </Text>
@@ -169,15 +157,22 @@ const styles = StyleSheet.create({
   metricRow: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    marginBottom: theme.spacing.md,
   },
   filterRow: {
     flexDirection: 'row',
     gap: theme.spacing.xs,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
     flexWrap: 'wrap',
   },
   filterTab: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: 8,
     borderRadius: theme.borderRadius.sm,
@@ -217,11 +212,10 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   groupHeader: {
-    color: theme.colors.secondary.dark,
+    color: theme.colors.text.secondary,
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0,
-    textTransform: 'uppercase',
     marginTop: theme.spacing.sm,
     marginBottom: theme.spacing.xs,
   },
@@ -231,7 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
+    marginBottom: theme.spacing.xs,
   },
   cardTop: {
     flexDirection: 'row',

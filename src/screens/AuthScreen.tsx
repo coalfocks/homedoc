@@ -156,10 +156,10 @@ const AuthScreen: React.FC = () => {
             style={[styles.header, isCompactViewport && styles.headerCompact]}
           >
             <Logo
-              size={isCompactViewport ? 48 : 72}
+              size={isCompactViewport ? 44 : 56}
               color={theme.colors.primary.main}
             />
-            <Text style={styles.eyebrow}>HOME RECORDS</Text>
+            <Text style={styles.eyebrow}>HOMEDOC</Text>
             <Text
               style={[
                 styles.heroTitle,
@@ -217,6 +217,7 @@ const AuthScreen: React.FC = () => {
             </View>
 
             <Input
+              label="Email address"
               placeholder="Email address"
               accessibilityLabel="Email address"
               value={email}
@@ -235,12 +236,14 @@ const AuthScreen: React.FC = () => {
               containerStyle={styles.inputContainer}
               inputContainerStyle={styles.inputInner}
               inputStyle={styles.input}
+              labelStyle={styles.inputLabel}
               placeholderTextColor={theme.colors.text.secondary}
             />
 
             {authMode === 'password' ? (
               <>
                 <Input
+                  label="Password"
                   placeholder="Password"
                   accessibilityLabel="Password"
                   value={password}
@@ -257,6 +260,7 @@ const AuthScreen: React.FC = () => {
                   containerStyle={styles.inputContainer}
                   inputContainerStyle={styles.inputInner}
                   inputStyle={styles.input}
+                  labelStyle={styles.inputLabel}
                   placeholderTextColor={theme.colors.text.secondary}
                 />
                 <Button
@@ -310,25 +314,6 @@ const AuthScreen: React.FC = () => {
               Use email and password or a sign-in link on web and mobile.
             </Text>
           </View>
-
-          {!isCompactViewport ? (
-            <View style={styles.valueStrip}>
-              <View style={styles.valueItem}>
-                <Text style={styles.valueTitle}>Move-in memory</Text>
-                <Text style={styles.valueBody}>Capture the details once.</Text>
-              </View>
-              <View style={styles.valueItem}>
-                <Text style={styles.valueTitle}>AI planning</Text>
-                <Text style={styles.valueBody}>
-                  Scope repairs before you start.
-                </Text>
-              </View>
-              <View style={styles.valueItem}>
-                <Text style={styles.valueTitle}>Home handoff</Text>
-                <Text style={styles.valueBody}>Transfer records cleanly.</Text>
-              </View>
-            </View>
-          ) : null}
 
           <View style={styles.betaNotice}>
             <Text style={styles.betaNoticeTitle}>Free beta</Text>
@@ -390,29 +375,29 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'flex-start',
-    paddingTop: 28,
+    paddingTop: 18,
     paddingBottom: 180,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   headerCompact: {
     marginBottom: 10,
   },
   eyebrow: {
     color: theme.colors.primary.light,
-    marginTop: 14,
-    marginBottom: 8,
-    fontSize: 12,
+    marginTop: 8,
+    marginBottom: 5,
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0,
   },
   heroTitle: {
     color: theme.colors.text.primary,
     textAlign: 'center',
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 32,
     marginBottom: 8,
   },
   heroTitleCompact: {
@@ -423,8 +408,8 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     color: theme.colors.text.secondary,
     textAlign: 'center',
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     maxWidth: 360,
     marginBottom: 16,
   },
@@ -433,34 +418,10 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     alignSelf: 'center',
     backgroundColor: theme.colors.background.elevated,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border.subtle,
-    ...theme.shadows.md,
-  },
-  valueStrip: {
-    width: '100%',
-    maxWidth: 420,
-    alignSelf: 'center',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-  },
-  valueItem: {
-    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.background.elevated,
+    padding: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-  },
-  valueTitle: {
-    color: theme.colors.text.primary,
-    fontWeight: '800',
-    marginBottom: 2,
-  },
-  valueBody: {
-    color: theme.colors.text.secondary,
-    fontSize: theme.typography.caption.fontSize,
   },
   betaNotice: {
     padding: theme.spacing.md,
@@ -537,8 +498,14 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.contrast,
   },
   inputContainer: {
-    marginBottom: 4,
+    marginBottom: 8,
     paddingHorizontal: 0,
+  },
+  inputLabel: {
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 5,
   },
   inputInner: {
     backgroundColor: theme.colors.background.paper,
@@ -552,6 +519,8 @@ const styles = StyleSheet.create({
   },
   input: {
     color: theme.colors.text.primary,
+    fontSize: 16,
+    lineHeight: 22,
     paddingHorizontal: 4,
   },
   buttonContainer: {
@@ -560,7 +529,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     backgroundColor: theme.colors.primary.main,
     borderRadius: theme.borderRadius.sm,
-    minHeight: 54,
+    minHeight: 48,
   },
   socialButton: {
     backgroundColor: theme.colors.background.paper,

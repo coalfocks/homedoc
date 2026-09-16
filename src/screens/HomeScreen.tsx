@@ -12,7 +12,6 @@ import {
   MetricPill,
   PageHeader,
   Screen,
-  SectionTitle,
   SortControl,
 } from '../components/AppChrome';
 import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
@@ -28,7 +27,7 @@ type HomeScreenProps = {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user, loading: authLoading } = useAuth();
-  const { properties, loading, error, refetch } = useProperties(user?.id);
+  const { properties, loading, error } = useProperties(user?.id);
   const { isPro, betaAccess, checkoutLoading } = useBilling();
   const [sortOrder, setSortOrder] = useState<SortOrder>('alphabetical');
   const sortedProperties = useMemo(
@@ -58,11 +57,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (authLoading || (loading && properties.length === 0)) {
     return (
       <Screen>
-        <PageHeader
-          eyebrow="HOME RECORDS"
-          title="Properties"
-          subtitle="Loading your homes and the records attached to them."
-        />
+        <PageHeader title="Properties" subtitle="Loading your properties." />
       </Screen>
     );
   }
@@ -82,42 +77,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="HOME RECORDS"
         title="Properties"
-        subtitle="The homes, rentals, and handoff records you are responsible for."
+        subtitle="Your homes and property records."
       />
-
-      <BetaFeedbackCard
-        context="Properties"
-        compact
-        title={betaAccess ? 'Free beta is on' : 'Beta feedback wanted'}
-        body={
-          betaAccess
-            ? 'Pro features are included for now. Send feedback when something feels clunky or worth keeping.'
-            : 'Tell us what made sense, what felt clunky, and what would make this worth keeping around.'
-        }
-      />
-
-      {!isPro && properties.length > 0 ? (
-        <UpgradeCard
-          compact
-          title="Add rentals, cabins, and family homes with Pro"
-          body="Your first property is free. Upgrade when HomeDoc becomes the operating system for more than one place."
-          cta="See Pro"
-          loading={checkoutLoading}
-          onPress={() => navigation.navigate('Upgrade')}
-        />
-      ) : null}
 
       <View style={styles.metricRow}>
-        <MetricPill
-          label="Properties"
-          value={properties.length.toString().padStart(2, '0')}
-        />
-        <MetricPill
-          label="Known areas"
-          value={totalAreas.toString().padStart(2, '0')}
-        />
+        <MetricPill label="Properties" value={properties.length.toString()} />
+        <MetricPill label="Known areas" value={totalAreas.toString()} />
       </View>
 
       {error ? (
@@ -127,11 +93,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       ) : null}
 
-      <SectionTitle
-        title="Property file"
-        subtitle="Open a place to manage its rooms, maintenance notes, and photos."
-      />
-
       <AddButton
         label={
           hasReachedFreePropertyLimit ? 'Add another with Pro' : 'Add property'
@@ -140,24 +101,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       />
 
       {properties.length === 0 ? (
-        <>
-          <View style={styles.startGuide}>
-            <Text style={styles.startGuideTitle}>
-              Start with one real place
-            </Text>
-            <Text style={styles.startGuideBody}>
-              Add a property, create an area like Kitchen or Utility Room, then
-              save one note or todo you would normally have to hunt for later.
-            </Text>
-          </View>
-          <EmptyStateCard
-            icon="home"
-            title="No properties yet"
-            description="A good beta test starts with the home you live in, rent out, or help maintain."
-            actionLabel="Add your first property"
-            onActionPress={handleAddProperty}
-          />
-        </>
+        <EmptyStateCard
+          icon="home"
+          title="No properties yet"
+          description="Add the home you live in, rent out, or help maintain."
+          actionLabel="Add your first property"
+          onActionPress={handleAddProperty}
+        />
       ) : (
         <View style={styles.list}>
           <SortControl
@@ -194,16 +144,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   </View>
                 )}
                 <View style={styles.cardBody}>
-                  <View style={styles.cardTopRow}>
-                    <View style={styles.cardTitleWrap}>
-                      <Text style={styles.cardTitle}>
-                        {item.nickname || item.name}
-                      </Text>
-                      {item.nickname ? (
-                        <Text style={styles.cardSubtitle}>{item.name}</Text>
-                      ) : null}
-                    </View>
-                    <Text style={styles.badge}>Open</Text>
+                  <View style={styles.cardTitleWrap}>
+                    <Text style={styles.cardTitle}>
+                      {item.nickname || item.name}
+                    </Text>
+                    {item.nickname ? (
+                      <Text style={styles.cardSubtitle}>{item.name}</Text>
+                    ) : null}
                   </View>
                   {addressLines.length > 0 ? (
                     <>
@@ -224,6 +171,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           })}
         </View>
       )}
+
+      <View style={styles.secondaryContent}>
+        {!isPro && properties.length > 0 ? (
+          <UpgradeCard
+            compact
+            title="Add more properties with Pro"
+            body="Your first property is free."
+            cta="See Pro"
+            loading={checkoutLoading}
+            onPress={() => navigation.navigate('Upgrade')}
+          />
+        ) : null}
+
+        <BetaFeedbackCard
+          context="Properties"
+          compact
+          title={betaAccess ? 'Beta access' : 'Share beta feedback'}
+          body={
+            betaAccess
+              ? 'Pro features are included during the beta. Feedback is welcome.'
+              : 'Tell us what is working and what feels unclear.'
+          }
+        />
+      </View>
     </Screen>
   );
 };
@@ -253,26 +224,11 @@ const styles = StyleSheet.create({
   noticeBody: {
     color: theme.colors.text.slate,
   },
-  startGuide: {
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: 'rgba(23, 59, 53, 0.07)',
-    borderWidth: 1,
-    borderColor: 'rgba(23, 59, 53, 0.14)',
-    marginBottom: theme.spacing.md,
-  },
-  startGuideTitle: {
-    color: theme.colors.primary.dark,
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: '800',
-    marginBottom: theme.spacing.xs,
-  },
-  startGuideBody: {
-    color: theme.colors.text.slate,
-    lineHeight: theme.typography.body2.lineHeight,
-  },
   list: {
     gap: theme.spacing.md,
+  },
+  secondaryContent: {
+    marginTop: theme.spacing.xl,
   },
   card: {
     flexDirection: 'row',
@@ -281,17 +237,16 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   propertyImage: {
-    width: 132,
-    height: 132,
+    width: 112,
+    height: 112,
   },
   imageFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 132,
-    height: 132,
+    width: 112,
+    height: 112,
     backgroundColor: 'rgba(23, 59, 53, 0.12)',
   },
   imageFallbackText: {
@@ -304,14 +259,9 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: theme.spacing.md,
   },
-  cardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-  },
   cardTitleWrap: {
     flex: 1,
+    marginBottom: theme.spacing.xs,
   },
   cardTitle: {
     color: theme.colors.text.primary,
@@ -321,12 +271,6 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     marginTop: 2,
     color: theme.colors.text.secondary,
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    color: theme.colors.primary.dark,
-    fontSize: theme.typography.caption.fontSize,
-    fontWeight: '800',
   },
   address: {
     color: theme.colors.text.slate,

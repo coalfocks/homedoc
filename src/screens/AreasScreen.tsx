@@ -13,7 +13,6 @@ import {
   Screen,
   SectionTitle,
   SortControl,
-  StatusBanner,
 } from '../components/AppChrome';
 import { SignedImage } from '../components/SignedImage';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
@@ -49,26 +48,17 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="AREA INDEX"
         title="Areas"
-        subtitle="Every room, utility closet, crawl space, and hallway with its own paper trail."
+        subtitle="Rooms, systems, and spaces across your properties."
       />
 
       <View style={styles.metricRow}>
         <MetricPill label="Tracked areas" value={areas.length.toString()} />
       </View>
 
-      <StatusBanner
-        title="Add new areas from inside a property"
-        body="Areas stay attached to a specific home, so creation happens from the property detail screen instead of this rollup view."
-      />
-
       {assignments.length > 0 || assignmentsLoading || assignmentsError ? (
         <>
-          <SectionTitle
-            title="Contractor work"
-            subtitle="Areas where a homeowner has invited you to document work."
-          />
+          <SectionTitle title="Contractor work" />
           {assignmentsLoading ? (
             <LoadingStateCard title="Loading contractor assignments..." />
           ) : assignmentsError ? (
@@ -111,8 +101,7 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
                         {assignedArea.properties?.name || 'Assigned property'}
                       </Text>
                       <Text style={styles.cardDescription} numberOfLines={2}>
-                        Add work notes, photos, materials, and closeout details
-                        for the homeowner.
+                        Add work notes, photos, and closeout details.
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -123,10 +112,7 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
         </>
       ) : null}
 
-      <SectionTitle
-        title="Area records"
-        subtitle="Jump into any room without remembering which property it belongs to."
-      />
+      <Text style={styles.helperText}>Add areas from a property.</Text>
 
       {loading ? (
         <LoadingStateCard title="Loading areas..." />
@@ -139,7 +125,7 @@ const AreasScreen: React.FC<AreasScreenProps> = ({ navigation }) => {
         <EmptyStateCard
           icon="area"
           title="No areas yet"
-          description="Open a property and add the rooms or zones you actually want to document."
+          description="Open a property to add its first room or zone."
         />
       ) : (
         <View style={styles.list}>
@@ -197,7 +183,12 @@ const styles = StyleSheet.create({
   metricRow: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  helperText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
+    marginBottom: theme.spacing.md,
   },
   noticeCard: {
     marginBottom: theme.spacing.lg,
@@ -225,15 +216,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    ...theme.shadows.sm,
   },
   areaImage: {
-    width: 104,
-    height: 104,
+    width: 92,
+    height: 92,
   },
   areaFallback: {
-    width: 104,
-    height: 104,
+    width: 92,
+    height: 92,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(63, 127, 104, 0.14)',
@@ -281,7 +271,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   cardDescription: {
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.xs,
     color: theme.colors.text.secondary,
     lineHeight: theme.typography.body2.lineHeight,
   },

@@ -15,8 +15,8 @@ type BetaFeedbackCardProps = {
 export const BetaFeedbackCard: React.FC<BetaFeedbackCardProps> = ({
   context,
   compact = false,
-  title = 'Beta feedback wanted',
-  body = 'Tell us what made sense, what felt clunky, and what would make this worth keeping around.',
+  title = 'Help improve HomeDoc',
+  body = 'Found a problem or have an idea? Let us know.',
 }) => {
   const { user } = useAuth();
 
@@ -38,25 +38,27 @@ export const BetaFeedbackCard: React.FC<BetaFeedbackCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    gap: theme.spacing.md,
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: 'rgba(255,255,255,0.90)',
-    borderWidth: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    borderTopWidth: 1,
     borderColor: theme.colors.border.subtle,
     marginBottom: theme.spacing.lg,
-    ...theme.shadows.sm,
   },
   compactCard: {
-    padding: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
   },
   copy: {
+    flexGrow: 1,
+    flexBasis: 240,
     gap: 4,
   },
   title: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.h4.fontSize,
-    fontWeight: '800',
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: '600',
   },
   body: {
     color: theme.colors.text.secondary,
@@ -65,11 +67,12 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.primary.main,
+    minHeight: 44,
+    paddingHorizontal: 12,
     paddingVertical: 12,
   },
   buttonText: {
-    color: theme.colors.primary.contrast,
-    fontWeight: '800',
+    color: theme.colors.primary.main,
+    fontWeight: '600',
   },
 });

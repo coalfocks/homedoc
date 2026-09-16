@@ -33,11 +33,7 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
   if (loading) {
     return (
       <Screen>
-        <PageHeader
-          eyebrow="NOTE DETAIL"
-          title="Loading note"
-          subtitle="Pulling the full record and images."
-        />
+        <PageHeader title="Loading note" subtitle="Loading note." />
       </Screen>
     );
   }
@@ -59,7 +55,6 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow="NOTE FILE"
         title={note.title}
         subtitle={`Created ${formatDate(note.created_at)} • Updated ${formatDate(note.updated_at)}`}
         actionLabel="Edit"
@@ -73,21 +68,15 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
       </View>
 
       {reminderLabel ? (
-        <>
-          <SectionTitle title="Reminder" />
-          <View style={styles.reminderCard}>
-            <Text style={styles.reminderLabel}>Reminder set for</Text>
-            <Text style={styles.reminderValue}>{reminderLabel}</Text>
-          </View>
-        </>
+        <View style={styles.reminderCard}>
+          <Text style={styles.reminderLabel}>Reminder</Text>
+          <Text style={styles.reminderValue}>{reminderLabel}</Text>
+        </View>
       ) : null}
 
       {note.images.length > 0 ? (
         <>
-          <SectionTitle
-            title="Attached images"
-            subtitle="Reference shots tied directly to this note."
-          />
+          <SectionTitle title="Images" />
           <View style={styles.imageGrid}>
             {note.images.map((image, index) => (
               <InspectableImage
@@ -101,11 +90,7 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
           </View>
         </>
       ) : (
-        <EmptyStateCard
-          icon="note"
-          title="No images attached"
-          description="This note is text-only for now. Add photos from edit mode if the visual context matters."
-        />
+        <Text style={styles.noImages}>No images attached.</Text>
       )}
     </Screen>
   );
@@ -129,7 +114,7 @@ const styles = StyleSheet.create({
     lineHeight: theme.typography.body1.lineHeight,
   },
   reminderCard: {
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
@@ -156,6 +141,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 210,
     borderRadius: theme.borderRadius.md,
+  },
+  noImages: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body2.fontSize,
   },
 });
 

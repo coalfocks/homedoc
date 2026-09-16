@@ -280,18 +280,18 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.default,
   },
   content: {
-    padding: 16,
+    padding: theme.spacing.lg,
   },
   scrollContent: {
     paddingBottom: 220,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,
@@ -315,28 +315,28 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.caption.fontSize,
     lineHeight: theme.typography.caption.lineHeight,
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     marginTop: -8,
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
   imageSection: {
     marginTop: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: 12,
-    paddingHorizontal: 16,
+    fontSize: 15,
+    fontWeight: '700',
+    color: theme.colors.text.slate,
+    marginBottom: theme.spacing.sm,
   },
   imageContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     gap: 12,
   },
   imageWrapper: {
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: theme.colors.primary.main,
     borderRadius: 8,
-    minHeight: 52,
+    minHeight: 48,
     paddingVertical: 12,
   },
   buttonText: {
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   cancelButtonStyle: {
     borderColor: theme.colors.primary.main,
     borderRadius: 8,
-    minHeight: 52,
+    minHeight: 48,
     paddingVertical: 12,
   },
   cancelButtonText: {

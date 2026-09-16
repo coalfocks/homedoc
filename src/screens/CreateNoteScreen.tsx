@@ -27,7 +27,6 @@ import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
-  CreationPrompt,
   ErrorPanel,
   SubmitFooter,
 } from '../components/CreationFlow';
@@ -56,8 +55,6 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
 
-  const completedSteps =
-    (title.trim() ? 1 : 0) + (content.trim() ? 1 : 0) + (images.length ? 1 : 0);
   const contractorAccess = access.find(
     (item) => item.contractor_user_id === user?.id,
   );
@@ -161,36 +158,16 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
-          eyebrow={contractorAccess ? 'Contractor work note' : 'New note'}
-          title={
-            contractorAccess
-              ? 'Document the work while it is fresh'
-              : 'Capture the detail before it disappears'
-          }
+          eyebrow={contractorAccess ? 'Work note' : 'Note'}
+          title="Add a note"
           subtitle={
             contractorAccess
-              ? 'Add what changed, products used, photos, warranty details, and anything the homeowner should know later.'
-              : 'Notes are best for paint colors, measurements, repair context, and weird little home facts.'
+              ? 'Record what changed, what was used, and what to remember next.'
+              : 'Keep the details, photos, and reminders you will want later.'
           }
-          stepLabel={
-            title.trim() ? 'Note title is ready.' : 'A short title is required.'
-          }
-          completedSteps={completedSteps}
-          totalSteps={3}
-        />
-
-        <CreationPrompt
-          icon="note"
-          title={
-            contractorAccess
-              ? 'Leave a clean work record'
-              : 'Make it useful for future you'
-          }
-          body={
-            contractorAccess
-              ? 'Use this like a job closeout note: work completed, parts used, photos, and recommended follow-up.'
-              : 'A couple of specifics beat a perfect paragraph: what, where, when, and any product names.'
-          }
+          stepLabel=""
+          completedSteps={0}
+          totalSteps={0}
         />
 
         <CreationCard>
@@ -324,7 +301,7 @@ const styles = StyleSheet.create({
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,
@@ -352,18 +329,19 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
   imageSection: {
     marginTop: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.colors.text.primary,
-    marginBottom: 12,
+    fontSize: 15,
+    fontWeight: '700',
+    color: theme.colors.text.slate,
+    marginBottom: theme.spacing.sm,
   },
   imageContainer: {
     flexDirection: 'row',

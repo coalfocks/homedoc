@@ -330,8 +330,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
+    color: theme.colors.text.slate,
+    fontSize: 15,
     fontWeight: '700',
     marginBottom: theme.spacing.xs,
   },
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: theme.spacing.md,
+    paddingHorizontal: theme.spacing.sm,
   },
   reminderRow: {
     flexDirection: 'row',
@@ -369,6 +369,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.xs,
   },
   areaOption: {
+    minHeight: 44,
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     backgroundColor: 'rgba(255,255,255,0.7)',
@@ -382,6 +383,7 @@ const styles = StyleSheet.create({
   areaOptionText: {
     color: theme.colors.text.primary,
     fontWeight: '600',
+    fontSize: 16,
   },
   areaOptionTextActive: {
     color: theme.colors.primary.contrast,
@@ -392,12 +394,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
+    minHeight: 44,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 10,
     borderRadius: theme.borderRadius.pill,
     backgroundColor: 'rgba(255,255,255,0.7)',
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pillActive: {
     backgroundColor: theme.colors.primary.main,
@@ -417,7 +422,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: theme.colors.primary.main,
     borderRadius: theme.borderRadius.sm,
-    height: 50,
+    minHeight: 48,
   },
   buttonText: {
     fontSize: 16,
@@ -437,7 +442,7 @@ const styles = StyleSheet.create({
   cancelButtonStyle: {
     borderColor: theme.colors.primary.main,
     borderRadius: theme.borderRadius.sm,
-    height: 50,
+    minHeight: 48,
   },
   cancelButtonText: {
     color: theme.colors.primary.main,
@@ -449,6 +454,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.xl,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: 12,
+    minHeight: 44,
     borderRadius: theme.borderRadius.pill,
     backgroundColor: 'rgba(200, 85, 61, 0.10)',
   },

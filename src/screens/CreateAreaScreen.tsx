@@ -24,7 +24,6 @@ import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
-  CreationPrompt,
   ErrorPanel,
   SubmitFooter,
 } from '../components/CreationFlow';
@@ -48,9 +47,6 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
   const saving = useRef(false);
   const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
-
-  const completedSteps =
-    (name.trim() ? 1 : 0) + (description.trim() ? 1 : 0) + (image ? 1 : 0);
 
   const pickImage = async () => {
     if (saving.current || created) return;
@@ -114,22 +110,12 @@ const CreateAreaScreen: React.FC<CreateAreaScreenProps> = ({
         onScrollBeginDrag={Keyboard.dismiss}
       >
         <CreationIntro
-          eyebrow="New area"
-          title="Make the next room easy to find"
-          subtitle="Areas become the buckets for notes, repairs, products, and maintenance work."
-          stepLabel={
-            name.trim()
-              ? 'Area name is ready.'
-              : 'Give the area a clear, familiar name.'
-          }
-          completedSteps={completedSteps}
-          totalSteps={3}
-        />
-
-        <CreationPrompt
-          icon="area"
-          title="Rooms, systems, or outdoor spaces all work"
-          body="Use the same labels you would say out loud: Kitchen, furnace closet, west fence, master bath."
+          eyebrow="Area"
+          title="Add an area"
+          subtitle="Create a place for notes, photos, and maintenance work."
+          stepLabel=""
+          completedSteps={0}
+          totalSteps={0}
         />
 
         <CreationCard>
@@ -198,15 +184,15 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 960,
     alignSelf: 'center',
-    padding: 16,
+    padding: theme.spacing.lg,
     paddingBottom: 220,
   },
   imageUpload: {
     width: '100%',
     height: 200,
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
     overflow: 'hidden',
   },
   imagePreview: {
@@ -231,16 +217,17 @@ const styles = StyleSheet.create({
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,
     textAlignVertical: 'top',
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
 });
 

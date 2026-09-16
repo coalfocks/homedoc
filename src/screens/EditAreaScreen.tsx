@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background.default,
   },
   content: {
-    padding: 16,
+    padding: theme.spacing.lg,
   },
   scrollContent: {
     paddingBottom: 220,
@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     backgroundColor: theme.colors.background.paper,
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.md,
     overflow: 'hidden',
   },
   imagePreview: {
@@ -226,32 +226,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
   input: {
     color: theme.colors.text.primary,
     fontSize: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.sm,
   },
   textArea: {
     paddingTop: 12,
     textAlignVertical: 'top',
   },
   label: {
-    color: theme.colors.text.primary,
-    fontSize: 16,
-    marginBottom: 8,
+    color: theme.colors.text.slate,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
   buttonContainer: {
-    marginTop: 24,
+    marginTop: theme.spacing.md,
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
   },
   button: {
     backgroundColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
+    borderRadius: theme.borderRadius.sm,
+    minHeight: 48,
   },
   buttonText: {
     fontSize: 16,
@@ -273,8 +274,8 @@ const styles = StyleSheet.create({
   },
   cancelButtonStyle: {
     borderColor: theme.colors.primary.main,
-    borderRadius: 8,
-    height: 50,
+    borderRadius: theme.borderRadius.sm,
+    minHeight: 48,
   },
   cancelButtonText: {
     color: theme.colors.primary.main,
