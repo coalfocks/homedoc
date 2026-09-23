@@ -5,6 +5,7 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -74,15 +75,15 @@ const ConfigErrorScreen = () => (
           textAlign: 'center',
         }}
       >
-        HomeDoc could not load its Supabase settings. Please install the latest
-        TestFlight build.
+        HomeDoc could not load its settings. Please reload the page or update
+        the mobile app, then try again.
       </Text>
     </View>
   </View>
 );
 
 const AppContent = () => {
-  const { session, loading } = useAuth();
+  const { session, loading, sessionError, retrySession } = useAuth();
 
   const handleWebInputFocus = useCallback(
     (event: React.FocusEvent<HTMLElement>) => {
@@ -136,6 +137,44 @@ const AppContent = () => {
     },
     [],
   );
+
+  if (sessionError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          padding: 24,
+          backgroundColor: theme.colors.background.default,
+        }}
+      >
+        <Text
+          accessibilityRole="alert"
+          style={{ color: theme.colors.text.primary, marginBottom: 16 }}
+        >
+          {sessionError}
+        </Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={retrySession}
+          style={{
+            padding: 16,
+            backgroundColor: theme.colors.primary.main,
+            borderRadius: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: theme.colors.primary.contrast,
+              textAlign: 'center',
+            }}
+          >
+            Try again
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (loading) {
     return (

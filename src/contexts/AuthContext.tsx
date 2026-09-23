@@ -2,13 +2,17 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as Linking from 'expo-linking';
 import { supabase } from '../lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
+import { restoreSession } from '../utils/sessionStartup';
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  sessionError: string | null;
+  retrySession: () => void;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<boolean>;
   signInWithMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -23,10 +27,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [sessionAttempt, setSessionAttempt] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    let authEventReceived = false;
+    setLoading(true);
+    setSessionError(null);
     const handleAuthRedirect = async (url: string | null) => {
-      if (!url || !url.includes('#')) {
+      // The web client already consumes the browser callback URL.
+      if (Platform.OS === 'web' || !url || !url.includes('#')) {
         return;
       }
 
@@ -45,43 +56,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       if (error) {
-        console.error('Failed to restore auth session from redirect:', error);
+        if (active)
+          setSessionError(
+            'That sign-in link could not be opened. Try again or request a new link.',
+          );
       }
     };
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    Linking.getInitialURL()
-      .then(handleAuthRedirect)
-      .catch((error) => {
-        console.error('Failed to read initial auth redirect URL:', error);
-      });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      authEventReceived = true;
       setSession(session);
       setUser(session?.user ?? null);
+      setSessionError(null);
       setLoading(false);
     });
 
+    restoreSession(() => supabase.auth.getSession())
+      .then((session) => {
+        if (!active || authEventReceived) return;
+        setSession(session);
+        setUser(session?.user ?? null);
+      })
+      .catch(() => {
+        if (active && !authEventReceived) {
+          setSessionError(
+            'We could not restore your session. Check your connection and try again.',
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    if (sessionAttempt === 0) {
+      Linking.getInitialURL()
+        .then(handleAuthRedirect)
+        .catch(() => {
+          if (active)
+            setSessionError(
+              'We could not open the sign-in link. Please try again.',
+            );
+        });
+    }
+
     const urlSubscription = Linking.addEventListener('url', ({ url }) => {
-      handleAuthRedirect(url).catch((error) => {
-        console.error('Failed to handle auth redirect URL:', error);
+      handleAuthRedirect(url).catch(() => {
+        if (active)
+          setSessionError(
+            'We could not open the sign-in link. Please try again.',
+          );
       });
     });
 
     return () => {
+      active = false;
       subscription.unsubscribe();
       urlSubscription.remove();
     };
-  }, []);
+  }, [sessionAttempt]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -92,8 +128,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
+    return Boolean(data.session);
   };
 
   const signInWithMagicLink = async (email: string) => {
@@ -138,6 +175,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         session,
         user,
         loading,
+        sessionError,
+        retrySession: () => setSessionAttempt((attempt) => attempt + 1),
         signIn,
         signUp,
         signInWithMagicLink,

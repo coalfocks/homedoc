@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,7 +11,6 @@ import { Text, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useContractorAreaAccess } from '../hooks/useData';
 import { theme } from '../utils/theme';
@@ -23,6 +22,8 @@ import { getErrorMessage } from '../utils/errors';
 import { imagePickerAssetsToUris } from '../utils/imagePickerAssets';
 import { parseReminderInput } from '../utils/reminders';
 import { createUuid } from '../utils/uuid';
+import { saveDraftRecord } from '../utils/saveDraftRecord';
+import { createUploadCache } from '../utils/uploadCache';
 import {
   CreationCard,
   CreationIntro,
@@ -50,6 +51,9 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
+  const [noteId] = useState(createUuid);
+  const saving = useRef(false);
+  const [uploadImage] = useState(() => createUploadCache(uploadPrivateImage));
   const [error, setError] = useState<string | null>(null);
 
   const completedSteps =
@@ -59,23 +63,29 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   );
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      base64: true,
-      quality: 0.8,
-    });
+    if (saving.current || created) return;
+    try {
+      setError(null);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        base64: true,
+        quality: 0.8,
+      });
 
-    if (!result.canceled) {
-      const newImages = imagePickerAssetsToUris(result.assets);
-      setImages([...images, ...newImages]);
+      if (!result.canceled) {
+        const newImages = imagePickerAssetsToUris(result.assets);
+        setImages([...images, ...newImages]);
+      }
+    } catch (error) {
+      setError(getErrorMessage(error));
     }
   };
 
   const uploadImages = async (uris: string[]) => {
     try {
       const uploadPromises = uris.map(async (uri, index) => {
-        return uploadPrivateImage(uri, `notes/${areaId}/${index}`);
+        return uploadImage(uri, `notes/${areaId}/${index}`);
       });
 
       return await Promise.all(uploadPromises);
@@ -86,10 +96,11 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
   };
 
   const handleCreateNote = async () => {
+    if (saving.current || created) return;
+    saving.current = true;
     try {
       setLoading(true);
       setError(null);
-      const noteId = createUuid();
       const reminder = parseReminderInput({
         date: reminderDate,
         time: reminderTime,
@@ -104,35 +115,32 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
         imageUrls = await uploadImages(images);
       }
 
-      const { error } = await supabase.from('notes').insert([
-        {
-          id: noteId,
-          title,
-          content,
-          images: imageUrls,
-          area_id: areaId,
-          reminder_at: reminder.reminderAt,
-          ...(contractorAccess
-            ? {
-                note_source: 'contractor',
-                contractor_user_id: user?.id,
-                contractor_area_access_id: contractorAccess.id,
-                contractor_name:
-                  contractorAccess.contractor_name ||
-                  contractorAccess.contractor_email,
-                contractor_company: contractorAccess.company_name || null,
-              }
-            : {}),
-        },
-      ]);
-
-      if (error) throw error;
+      await saveDraftRecord('notes', {
+        id: noteId,
+        title,
+        content,
+        images: imageUrls,
+        area_id: areaId,
+        reminder_at: reminder.reminderAt,
+        ...(contractorAccess
+          ? {
+              note_source: 'contractor',
+              contractor_user_id: user?.id,
+              contractor_area_access_id: contractorAccess.id,
+              contractor_name:
+                contractorAccess.contractor_name ||
+                contractorAccess.contractor_email,
+              contractor_company: contractorAccess.company_name || null,
+            }
+          : {}),
+      });
 
       setCreated(true);
       setTimeout(() => navigation.replace('Note', { noteId }), 550);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
+      saving.current = false;
       setLoading(false);
     }
   };

@@ -68,7 +68,7 @@ const messyRecords = [
   'Paint colors buried in text threads',
   'Warranty photos lost in camera rolls',
   'Contractor details split across messages',
-  'Inspection PDFs detached from the property',
+  'Inspection follow-ups scattered across lists',
 ];
 
 const organizedRecords = [
@@ -82,7 +82,7 @@ const essentials = [
   {
     icon: 'home' as const,
     title: 'A durable property record',
-    body: 'Rooms, projects, repairs, photos, products, and documents stay connected to the place they belong.',
+    body: 'Rooms, projects, repairs, photos, and product details stay connected to the place they belong.',
     tone: 'orange' as const,
   },
   {
@@ -168,7 +168,9 @@ const AppPreview = () => (
 
       <View style={styles.deviceFooter}>
         <Icon name="download" size={15} color={marketingPalette.inkDark} />
-        <Text style={styles.deviceFooterText}>Exportable handoff packet</Text>
+        <Text style={styles.deviceFooterText}>
+          Records organized by property
+        </Text>
       </View>
     </View>
   </View>
@@ -290,23 +292,25 @@ export const MarketingScreen = () => {
           <View style={styles.heroActions}>
             <TouchableOpacity
               style={styles.primaryAction}
-              onPress={() => openUrl(testFlightUrl)}
+              onPress={() => openUrl(appUrl)}
             >
-              <Text style={styles.primaryActionText}>Try the beta</Text>
+              <Text style={styles.primaryActionText}>Try on the web</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.secondaryAction}
-              onPress={() => openUrl(appUrl)}
+              onPress={() => openUrl(testFlightUrl)}
             >
               <Text style={styles.secondaryActionText}>
-                Open existing invite
+                {isTestFlightConfigured
+                  ? 'Try on iPhone'
+                  : 'Request iPhone access'}
               </Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.heroNote}>
             {isTestFlightConfigured
-              ? 'iOS beta available through TestFlight. Designed for owners, landlords, remodels, rentals, and property handoffs.'
-              : 'Designed for owners, landlords, remodels, rentals, and property handoffs.'}
+              ? 'Use HomeDoc in your browser or on iPhone through TestFlight. Your account and property records work across both.'
+              : 'The web beta is open. Contact us for iPhone beta access.'}
           </Text>
         </View>
 
@@ -364,9 +368,9 @@ export const MarketingScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.betaButton}
-          onPress={() => openUrl(testFlightUrl)}
+          onPress={() => openUrl(appUrl)}
         >
-          <Text style={styles.betaButtonText}>Join on TestFlight</Text>
+          <Text style={styles.betaButtonText}>Start on the web</Text>
         </TouchableOpacity>
       </View>
 
@@ -517,7 +521,7 @@ const styles = StyleSheet.create({
   heroVisual: {
     flex: 0.92,
     alignItems: 'center',
-    minWidth: 320,
+    minWidth: 0,
   },
   deviceShadow: {
     width: '100%',
