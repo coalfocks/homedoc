@@ -189,6 +189,7 @@ const AuthScreen: React.FC = () => {
                   setConfirmationRequired(false);
                   setAuthMode('magic');
                 }}
+                containerStyle={styles.modeButtonContainer}
                 buttonStyle={[
                   styles.modeButton,
                   authMode === 'magic' && styles.modeButtonActive,
@@ -205,6 +206,7 @@ const AuthScreen: React.FC = () => {
                   setConfirmationRequired(false);
                   setAuthMode('password');
                 }}
+                containerStyle={styles.modeButtonContainer}
                 buttonStyle={[
                   styles.modeButton,
                   authMode === 'password' && styles.modeButtonActive,
@@ -468,6 +470,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(23, 59, 53, 0.07)',
     borderWidth: 1,
     borderColor: 'rgba(23, 59, 53, 0.14)',
+    marginTop: theme.spacing.md,
     marginBottom: theme.spacing.md,
   },
   betaNoticeTitle: {
@@ -517,6 +520,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.sm,
     padding: 4,
     marginBottom: 20,
+  },
+  modeButtonContainer: {
+    flex: 1,
   },
   modeButton: {
     flex: 1,

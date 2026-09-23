@@ -99,7 +99,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
               .eq('id', area.id);
 
             if (!deleteError) {
-              navigation.navigate('Main');
+              navigation.popToTop();
             }
           },
         },
@@ -271,17 +271,17 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                     ) : null}
                   </TouchableOpacity>
                 ))}
-              {todos.filter((t) => t.status !== 'done').length > 3 ? (
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('AreaTodos', { areaId: area.id })
-                  }
-                >
-                  <Text style={styles.viewAllLink}>View all todos →</Text>
-                </TouchableOpacity>
-              ) : null}
             </View>
           )}
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={{ minHeight: 44, justifyContent: 'center' }}
+            onPress={() =>
+              navigation.navigate('AreaTodos', { areaId: area.id })
+            }
+          >
+            <Text style={styles.viewAllLink}>View all todos & archive →</Text>
+          </TouchableOpacity>
         </>
       ) : null}
 

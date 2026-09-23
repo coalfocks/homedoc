@@ -19,27 +19,32 @@ import {
 import { theme } from '../utils/theme';
 import type { Todo } from '../lib/supabase';
 import { formatReminder } from '../utils/reminders';
+import {
+  getTodoArchiveCounts,
+  selectTodosForFilter,
+  type TodoListFilter,
+} from '../utils/todoArchive';
+import { TodoArchiveAction } from '../components/TodoArchiveAction';
 
 type TodosScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Main'>;
 };
 
-type StatusFilter = 'all' | 'pending' | 'in_progress' | 'done';
-
-const filterTabs: { label: string; value: StatusFilter }[] = [
+const filterTabs: { label: string; value: TodoListFilter }[] = [
   { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Done', value: 'done' },
+  { label: 'Archived', value: 'archived' },
 ];
 
 const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
-  const { todos, loading, error } = useTodosByProperty(user?.id);
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const { todos, loading, error, refetch } = useTodosByProperty(user?.id);
+  const [filter, setFilter] = useState<TodoListFilter>('all');
 
-  const filtered =
-    filter === 'all' ? todos : todos.filter((t) => t.status === filter);
+  const filtered = selectTodosForFilter(todos, filter);
+  const counts = getTodoArchiveCounts(todos);
 
   // Group by area name
   const grouped = filtered.reduce((acc: Record<string, Todo[]>, todo) => {
@@ -48,8 +53,6 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
     acc[areaName].push(todo);
     return acc;
   }, {});
-
-  const pendingCount = todos.filter((t) => t.status !== 'done').length;
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -60,8 +63,8 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
       />
 
       <View style={styles.metricRow}>
-        <MetricPill label="Total" value={todos.length.toString()} />
-        <MetricPill label="Pending" value={pendingCount.toString()} />
+        <MetricPill label="Total" value={counts.total.toString()} />
+        <MetricPill label="Pending" value={counts.pending.toString()} />
       </View>
 
       <StatusBanner
@@ -106,9 +109,11 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
           icon="todo"
           title="No todos found"
           description={
-            filter === 'all'
-              ? "Once you add todos inside an area, they'll show up here."
-              : `No ${filter.replace('_', ' ')} todos right now.`
+            filter === 'archived'
+              ? 'Archived todos will appear here.'
+              : filter === 'all'
+                ? "Once you add todos inside an area, they'll show up here."
+                : `No ${filter.replace('_', ' ')} todos right now.`
           }
         />
       ) : (
@@ -152,6 +157,16 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
                       {(todo as any).areas?.properties?.name || ''}
                     </Text>
                   </View>
+                  {filter === 'archived' ? (
+                    <View style={styles.archiveAction}>
+                      <TodoArchiveAction
+                        todoId={todo.id}
+                        archived
+                        compact
+                        onChanged={refetch}
+                      />
+                    </View>
+                  ) : null}
                 </TouchableOpacity>
               ))}
             </View>
@@ -271,6 +286,9 @@ const styles = StyleSheet.create({
     color: theme.colors.primary.main,
     fontSize: theme.typography.caption.fontSize,
     fontWeight: '600',
+  },
+  archiveAction: {
+    marginTop: theme.spacing.sm,
   },
 });
 

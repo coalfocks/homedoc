@@ -119,7 +119,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('Main'),
+            onPress: () => navigation.popToTop(),
           },
         ],
       );

@@ -48,7 +48,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const hasReachedFreePropertyLimit = !isPro && properties.length >= 1;
   const handleAddProperty = () => {
     if (hasReachedFreePropertyLimit) {
-      navigation.navigate('Upgrade');
+      navigation.getParent()?.navigate('Pro');
       return;
     }
 
@@ -105,7 +105,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           body="Your first property is free. Upgrade when HomeDoc becomes the operating system for more than one place."
           cta="See Pro"
           loading={checkoutLoading}
-          onPress={() => navigation.navigate('Upgrade')}
+          onPress={() => navigation.getParent()?.navigate('Pro')}
         />
       ) : null}
 

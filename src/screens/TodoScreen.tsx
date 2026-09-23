@@ -18,6 +18,8 @@ import {
 import { PlanPanel } from '../components/PlanPanel';
 import { theme } from '../utils/theme';
 import { formatReminder } from '../utils/reminders';
+import { isTodoArchived } from '../utils/todoArchive';
+import { TodoArchiveAction } from '../components/TodoArchiveAction';
 
 type TodoScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Todo'>;
@@ -82,6 +84,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   const areaName = todo.areas?.name || 'Unknown area';
   const propertyName = todo.areas?.properties?.name;
   const reminderLabel = formatReminder(todo.reminder_at);
+  const archived = isTodoArchived(todo);
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
@@ -107,28 +110,47 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         </View>
       ) : null}
 
-      {/* Quick status toggle */}
-      <View style={styles.statusRow}>
-        {statusOptions.map((opt) => (
-          <TouchableOpacity
-            key={opt.value}
-            style={[
-              styles.statusPill,
-              todo.status === opt.value && styles.statusPillActive,
-            ]}
-            onPress={() => quickStatusChange(opt.value)}
-          >
-            <Text
-              style={[
-                styles.statusPillText,
-                todo.status === opt.value && styles.statusPillTextActive,
-              ]}
-            >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {archived ? (
+        <View style={styles.archivePanel}>
+          <Text style={styles.archiveTitle}>Archived todo</Text>
+          <Text style={styles.archiveBody}>
+            Restore this todo to return it to its area and task lists.
+          </Text>
+          <TodoArchiveAction todoId={todo.id} archived onChanged={refetch} />
+        </View>
+      ) : (
+        <>
+          {/* Quick status toggle */}
+          <View style={styles.statusRow}>
+            {statusOptions.map((opt) => (
+              <TouchableOpacity
+                key={opt.value}
+                style={[
+                  styles.statusPill,
+                  todo.status === opt.value && styles.statusPillActive,
+                ]}
+                onPress={() => quickStatusChange(opt.value)}
+              >
+                <Text
+                  style={[
+                    styles.statusPillText,
+                    todo.status === opt.value && styles.statusPillTextActive,
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.archiveAction}>
+            <TodoArchiveAction
+              todoId={todo.id}
+              archived={false}
+              onChanged={refetch}
+            />
+          </View>
+        </>
+      )}
 
       {todo.description ? (
         <>
@@ -181,7 +203,7 @@ const styles = StyleSheet.create({
   statusRow: {
     flexDirection: 'row',
     gap: theme.spacing.xs,
-    marginBottom: theme.spacing.xl,
+    marginBottom: theme.spacing.md,
     flexWrap: 'wrap',
   },
   statusPill: {
@@ -203,6 +225,27 @@ const styles = StyleSheet.create({
   },
   statusPillTextActive: {
     color: theme.colors.primary.contrast,
+  },
+  archiveAction: {
+    marginBottom: theme.spacing.xl,
+  },
+  archivePanel: {
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.elevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border.subtle,
+    marginBottom: theme.spacing.xl,
+  },
+  archiveTitle: {
+    color: theme.colors.text.primary,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  archiveBody: {
+    color: theme.colors.text.secondary,
+    lineHeight: theme.typography.body2.lineHeight,
+    marginBottom: theme.spacing.md,
   },
   bodyCard: {
     padding: theme.spacing.md,
