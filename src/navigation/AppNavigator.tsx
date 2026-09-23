@@ -278,6 +278,7 @@ const MainTabs = () => {
           borderRightWidth: isWideWeb ? 1 : 0,
           height: isWideWeb ? '100%' : 68 + insets.bottom,
           width: isWideWeb ? 196 : undefined,
+          minWidth: isWideWeb ? 196 : undefined,
           paddingTop: isWideWeb ? 56 : 8,
           paddingBottom: isWideWeb ? theme.spacing.xl : insets.bottom,
           paddingHorizontal: isWideWeb ? theme.spacing.md : 0,

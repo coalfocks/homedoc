@@ -9,7 +9,8 @@ This pass retains the original visual design: colors, typography, shadows, cards
 
 - Magic Link and Password each fill half of the sign-in toggle.
 - The Free beta notice has its own top margin, including compact layouts without promotional cards.
-- AI planning has concise, provider-neutral permission text. Expandable information explains what is sent and identifies the provider. The permission gate and request allowance remain.
+- AI planning starts directly from its button, which describes its use of AI. The separate consent checkbox/disclosure is removed, and plan headings and tips use plain text instead of emojis.
+- The desktop sidebar is fixed at 196 px, overriding the navigation library’s wider default minimum.
 - The desktop sidebar and mobile tabs remain available inside records and forms. Each section keeps its own stack and form state when switching tabs.
 - Detail/edit screens have an explicit Back button. Record deletion and property transfer return to the current section's list. Upgrade links select the existing Beta/Pro tab.
 - Todos support Archive and Restore. All/Pending/In Progress/Done lists and active counts exclude archived records. Archived filters in global and area todo lists provide access and restore actions. The area page always links to its full todo list and archive, even when no active tasks remain. Archiving preserves status, details, reminders, and saved plans.
@@ -29,7 +30,7 @@ Live deployment is pending: the connected Supabase account lacks HomeDoc project
 3. Open an add/edit form, enter a draft, switch sections, and return. Use Back to return one screen.
 4. Open a todo and archive it. It disappears from active lists and area previews, and appears under Archived.
 5. Restore it from Archived; its previous status, reminder, and plan remain.
-6. Open AI planning and expand the information link to inspect data-use details.
+6. Open AI planning directly from the planning button; no separate consent step is required.
 
 ## Validation
 
@@ -37,7 +38,7 @@ Live deployment is pending: the connected Supabase account lacks HomeDoc project
 - All 22 unit tests pass (8 suites), including archive filtering, counts, mutation payloads, and error handling.
 - Both PGlite database suites pass, including archive/restore permissions and preservation of status, reminders, plans, and chat.
 - Expo exports pass for web, iOS, and Android.
-- Browser checks with isolated sample data cover login sizing/spacing, persistent mobile tabs and desktop sidebar, Back buttons, cross-tab form drafts, archive/restore, active counts, and AI disclosure text.
+- Browser checks with isolated sample data cover login sizing/spacing, persistent mobile tabs and desktop sidebar, Back buttons, cross-tab form drafts, archive/restore, active counts, and direct AI planning controls.
 - No real records were archived during QA. The live schema was checked read-only and does not yet contain `archived_at`.
 - Physical iPhone/Android testing is still required before release.
 

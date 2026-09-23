@@ -18,8 +18,6 @@ import {
 } from '../lib/supabase';
 import { theme } from '../utils/theme';
 import { UpgradeCard } from './UpgradeCard';
-import { AiConsentNotice } from './AiConsentNotice';
-import { useAuth } from '../contexts/AuthContext';
 
 type PlanPanelProps = {
   todoId: string;
@@ -44,23 +42,13 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   onPlanGenerated,
 }) => {
   const [phase, setPhase] = useState<Phase>(plan ? 'plan' : 'idle');
-  const { user } = useAuth();
-  const [consentFor, setConsentFor] = useState<string | null>(null);
-  const consentKey = `${user?.id}:${todoId}`;
-  const aiConsent = consentFor === consentKey;
-  const consentNotice = (
-    <AiConsentNotice
-      accepted={aiConsent}
-      onChange={(accepted) => setConsentFor(accepted ? consentKey : null)}
-    />
-  );
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const startPlanning = async () => {
-    if (!aiConsent || loading) return;
+    if (loading) return;
     if (!isPro && onUpgradePress) {
       onUpgradePress();
       return;
@@ -92,7 +80,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   };
 
   const generatePlan = async () => {
-    if (!aiConsent || loading) return;
+    if (loading) return;
     if (!isPro && onUpgradePress) {
       onUpgradePress();
       return;
@@ -148,8 +136,6 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
     return (
       <PlanDisplay
         todoId={todoId}
-        aiConsent={aiConsent}
-        consentNotice={consentNotice}
         plan={plan}
         planChat={planChat}
         onChatUpdated={onPlanGenerated}
@@ -199,12 +185,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
             </View>
           ))}
         </View>
-        {consentNotice}
-        <TouchableOpacity
-          disabled={!aiConsent}
-          style={[styles.primaryButton, !aiConsent && { opacity: 0.5 }]}
-          onPress={generatePlan}
-        >
+        <TouchableOpacity style={styles.primaryButton} onPress={generatePlan}>
           <RNEText style={styles.primaryButtonText}>Generate Plan</RNEText>
         </TouchableOpacity>
         <TouchableOpacity
@@ -232,19 +213,13 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
         />
       ) : (
         <View>
-          {consentNotice}
-          <TouchableOpacity
-            disabled={!aiConsent}
-            style={[styles.planButton, !aiConsent && { opacity: 0.5 }]}
-            onPress={startPlanning}
-          >
-            <RNEText style={styles.planButtonIcon}>✨</RNEText>
+          <TouchableOpacity style={styles.planButton} onPress={startPlanning}>
             <View style={styles.planButtonTextContainer}>
               <RNEText style={styles.planButtonTitle}>
                 Help me plan this
               </RNEText>
               <RNEText style={styles.planButtonSubtitle}>
-                Get a step-by-step plan with materials, costs, and tips
+                Use AI to create a plan with materials, costs, and tips
               </RNEText>
             </View>
           </TouchableOpacity>
@@ -260,19 +235,9 @@ const PlanDisplay: React.FC<{
   todoId: string;
   plan: GeneratedPlan;
   planChat: PlanChatMessage[] | null | undefined;
-  aiConsent: boolean;
-  consentNotice: React.ReactNode;
   onChatUpdated: () => void;
   onRegenerate: () => void;
-}> = ({
-  todoId,
-  plan,
-  planChat,
-  onChatUpdated,
-  onRegenerate,
-  aiConsent,
-  consentNotice,
-}) => {
+}> = ({ todoId, plan, planChat, onChatUpdated, onRegenerate }) => {
   const [messages, setMessages] = useState<PlanChatMessage[]>(planChat ?? []);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -290,7 +255,7 @@ const PlanDisplay: React.FC<{
 
   const sendMessage = async () => {
     const message = draft.trim();
-    if (!message || sending || !aiConsent) return;
+    if (!message || sending) return;
 
     const optimisticUserMessage: PlanChatMessage = {
       role: 'user',
@@ -345,7 +310,7 @@ const PlanDisplay: React.FC<{
   return (
     <View style={styles.planContainer}>
       <View style={styles.planHeader}>
-        <RNEText style={styles.heading}>📋 Your Plan</RNEText>
+        <RNEText style={styles.heading}>Your Plan</RNEText>
         <TouchableOpacity onPress={onRegenerate}>
           <RNEText style={styles.regenerateText}>Redo</RNEText>
         </TouchableOpacity>
@@ -386,7 +351,7 @@ const PlanDisplay: React.FC<{
       {/* Warnings */}
       {plan.warnings.length > 0 && (
         <View style={styles.section}>
-          <RNEText style={styles.sectionTitle}>⚠️ Warnings</RNEText>
+          <RNEText style={styles.sectionTitle}>Warnings</RNEText>
           {plan.warnings.map((w, i) => (
             <View key={i} style={styles.warningItem}>
               <RNEText style={styles.warningText}>• {w}</RNEText>
@@ -410,7 +375,7 @@ const PlanDisplay: React.FC<{
                   {step.description}
                 </RNEText>
                 {step.tips && (
-                  <RNEText style={styles.stepTip}>💡 {step.tips}</RNEText>
+                  <RNEText style={styles.stepTip}>Tip: {step.tips}</RNEText>
                 )}
                 {step.estimatedMinutes && (
                   <RNEText style={styles.stepMeta}>
@@ -539,7 +504,6 @@ const PlanDisplay: React.FC<{
 
         {chatError && <RNEText style={styles.errorText}>{chatError}</RNEText>}
 
-        {consentNotice}
         <View style={styles.chatInputRow}>
           <TextInput
             style={styles.chatInput}
@@ -555,11 +519,10 @@ const PlanDisplay: React.FC<{
           <TouchableOpacity
             style={[
               styles.sendButton,
-              (!draft.trim() || sending || !aiConsent) &&
-                styles.sendButtonDisabled,
+              (!draft.trim() || sending) && styles.sendButtonDisabled,
             ]}
             onPress={sendMessage}
-            disabled={!draft.trim() || sending || !aiConsent}
+            disabled={!draft.trim() || sending}
           >
             {sending ? (
               <ActivityIndicator
@@ -615,9 +578,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.primary.main,
     borderStyle: 'dashed',
-  },
-  planButtonIcon: {
-    fontSize: 28,
   },
   planButtonTextContainer: {
     flex: 1,
