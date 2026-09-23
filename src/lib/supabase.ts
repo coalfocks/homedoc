@@ -153,6 +153,7 @@ export type Todo = {
   priority: 'low' | 'medium' | 'high';
   area_id: string;
   reminder_at?: string | null;
+  archived_at?: string | null;
   created_at: string;
   updated_at: string;
   plan?: GeneratedPlan | null;

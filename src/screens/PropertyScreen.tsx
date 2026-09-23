@@ -80,7 +80,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
               .eq('id', property.id);
 
             if (!deleteError) {
-              navigation.navigate('Main');
+              navigation.popToTop();
             }
           },
         },
@@ -159,7 +159,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
       {!isPro ? (
         <TouchableOpacity
           style={styles.handoffCard}
-          onPress={() => navigation.navigate('Upgrade')}
+          onPress={() => navigation.getParent()?.navigate('Pro')}
           activeOpacity={0.86}
         >
           <View style={styles.handoffBadge}>

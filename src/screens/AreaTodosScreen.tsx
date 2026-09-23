@@ -18,19 +18,24 @@ import {
 } from '../components/AppChrome';
 import { Icon } from '../components/Icon';
 import { theme } from '../utils/theme';
+import {
+  getTodoArchiveCounts,
+  selectTodosForFilter,
+  type TodoListFilter,
+} from '../utils/todoArchive';
+import { TodoArchiveAction } from '../components/TodoArchiveAction';
 
 type AreaTodosScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'AreaTodos'>;
   route: RouteProp<RootStackParamList, 'AreaTodos'>;
 };
 
-type StatusFilter = 'all' | 'pending' | 'in_progress' | 'done';
-
-const filterTabs: { label: string; value: StatusFilter }[] = [
+const filterTabs: { label: string; value: TodoListFilter }[] = [
   { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Done', value: 'done' },
+  { label: 'Archived', value: 'archived' },
 ];
 
 const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
@@ -39,13 +44,13 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
 }) => {
   const { areaId } = route.params;
   const { area } = useArea(areaId);
-  const { todos, loading, error, refetch } = useTodos(areaId);
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const { todos, loading, error, refetch } = useTodos(areaId, {
+    includeArchived: true,
+  });
+  const [filter, setFilter] = useState<TodoListFilter>('all');
 
-  const filtered =
-    filter === 'all' ? todos : todos.filter((t) => t.status === filter);
-
-  const pendingCount = todos.filter((t) => t.status !== 'done').length;
+  const filtered = selectTodosForFilter(todos, filter);
+  const counts = getTodoArchiveCounts(todos);
 
   const toggleDone = async (todoId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done';
@@ -82,8 +87,8 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
       />
 
       <View style={styles.metricRow}>
-        <MetricPill label="Total" value={todos.length.toString()} />
-        <MetricPill label="Pending" value={pendingCount.toString()} />
+        <MetricPill label="Total" value={counts.total.toString()} />
+        <MetricPill label="Pending" value={counts.pending.toString()} />
       </View>
 
       {/* Filter tabs */}
@@ -126,10 +131,18 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
       ) : filtered.length === 0 ? (
         <EmptyStateCard
           icon="todo"
-          title="No todos here"
-          description="Add your first task — a repair, upgrade, or anything you need to get done in this area."
-          actionLabel="Add todo"
-          onActionPress={() => navigation.navigate('CreateTodo', { areaId })}
+          title={filter === 'archived' ? 'No archived todos' : 'No todos here'}
+          description={
+            filter === 'archived'
+              ? 'Archived todos will appear here.'
+              : 'Add your first task — a repair, upgrade, or anything you need to get done in this area.'
+          }
+          actionLabel={filter === 'archived' ? undefined : 'Add todo'}
+          onActionPress={
+            filter === 'archived'
+              ? undefined
+              : () => navigation.navigate('CreateTodo', { areaId })
+          }
         />
       ) : (
         <View style={styles.list}>
@@ -142,6 +155,7 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
                     todo.status === 'done' && styles.checkboxDone,
                   ]}
                   onPress={() => toggleDone(todo.id, todo.status)}
+                  disabled={filter === 'archived'}
                 >
                   {todo.status === 'done' ? (
                     <Icon
@@ -202,6 +216,16 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
                   </TouchableOpacity>
                 </View>
               </View>
+              {filter === 'archived' ? (
+                <View style={styles.archiveAction}>
+                  <TodoArchiveAction
+                    todoId={todo.id}
+                    archived
+                    compact
+                    onChanged={refetch}
+                  />
+                </View>
+              ) : null}
             </View>
           ))}
         </View>
@@ -317,6 +341,10 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: 'column',
     gap: theme.spacing.md,
+  },
+  archiveAction: {
+    marginTop: theme.spacing.sm,
+    marginLeft: 26 + theme.spacing.md,
   },
 });
 

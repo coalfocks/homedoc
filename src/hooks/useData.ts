@@ -164,7 +164,14 @@ export const useNote = (noteId: string | undefined) => {
 
 // ── Todo hooks ───────────────────────────────────────────────────
 
-export const useTodos = (areaId: string | undefined) => {
+type UseTodosOptions = {
+  includeArchived?: boolean;
+};
+
+export const useTodos = (
+  areaId: string | undefined,
+  options: UseTodosOptions = {},
+) => {
   const result = useSupabaseQuery<Todo[]>(
     () => {
       if (!areaId) return Promise.resolve({ data: [] as Todo[], error: null });
@@ -173,8 +180,12 @@ export const useTodos = (areaId: string | undefined) => {
     [areaId],
     [],
   );
+  const todos = options.includeArchived
+    ? result.data
+    : result.data.filter((todo) => !todo.archived_at);
+
   return {
-    todos: result.data,
+    todos,
     loading: result.loading,
     error: result.error,
     refetch: result.refetch,

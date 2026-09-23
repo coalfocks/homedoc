@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from '@rneui/themed';
 import { Icon } from '../components/Icon';
@@ -48,7 +49,6 @@ export type RootStackParamList = {
   CreateArea: { propertyId: string };
   CreateNote: { areaId: string };
   CreateTodo: { areaId?: string };
-  Upgrade: undefined;
   InviteContractor: { areaId: string };
 };
 
@@ -60,6 +60,7 @@ const sharedHeader = {
     backgroundColor: theme.colors.background.elevated,
   },
   headerShadowVisible: false,
+  headerTitleAlign: 'center' as const,
   headerTintColor: theme.colors.text.primary,
   headerTitleStyle: {
     fontSize: theme.typography.h4.fontSize,
@@ -69,162 +70,86 @@ const sharedHeader = {
   headerBackTitleVisible: false,
 };
 
-const MainTabs = () => {
-  const { user } = useAuth();
-  const { width } = useWindowDimensions();
-  const isWideWeb = Platform.OS === 'web' && width >= 900;
-
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarPosition: isWideWeb ? 'left' : 'bottom',
-        tabBarLabelPosition: isWideWeb ? 'beside-icon' : 'below-icon',
-        tabBarActiveTintColor: theme.colors.primary.dark,
-        tabBarInactiveTintColor: theme.colors.text.secondary,
-        tabBarActiveBackgroundColor: isWideWeb
-          ? 'rgba(23, 59, 53, 0.07)'
-          : 'transparent',
-        tabBarInactiveBackgroundColor: 'transparent',
-        tabBarLabelStyle: {
-          fontSize: isWideWeb ? 14 : 12,
-          fontWeight: isWideWeb ? '700' : '600',
-          marginBottom: isWideWeb ? 0 : 4,
-        },
-        tabBarStyle: {
-          backgroundColor: isWideWeb
-            ? theme.colors.neutral[100]
-            : 'rgba(255,255,255,0.95)',
-          borderTopColor: isWideWeb
-            ? 'transparent'
-            : theme.colors.border.subtle,
-          borderRightColor: isWideWeb ? 'rgba(191, 175, 158, 0.55)' : undefined,
-          borderRightWidth: isWideWeb ? 1 : 0,
-          height: isWideWeb ? '100%' : 68,
-          width: isWideWeb ? 196 : undefined,
-          paddingTop: isWideWeb ? 56 : 8,
-          paddingBottom: isWideWeb ? theme.spacing.xl : 0,
-          paddingHorizontal: isWideWeb ? theme.spacing.md : 0,
-        },
-        tabBarItemStyle: {
-          borderRadius: isWideWeb ? theme.borderRadius.sm : 0,
-          minHeight: isWideWeb ? 50 : undefined,
-          marginBottom: isWideWeb ? 6 : 0,
-          paddingHorizontal: isWideWeb ? theme.spacing.sm : 0,
-        },
-        tabBarIconStyle: {
-          marginRight: isWideWeb ? theme.spacing.xs : 0,
-        },
-        sceneStyle: {
-          backgroundColor: theme.colors.background.default,
-        },
-        headerTitle: '',
-        headerStyle: {
-          backgroundColor: theme.colors.background.default,
-        },
-        headerShadowVisible: false,
-        headerTitleStyle: {
-          fontSize: theme.typography.h4.fontSize,
-          fontWeight: '700',
-          color: theme.colors.text.primary,
-        },
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={() => openFeedbackEmail('Main navigation', user?.email)}
-            style={{
-              marginRight: theme.spacing.md,
-            }}
-          >
-            <Text
-              style={{
-                color: theme.colors.primary.main,
-                fontWeight: '700',
-              }}
-            >
-              Feedback
-            </Text>
-          </TouchableOpacity>
-        ),
-        headerLeft: () => (
-          <TouchableOpacity onPress={() => supabase.auth.signOut()}>
-            <Text
-              style={{
-                color: theme.colors.text.secondary,
-                fontWeight: '700',
-                marginLeft: isWideWeb ? theme.spacing.lg : theme.spacing.md,
-              }}
-            >
-              Sign out
-            </Text>
-          </TouchableOpacity>
-        ),
-      }}
-    >
-      <Tab.Screen
-        name="Properties"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: 'Homes',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Areas"
-        component={AreasScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="area" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notes"
-        component={NotesScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="note" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Todos"
-        component={TodosScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="todo" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Pro"
-        component={UpgradeScreen}
-        options={{
-          title: isFreeBeta ? 'Beta' : 'Pro',
-          tabBarLabel: isFreeBeta ? 'Beta' : 'Pro',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="priority" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
-
-export const AppNavigator = () => {
-  return (
-    <NavigationContainer>
+// Every section owns a stack, so opening a record keeps the main navigation visible.
+// Switching sections preserves the previous screen and unfinished forms in each stack.
+const createSectionStack = (Home: React.ComponentType<any>) => {
+  const SectionStack = () => {
+    const { user } = useAuth();
+    return (
       <Stack.Navigator
-        screenOptions={{
+        screenOptions={({ navigation, route }) => ({
           ...sharedHeader,
           animation: 'none',
           presentation: 'card',
-        }}
+          headerBackVisible: false,
+          headerLeft: () =>
+            route.name === 'Main' ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                onPress={() => supabase.auth.signOut()}
+                style={{
+                  minHeight: 44,
+                  justifyContent: 'center',
+                  paddingHorizontal: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: theme.colors.text.secondary,
+                    fontWeight: '700',
+                  }}
+                >
+                  Sign out
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Back"
+                onPress={() => {
+                  if (navigation.getState().index > 0) navigation.goBack();
+                  else navigation.navigate('Main');
+                }}
+                style={{
+                  minHeight: 44,
+                  justifyContent: 'center',
+                  paddingHorizontal: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: theme.colors.primary.main,
+                    fontWeight: '700',
+                    fontSize: 16,
+                  }}
+                >
+                  ‹ Back
+                </Text>
+              </TouchableOpacity>
+            ),
+          headerRight: () => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => openFeedbackEmail('Main navigation', user?.email)}
+              style={{
+                minHeight: 44,
+                justifyContent: 'center',
+                paddingHorizontal: 8,
+              }}
+            >
+              <Text
+                style={{ color: theme.colors.primary.main, fontWeight: '700' }}
+              >
+                Feedback
+              </Text>
+            </TouchableOpacity>
+          ),
+        })}
       >
         <Stack.Screen
           name="Main"
-          component={MainTabs}
-          options={{ headerShown: false }}
+          component={Home}
+          options={{ title: 'HomeDoc' }}
         />
         <Stack.Screen
           name="Property"
@@ -302,16 +227,129 @@ export const AppNavigator = () => {
           options={{ title: 'Add Todo' }}
         />
         <Stack.Screen
-          name="Upgrade"
-          component={UpgradeScreen}
-          options={{ title: isFreeBeta ? 'HomeDoc Beta' : 'HomeDoc Pro' }}
-        />
-        <Stack.Screen
           name="InviteContractor"
           component={InviteContractorScreen}
           options={{ title: 'Invite Contractor' }}
         />
       </Stack.Navigator>
-    </NavigationContainer>
+    );
+  };
+  return SectionStack;
+};
+
+const PropertiesStack = createSectionStack(HomeScreen);
+const AreasStack = createSectionStack(AreasScreen);
+const NotesStack = createSectionStack(NotesScreen);
+const TodosStack = createSectionStack(TodosScreen);
+const BetaStack = createSectionStack(UpgradeScreen);
+
+const MainTabs = () => {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isWideWeb = Platform.OS === 'web' && width >= 900;
+
+  return (
+    <Tab.Navigator
+      backBehavior="history"
+      screenOptions={{
+        headerShown: false,
+        tabBarHideOnKeyboard: true,
+        tabBarPosition: isWideWeb ? 'left' : 'bottom',
+        tabBarLabelPosition: isWideWeb ? 'beside-icon' : 'below-icon',
+        tabBarActiveTintColor: theme.colors.primary.dark,
+        tabBarInactiveTintColor: theme.colors.text.secondary,
+        tabBarActiveBackgroundColor: isWideWeb
+          ? 'rgba(23, 59, 53, 0.07)'
+          : 'transparent',
+        tabBarInactiveBackgroundColor: 'transparent',
+        tabBarLabelStyle: {
+          fontSize: isWideWeb ? 14 : 12,
+          fontWeight: isWideWeb ? '700' : '600',
+          marginBottom: isWideWeb ? 0 : 4,
+        },
+        tabBarStyle: {
+          backgroundColor: isWideWeb
+            ? theme.colors.neutral[100]
+            : 'rgba(255,255,255,0.95)',
+          borderTopColor: isWideWeb
+            ? 'transparent'
+            : theme.colors.border.subtle,
+          borderRightColor: isWideWeb ? 'rgba(191, 175, 158, 0.55)' : undefined,
+          borderRightWidth: isWideWeb ? 1 : 0,
+          height: isWideWeb ? '100%' : 68 + insets.bottom,
+          width: isWideWeb ? 196 : undefined,
+          paddingTop: isWideWeb ? 56 : 8,
+          paddingBottom: isWideWeb ? theme.spacing.xl : insets.bottom,
+          paddingHorizontal: isWideWeb ? theme.spacing.md : 0,
+        },
+        tabBarItemStyle: {
+          borderRadius: isWideWeb ? theme.borderRadius.sm : 0,
+          minHeight: isWideWeb ? 50 : undefined,
+          marginBottom: isWideWeb ? 6 : 0,
+          paddingHorizontal: isWideWeb ? theme.spacing.sm : 0,
+        },
+        tabBarIconStyle: {
+          marginRight: isWideWeb ? theme.spacing.xs : 0,
+        },
+        sceneStyle: {
+          backgroundColor: theme.colors.background.default,
+        },
+      }}
+    >
+      <Tab.Screen
+        name="Properties"
+        component={PropertiesStack}
+        options={{
+          tabBarLabel: 'Properties',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Areas"
+        component={AreasStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="area" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notes"
+        component={NotesStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="note" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Todos"
+        component={TodosStack}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="todo" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Pro"
+        component={BetaStack}
+        options={{
+          title: isFreeBeta ? 'Beta' : 'Pro',
+          tabBarLabel: isFreeBeta ? 'Beta' : 'Pro',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="priority" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 };
+
+export const AppNavigator = () => (
+  <NavigationContainer>
+    <MainTabs />
+  </NavigationContainer>
+);

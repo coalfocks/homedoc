@@ -16,7 +16,17 @@ const property = id(10),
   area = id(20),
   otherArea = id(21),
   note = id(30),
-  access = id(40);
+  access = id(40),
+  todo = id(50);
+const todoReminder = '2026-10-15T16:30:00.000Z';
+const todoPlan = {
+  summary: 'Replace the hallway fixture',
+  steps: [{ title: 'Turn off the breaker' }],
+};
+const todoPlanChat = [
+  { role: 'user', content: 'What tools should I have ready?' },
+  { role: 'assistant', content: 'Bring a voltage tester and screwdriver.' },
+];
 const asUser = async (user) => {
   await db.exec('reset role');
   await db.query("select set_config('request.jwt.claim.sub', $1, false)", [
@@ -68,6 +78,24 @@ try {
     'Owner note',
     area,
   ]);
+  await db.query(
+    `insert into todos(
+      id, title, description, status, priority, area_id,
+      reminder_at, plan, plan_status, plan_chat
+    ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [
+      todo,
+      'Replace hallway fixture',
+      'Keep the existing dimmer.',
+      'in_progress',
+      'high',
+      area,
+      todoReminder,
+      todoPlan,
+      'planned',
+      todoPlanChat,
+    ],
+  );
   for (const [user, role] of [
     [member, 'member'],
     [admin, 'admin'],
@@ -89,6 +117,38 @@ try {
   const visible = async (table) =>
     (await db.query(`select count(*)::int as count from ${table}`)).rows[0]
       .count;
+  const assertTodoPayload = (row, message) => {
+    assert.equal(row.status, 'in_progress', `${message}: status preserved`);
+    assert.equal(
+      new Date(row.reminder_at).toISOString(),
+      todoReminder,
+      `${message}: reminder preserved`,
+    );
+    assert.deepEqual(row.plan, todoPlan, `${message}: plan preserved`);
+    assert.deepEqual(
+      row.plan_chat,
+      todoPlanChat,
+      `${message}: plan chat preserved`,
+    );
+  };
+  const archivedAtColumn = (
+    await db.query(
+      `select data_type, is_nullable
+       from information_schema.columns
+       where table_schema = 'public'
+         and table_name = 'todos'
+         and column_name = 'archived_at'`,
+    )
+  ).rows;
+  assert.deepEqual(archivedAtColumn, [
+    { data_type: 'timestamp with time zone', is_nullable: 'YES' },
+  ]);
+  assert.equal(
+    (await db.query('select archived_at from todos where id=$1', [todo]))
+      .rows[0].archived_at,
+    null,
+    'new archived_at column defaults to active',
+  );
   for (const user of [owner, member, admin]) {
     await asUser(user);
     assert.equal(await visible('areas'), 2);
@@ -116,6 +176,43 @@ try {
       ).rows[0].count,
       1,
     );
+    const archivedTodo = (
+      await db.query(
+        `update todos
+         set archived_at = '2026-09-23T20:00:00Z'
+         where id=$1
+         returning archived_at, status, reminder_at, plan, plan_chat`,
+        [todo],
+      )
+    ).rows;
+    assert.equal(archivedTodo.length, 1, `${user} can archive todo`);
+    assert.ok(archivedTodo[0].archived_at, `${user}: archive timestamp set`);
+    assertTodoPayload(archivedTodo[0], `${user}: archive`);
+    assert.equal(
+      (
+        await db.query('select count(*)::int as count from todos where id=$1', [
+          todo,
+        ])
+      ).rows[0].count,
+      1,
+      `${user}: archived todo remains readable`,
+    );
+    const restoredTodo = (
+      await db.query(
+        `update todos
+         set archived_at = null
+         where id=$1
+         returning archived_at, status, reminder_at, plan, plan_chat`,
+        [todo],
+      )
+    ).rows;
+    assert.equal(restoredTodo.length, 1, `${user} can restore todo`);
+    assert.equal(
+      restoredTodo[0].archived_at,
+      null,
+      `${user}: archive timestamp cleared`,
+    );
+    assertTodoPayload(restoredTodo[0], `${user}: restore`);
   }
   await asUser(member);
   assert.equal(
@@ -182,6 +279,17 @@ try {
   );
   await asUser(contractor);
   assert.equal(await visible('areas'), 1, 'contractor sees assigned area only');
+  assert.equal(await visible('todos'), 0, 'contractor cannot read owner todos');
+  assert.equal(
+    (
+      await db.query(
+        'update todos set archived_at=now() where id=$1 returning id',
+        [todo],
+      )
+    ).rows.length,
+    0,
+    'contractor cannot archive owner todos',
+  );
   assert.equal(
     await visible('storage.objects'),
     1,
@@ -218,8 +326,24 @@ try {
     0,
   );
   await asUser(outsider);
-  for (const table of ['properties', 'areas', 'notes', 'storage.objects'])
+  for (const table of [
+    'properties',
+    'areas',
+    'notes',
+    'todos',
+    'storage.objects',
+  ])
     assert.equal(await visible(table), 0, `${table} private to unrelated user`);
+  assert.equal(
+    (
+      await db.query(
+        'update todos set archived_at=now() where id=$1 returning id',
+        [todo],
+      )
+    ).rows.length,
+    0,
+    'unrelated user cannot archive owner todos',
+  );
   await db.exec('reset role');
   await db.query(
     "update contractor_area_access set status='revoked' where id=$1",
@@ -231,24 +355,56 @@ try {
   );
   for (const user of [contractor, member]) {
     await asUser(user);
-    for (const table of ['properties', 'areas', 'notes', 'storage.objects'])
+    for (const table of [
+      'properties',
+      'areas',
+      'notes',
+      'todos',
+      'storage.objects',
+    ])
       assert.equal(
         await visible(table),
         0,
         `${table} inaccessible after revocation`,
       );
+    assert.equal(
+      (
+        await db.query(
+          'update todos set archived_at=now() where id=$1 returning id',
+          [todo],
+        )
+      ).rows.length,
+      0,
+      `${user} cannot archive todos after revocation`,
+    );
   }
   await db.exec('reset role');
   await db.query("select set_config('request.jwt.claim.sub', '', false)");
   await db.exec('set role anon');
-  for (const table of ['properties', 'areas', 'notes', 'storage.objects'])
+  for (const table of [
+    'properties',
+    'areas',
+    'notes',
+    'todos',
+    'storage.objects',
+  ])
     assert.equal(
       await visible(table),
       0,
       `${table} private to anonymous client`,
     );
+  assert.equal(
+    (
+      await db.query(
+        'update todos set archived_at=now() where id=$1 returning id',
+        [todo],
+      )
+    ).rows.length,
+    0,
+    'anonymous client cannot archive owner todos',
+  );
   console.log(
-    'Record permissions passed: owners, members, admins, contractors, unrelated/anonymous users, revocation, scoped images, and retry upserts.',
+    'Record permissions passed: owners, members, admins, contractors, unrelated/anonymous users, revocation, scoped images, retry upserts, and todo archive/restore.',
   );
 } finally {
   await db.close();
