@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import OpenAI from 'https://esm.sh/openai@4.55.0';
+import OpenAI from 'https://esm.sh/openai@7.32.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -76,6 +76,9 @@ const freeMonthlyAiCallLimit = 20;
 const proMonthlyAiCallLimit = 300;
 const maxAnswersPayloadLength = 6000;
 const maxChatMessageLength = 2000;
+// Match the deployed model. Disable reasoning so the bounded completion budget
+// is available for the questions, plan JSON, or chat response.
+const aiModel = 'gpt-5.6-luna';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -166,7 +169,7 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
         .eq('id', todoId);
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
@@ -177,8 +180,8 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
             content: context,
           },
         ],
-        temperature: 0.7,
-        max_tokens: 500,
+        reasoning_effort: 'none',
+        max_completion_tokens: 500,
         response_format: { type: 'json_object' },
       });
 
@@ -219,7 +222,7 @@ Location: ${property?.city || ''}, ${property?.state || ''}`;
       if (quotaError) return quotaError;
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
@@ -246,8 +249,8 @@ Be specific, practical, and realistic. Prices should reflect US averages. When a
             content: `${context}\n\nUser answers:\n${answersText}`,
           },
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
+        reasoning_effort: 'none',
+        max_completion_tokens: 2000,
         response_format: { type: 'json_object' },
       });
 
@@ -300,7 +303,7 @@ Be specific, practical, and realistic. Prices should reflect US averages. When a
       const trimmedChat = existingChat.slice(-12);
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: aiModel,
         messages: [
           {
             role: 'system',
@@ -322,8 +325,8 @@ New question:
 ${message}`,
           },
         ],
-        temperature: 0.4,
-        max_tokens: 700,
+        reasoning_effort: 'none',
+        max_completion_tokens: 700,
       });
 
       const assistantText =
