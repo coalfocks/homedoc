@@ -166,7 +166,7 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.label}>Reminder (optional)</Text>
+            <Text style={styles.label}>Due date and time (optional)</Text>
             <View style={styles.reminderRow}>
               <Input
                 value={reminderDate}
@@ -190,7 +190,8 @@ const CreateTodoScreen: React.FC<CreateTodoScreenProps> = ({
               />
             </View>
             <Text style={styles.helperText}>
-              Leave time blank to remind at 9:00 AM.
+              Saved with this todo; HomeDoc does not send a notification. Leave
+              time blank to use 9:00 AM.
             </Text>
           </View>
 

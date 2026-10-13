@@ -267,7 +267,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
                     ) : null}
                     {todo.reminder_at ? (
                       <Text style={styles.reminderMeta}>
-                        Reminder: {formatReminder(todo.reminder_at)}
+                        Due date: {formatReminder(todo.reminder_at)}
                       </Text>
                     ) : null}
                   </TouchableOpacity>
@@ -351,7 +351,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
               </Text>
               {item.reminder_at ? (
                 <Text style={styles.reminderMeta}>
-                  Reminder: {formatReminder(item.reminder_at)}
+                  Due date: {formatReminder(item.reminder_at)}
                 </Text>
               ) : null}
               <Text style={styles.cardDate}>{formatDate(item.created_at)}</Text>

@@ -1,0 +1,288 @@
+name: Repair iOS TestFlight submission
+
+on:
+  workflow_dispatch:
+    inputs:
+      eas_build_id:
+        description: Existing EAS iOS build ID (must already be FINISHED)
+        required: true
+        type: string
+      app_version:
+        description: Expected CFBundleShortVersionString
+        required: true
+        type: string
+      build_number:
+        description: Expected CFBundleVersion
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repair-ios-submission
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      EAS_BUILD_ID: ${{ inputs.eas_build_id }}
+      EXPECTED_APP_VERSION: ${{ inputs.app_version }}
+      EXPECTED_BUILD_NUMBER: ${{ inputs.build_number }}
+      ASC_APP_ID: '6779373725'
+      EXPECTED_BUNDLE_ID: com.coalfocks.homedoc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install EAS CLI
+        run: npm install --global eas-cli
+
+      - name: Check Apple state and fetch the existing IPA
+        id: check
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in EAS_BUILD_ID EXPECTED_APP_VERSION EXPECTED_BUILD_NUMBER EXPO_TOKEN ASC_API_KEY_P8 ASC_KEY_ID ASC_ISSUER_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "Required workflow input or configured GitHub secret is empty: $name"
+              exit 1
+            fi
+          done
+          work="$RUNNER_TEMP/homedoc-ios-repair"
+          mkdir -m 700 "$work"
+          key_dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$key_dir"
+          chmod 700 "$HOME/.appstoreconnect" "$key_dir"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_API_KEY_P8" > "$key_path"
+          chmod 600 "$key_path"
+          # Keep EAS JSON (which contains a temporary signed artifact URL) off the log.
+          if ! eas build:view "$EAS_BUILD_ID" --json > "$work/eas-build.json" 2>/dev/null; then
+            echo 'Could not retrieve the requested EAS build.'
+            exit 1
+          fi
+          node - "$work/eas-build.json" "$work/build-meta.json" <<'NODE'
+          const fs = require('fs');
+          const [input, output] = process.argv.slice(2);
+          const b = JSON.parse(fs.readFileSync(input, 'utf8'));
+          const meta = {
+            id: b.id,
+            status: b.status,
+            platform: b.platform,
+            appIdentifier: b.appIdentifier,
+            appVersion: b.appVersion,
+            appBuildVersion: b.appBuildVersion,
+            applicationArchiveUrl: b.artifacts?.applicationArchiveUrl,
+            buildUrl: b.artifacts?.buildUrl,
+          };
+          if (meta.status !== 'FINISHED' || meta.platform !== 'IOS') {
+            throw new Error('Requested EAS build is not a FINISHED iOS build.');
+          }
+          if (meta.id !== process.env.EAS_BUILD_ID) throw new Error('EAS returned a different build ID.');
+          if (meta.appIdentifier && meta.appIdentifier !== process.env.EXPECTED_BUNDLE_ID) throw new Error('EAS bundle identifier does not match the expected app.');
+          if (meta.appVersion !== process.env.EXPECTED_APP_VERSION) throw new Error('EAS app version does not match the requested version.');
+          if (String(meta.appBuildVersion) !== process.env.EXPECTED_BUILD_NUMBER) throw new Error('EAS build number does not match the requested build number.');
+          if (!meta.applicationArchiveUrl && !meta.buildUrl) throw new Error('EAS build has no IPA artifact URL.');
+          fs.writeFileSync(output, JSON.stringify(meta));
+          NODE
+          rm -f "$work/eas-build.json"
+
+          # Verify the configured App Store Connect app before checking for this build.
+          node - "$work/build-meta.json" "$work/state.json" <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const meta = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const b64url = value => Buffer.from(value).toString('base64url');
+          const now = Math.floor(Date.now() / 1000);
+          const header = b64url(JSON.stringify({ alg: 'ES256', kid: process.env.ASC_KEY_ID, typ: 'JWT' }));
+          const payload = b64url(JSON.stringify({ iss: process.env.ASC_ISSUER_ID, iat: now, exp: now + 900, aud: 'appstoreconnect-v1' }));
+          const unsigned = `${header}.${payload}`;
+          const signature = crypto.sign('sha256', Buffer.from(unsigned), { key: process.env.ASC_API_KEY_P8, dsaEncoding: 'ieee-p1363' }).toString('base64url');
+          const token = `${unsigned}.${signature}`;
+          async function apple(path) {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1${path}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error(`App Store Connect API returned HTTP ${res.status}.`);
+            return res.json();
+          }
+          (async () => {
+            const app = await apple(`/apps/${encodeURIComponent(process.env.ASC_APP_ID)}`);
+            if (app.data?.attributes?.bundleId !== process.env.EXPECTED_BUNDLE_ID) throw new Error('App Store Connect app bundle identifier did not match.');
+            const params = new URLSearchParams({ 'filter[app]': process.env.ASC_APP_ID, 'filter[version]': process.env.EXPECTED_BUILD_NUMBER, include: 'preReleaseVersion', limit: '200' });
+            const result = await apple(`/builds?${params}`);
+            const prereleases = new Map((result.included || []).filter(x => x.type === 'preReleaseVersions').map(x => [x.id, x.attributes?.version]));
+            const candidates = (result.data || []).filter(x => x.attributes?.version === process.env.EXPECTED_BUILD_NUMBER);
+            for (const candidate of candidates) {
+              const preReleaseId = candidate.relationships?.preReleaseVersion?.data?.id;
+              if (!preReleaseId || !prereleases.has(preReleaseId)) throw new Error('App Store Connect omitted the pre-release version for a matching build number; refusing to assume the build is absent.');
+            }
+            const matches = candidates.filter(x => prereleases.get(x.relationships.preReleaseVersion.data.id) === process.env.EXPECTED_APP_VERSION);
+            if (matches.length > 1) throw new Error('App Store Connect returned multiple exact matches; refusing to upload.');
+            const state = matches[0] ? { found: true, processingState: matches[0].attributes.processingState, id: matches[0].id } : { found: false };
+            fs.writeFileSync(process.argv[3], JSON.stringify(state));
+          })().catch(e => { console.error(e.message); process.exit(1); });
+          NODE
+
+          state=$(node -e "const s=require('$work/state.json');process.stdout.write(s.found?s.processingState:'ABSENT')")
+          if [ "$state" = VALID ]; then
+            echo 'App Store Connect already has this exact build in VALID state; no upload was made.'
+            echo 'skip_upload=true' >> "$GITHUB_OUTPUT"
+            rm -rf "$work"
+            rm -f "$key_path"
+            exit 0
+          fi
+          if [ "$state" = PROCESSING ]; then
+            echo 'App Store Connect already has this exact build processing; no duplicate upload will be made.'
+            echo 'skip_upload=false' >> "$GITHUB_OUTPUT"
+            echo 'already_processing=true' >> "$GITHUB_OUTPUT"
+            echo "$work" > "$RUNNER_TEMP/homedoc-repair-workdir"
+            exit 0
+          fi
+          if [ "$state" != ABSENT ]; then
+            echo "App Store Connect has this build in terminal state $state; refusing a duplicate upload."
+            exit 1
+          fi
+
+          node - "$work/build-meta.json" "$work/HomeDoc.ipa" <<'NODE'
+          const fs = require('fs');
+          const meta = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const url = meta.applicationArchiveUrl || meta.buildUrl;
+          (async () => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`EAS artifact download returned HTTP ${response.status}.`);
+            await fs.promises.writeFile(process.argv[3], Buffer.from(await response.arrayBuffer()), { mode: 0o600 });
+          })().catch(e => { console.error(e.message); process.exit(1); });
+          NODE
+          rm -f "$work/build-meta.json" "$work/state.json"
+          echo "$work" > "$RUNNER_TEMP/homedoc-repair-workdir"
+          echo 'skip_upload=false' >> "$GITHUB_OUTPUT"
+
+      - name: Verify IPA metadata and upload if absent
+        if: steps.check.outputs.skip_upload != 'true' && steps.check.outputs.already_processing != 'true'
+        id: upload
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          work=$(cat "$RUNNER_TEMP/homedoc-repair-workdir")
+          plist="$work/Info.plist"
+          unzip -p "$work/HomeDoc.ipa" 'Payload/*.app/Info.plist' > "$plist"
+          bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")
+          app_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")
+          build_number=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")
+          if [ "$bundle_id" != "$EXPECTED_BUNDLE_ID" ] || [ "$app_version" != "$EXPECTED_APP_VERSION" ] || [ "$build_number" != "$EXPECTED_BUILD_NUMBER" ]; then
+            echo 'Downloaded IPA bundle ID, app version, or build number did not match the required values.'
+            exit 1
+          fi
+          # Close the gap between the initial check and upload to avoid a duplicate if
+          # App Store Connect registered another submission while the IPA downloaded.
+          node - "$work/preupload-state.json" <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const b64url = value => Buffer.from(value).toString('base64url');
+          const now = Math.floor(Date.now() / 1000);
+          const head = b64url(JSON.stringify({ alg: 'ES256', kid: process.env.ASC_KEY_ID, typ: 'JWT' }));
+          const body = b64url(JSON.stringify({ iss: process.env.ASC_ISSUER_ID, iat: now, exp: now + 900, aud: 'appstoreconnect-v1' }));
+          const unsigned = `${head}.${body}`;
+          const token = `${unsigned}.${crypto.sign('sha256', Buffer.from(unsigned), { key: process.env.ASC_API_KEY_P8, dsaEncoding: 'ieee-p1363' }).toString('base64url')}`;
+          const params = new URLSearchParams({ 'filter[app]': process.env.ASC_APP_ID, 'filter[version]': process.env.EXPECTED_BUILD_NUMBER, include: 'preReleaseVersion', limit: '200' });
+          (async () => {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1/builds?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error(`App Store Connect API returned HTTP ${res.status}.`);
+            const data = await res.json();
+            const pre = new Map((data.included || []).filter(x => x.type === 'preReleaseVersions').map(x => [x.id, x.attributes?.version]));
+            const candidates = (data.data || []).filter(x => x.attributes?.version === process.env.EXPECTED_BUILD_NUMBER);
+            for (const candidate of candidates) {
+              const preReleaseId = candidate.relationships?.preReleaseVersion?.data?.id;
+              if (!preReleaseId || !pre.has(preReleaseId)) throw new Error('App Store Connect omitted the pre-release version for a matching build number; refusing to assume the build is absent.');
+            }
+            const exact = candidates.filter(x => pre.get(x.relationships.preReleaseVersion.data.id) === process.env.EXPECTED_APP_VERSION);
+            if (exact.length > 1) throw new Error('Multiple exact App Store Connect build matches found.');
+            fs.writeFileSync(process.argv[2], JSON.stringify({ state: exact[0]?.attributes?.processingState || 'ABSENT' }));
+          })().catch(e => { console.error(e.message); process.exit(1); });
+          NODE
+          pre_state=$(node -e "process.stdout.write(require('$work/preupload-state.json').state)")
+          if [ "$pre_state" = VALID ] || [ "$pre_state" = PROCESSING ]; then
+            echo "App Store Connect now has this exact build in $pre_state state; skipping upload."
+            echo 'upload_result=existing' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$pre_state" != ABSENT ]; then
+            echo "App Store Connect has this build in terminal state $pre_state; refusing a duplicate upload."
+            exit 1
+          fi
+          echo 'Submitting the validated existing IPA to App Store Connect.'
+          xcrun altool --upload-app --type ios --file "$work/HomeDoc.ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" > "$work/altool.log" 2>&1 || {
+            echo 'App Store Connect rejected the IPA upload; detailed output was withheld to avoid exposing credentials or signed URLs.'
+            exit 1
+          }
+          echo 'upload_result=submitted' >> "$GITHUB_OUTPUT"
+
+      - name: Confirm App Store Connect processing
+        if: steps.check.outputs.skip_upload != 'true'
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          work=$(cat "$RUNNER_TEMP/homedoc-repair-workdir")
+          trap 'rm -rf "$work"; rm -f "$RUNNER_TEMP/homedoc-repair-workdir" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"' EXIT
+          node - "$work" <<'NODE'
+          const crypto = require('crypto');
+          const work = process.argv[2];
+          const b64url = value => Buffer.from(value).toString('base64url');
+          const now = Math.floor(Date.now() / 1000);
+          const head = b64url(JSON.stringify({ alg: 'ES256', kid: process.env.ASC_KEY_ID, typ: 'JWT' }));
+          const body = b64url(JSON.stringify({ iss: process.env.ASC_ISSUER_ID, iat: now, exp: now + 900, aud: 'appstoreconnect-v1' }));
+          const unsigned = `${head}.${body}`;
+          const token = `${unsigned}.${crypto.sign('sha256', Buffer.from(unsigned), { key: process.env.ASC_API_KEY_P8, dsaEncoding: 'ieee-p1363' }).toString('base64url')}`;
+          const params = new URLSearchParams({ 'filter[app]': process.env.ASC_APP_ID, 'filter[version]': process.env.EXPECTED_BUILD_NUMBER, include: 'preReleaseVersion', limit: '200' });
+          async function state() {
+            const res = await fetch(`https://api.appstoreconnect.apple.com/v1/builds?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error(`App Store Connect API returned HTTP ${res.status}.`);
+            const data = await res.json();
+            const pre = new Map((data.included || []).filter(x => x.type === 'preReleaseVersions').map(x => [x.id, x.attributes?.version]));
+            const candidates = (data.data || []).filter(x => x.attributes?.version === process.env.EXPECTED_BUILD_NUMBER);
+            for (const candidate of candidates) {
+              const preReleaseId = candidate.relationships?.preReleaseVersion?.data?.id;
+              if (!preReleaseId || !pre.has(preReleaseId)) throw new Error('App Store Connect omitted the pre-release version for a matching build number; refusing to assume the build is absent.');
+            }
+            const exact = candidates.filter(x => pre.get(x.relationships.preReleaseVersion.data.id) === process.env.EXPECTED_APP_VERSION);
+            if (exact.length > 1) throw new Error('Multiple exact App Store Connect build matches found.');
+            return exact[0]?.attributes?.processingState || 'ABSENT';
+          }
+          (async () => {
+            const deadline = Date.now() + 12 * 60 * 1000;
+            let last = '';
+            while (Date.now() < deadline) {
+              const current = await state();
+              if (current !== last) { console.log(`App Store Connect build state: ${current}`); last = current; }
+              if (current === 'VALID') { console.log('App Store Connect accepted and processed the build.'); return; }
+              if (['INVALID', 'FAILED'].includes(current)) throw new Error(`App Store Connect processing ended in ${current}.`);
+              await new Promise(resolve => setTimeout(resolve, 30000));
+            }
+            throw new Error(`App Store Connect processing was not confirmed within 12 minutes; last state: ${last || 'ABSENT'}.`);
+          })().catch(e => { console.error(e.message); process.exit(1); });
+          NODE
+
+      - name: Clean up temporary credentials and files
+        if: always()
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/homedoc-ios-repair"
+          rm -f "$RUNNER_TEMP/homedoc-repair-workdir"
+          rm -f "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"

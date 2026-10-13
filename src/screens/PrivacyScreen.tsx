@@ -64,11 +64,12 @@ export const PrivacyContent = () => (
       <Paragraph>
         HomeDoc stores the information you enter to organize a property,
         including its name and address, areas and descriptions, notes, photos,
-        maintenance tasks, task status, and optional reminder dates. Records can
-        also include AI-generated plans and the follow-up messages you choose to
-        send. If you share or hand off a property, HomeDoc also stores account
-        emails and roles needed to manage that access, including contractor
-        contact details you provide.
+        maintenance tasks, task status, and optional due dates and times saved
+        with those records. HomeDoc does not currently send notifications for
+        due dates. Records can also include AI-generated plans and the follow-up
+        messages you choose to send. If you share or hand off a property,
+        HomeDoc also stores account emails and roles needed to manage that
+        access, including contractor contact details you provide.
       </Paragraph>
       <Paragraph>
         To create and secure an account, HomeDoc processes your email address,

@@ -44,7 +44,7 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
       <PageHeader
         eyebrow="NOTE LIBRARY"
         title="Notes"
-        subtitle="Maintenance records, measurements, reminders, and details worth keeping out of texts and camera rolls."
+        subtitle="Maintenance records, measurements, due dates, and details worth keeping out of texts and camera rolls."
       />
 
       <View style={styles.metricRow}>
@@ -110,7 +110,7 @@ const NotesScreen: React.FC<NotesScreenProps> = ({ navigation }) => {
                   ) : null}
                   {item.reminder_at ? (
                     <Text style={styles.reminderMeta}>
-                      Reminder: {formatReminder(item.reminder_at)}
+                      Due date: {formatReminder(item.reminder_at)}
                     </Text>
                   ) : null}
                 </View>

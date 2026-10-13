@@ -74,9 +74,9 @@ const NoteScreen: React.FC<NoteScreenProps> = ({ navigation, route }) => {
 
       {reminderLabel ? (
         <>
-          <SectionTitle title="Reminder" />
+          <SectionTitle title="Due date" />
           <View style={styles.reminderCard}>
-            <Text style={styles.reminderLabel}>Reminder set for</Text>
+            <Text style={styles.reminderLabel}>Saved due date</Text>
             <Text style={styles.reminderValue}>{reminderLabel}</Text>
           </View>
         </>
