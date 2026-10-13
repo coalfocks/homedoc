@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Alert,
-  Keyboard,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Keyboard, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Text, Button, Input } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -15,6 +8,7 @@ import { useProperty, useAreas } from '../hooks/useData';
 import { formatAddressBlock } from '../utils/address';
 import { supabase } from '../lib/supabase';
 import { theme } from '../utils/theme';
+import { showDialog } from '../utils/dialogs';
 
 type TransferPropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'TransferProperty'>;
@@ -76,7 +70,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
       return;
     }
 
-    Alert.alert(
+    showDialog(
       isTransfer ? 'Transfer property?' : 'Share property?',
       isTransfer
         ? `This will move "${property.name}" into ${recipientEmail}'s household. Everyone in their household will get access, and your household will lose access unless they share it back.`
@@ -111,7 +105,7 @@ const TransferPropertyScreen: React.FC<TransferPropertyScreenProps> = ({
       if (transferError) throw transferError;
       const transfer = data as TransferResponse | null;
 
-      Alert.alert(
+      showDialog(
         isTransfer ? 'Property transferred' : 'Property shared',
         isTransfer
           ? `${transfer?.propertyName || property.name} is now owned by ${transfer?.recipientEmail || recipientEmail}'s household.`

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -25,6 +25,7 @@ import {
 import { InspectableImage } from '../components/InspectableImage';
 import { theme } from '../utils/theme';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
+import { showDialog } from '../utils/dialogs';
 import { formatReminder } from '../utils/reminders';
 
 type AreaScreenProps = {
@@ -84,7 +85,7 @@ const AreaScreen: React.FC<AreaScreenProps> = ({ navigation, route }) => {
   const canManageArea = !currentContractorAccess;
 
   const confirmDeleteArea = () => {
-    Alert.alert(
+    showDialog(
       'Delete area',
       `Delete "${area.name}" and every note inside it? This cannot be undone.`,
       [

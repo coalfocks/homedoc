@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import SplashScreen from './src/screens/SplashScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import { MarketingScreen } from './src/screens/MarketingScreen';
+import PrivacyScreen from './src/screens/PrivacyScreen';
 import { theme } from './src/utils/theme';
 import { isSupabaseConfigured } from './src/lib/supabase';
 
@@ -223,6 +224,21 @@ const AppContent = () => {
 
 const App = () => {
   const [isSplashComplete, setIsSplashComplete] = useState(false);
+
+  if (
+    Platform.OS === 'web' &&
+    typeof window !== 'undefined' &&
+    /^\/privacy\/?$/.test(window.location.pathname)
+  ) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <ThemeProvider theme={theme}>
+          <PrivacyScreen onClose={() => window.location.assign('/')} />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    );
+  }
 
   if (isMarketingHost()) {
     return (

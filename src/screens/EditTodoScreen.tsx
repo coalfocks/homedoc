@@ -6,7 +6,6 @@ import {
   Keyboard,
   Platform,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Text, Input, Button } from '@rneui/themed';
@@ -18,6 +17,7 @@ import { theme } from '../utils/theme';
 import { useTodo, useAllAreas } from '../hooks/useData';
 import { useAuth } from '../contexts/AuthContext';
 import { parseReminderInput, splitReminderAt } from '../utils/reminders';
+import { showDialog } from '../utils/dialogs';
 
 type EditTodoScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'EditTodo'>;
@@ -104,7 +104,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete todo', `Delete "${todo?.title}"?`, [
+    showDialog('Delete todo', `Delete "${todo?.title}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
