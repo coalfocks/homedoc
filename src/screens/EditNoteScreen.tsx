@@ -181,7 +181,7 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
           labelStyle={styles.label}
         />
         <View style={styles.reminderSection}>
-          <Text style={styles.sectionTitle}>Reminder</Text>
+          <Text style={styles.sectionTitle}>Due date and time</Text>
           <View style={styles.reminderRow}>
             <Input
               value={reminderDate}
@@ -205,7 +205,9 @@ const EditNoteScreen: React.FC<EditNoteScreenProps> = ({
             />
           </View>
           <Text style={styles.helperText}>
-            Clear both fields to remove the reminder.
+            This date and time is saved with the note; HomeDoc does not send a
+            notification. Leave time blank to use 9:00 AM. Clear both fields to
+            remove the due date.
           </Text>
         </View>
         <View style={styles.imageSection}>

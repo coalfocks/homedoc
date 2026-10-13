@@ -33,7 +33,7 @@ export const parseReminderInput = ({
 
   const dateMatch = cleanDate.match(DATE_PATTERN);
   if (!dateMatch) {
-    return { reminderAt: null, error: 'Use reminder date format YYYY-MM-DD.' };
+    return { reminderAt: null, error: 'Use due date format YYYY-MM-DD.' };
   }
 
   const [, yearValue, monthValue, dayValue] = dateMatch;
@@ -47,7 +47,7 @@ export const parseReminderInput = ({
   if (cleanTime) {
     const timeMatch = cleanTime.match(TIME_PATTERN);
     if (!timeMatch) {
-      return { reminderAt: null, error: 'Use reminder time format HH:MM.' };
+      return { reminderAt: null, error: 'Use due time format HH:MM.' };
     }
 
     hour = Number(timeMatch[1]);
@@ -55,7 +55,7 @@ export const parseReminderInput = ({
   }
 
   if (hour > 23 || minute > 59) {
-    return { reminderAt: null, error: 'Use a valid reminder time.' };
+    return { reminderAt: null, error: 'Use a valid due time.' };
   }
 
   const reminderDate = new Date(year, month - 1, day, hour, minute, 0, 0);
@@ -64,7 +64,7 @@ export const parseReminderInput = ({
     reminderDate.getMonth() !== month - 1 ||
     reminderDate.getDate() !== day
   ) {
-    return { reminderAt: null, error: 'Use a valid reminder date.' };
+    return { reminderAt: null, error: 'Use a valid due date.' };
   }
 
   return { reminderAt: reminderDate.toISOString(), error: null };

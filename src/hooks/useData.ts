@@ -48,12 +48,29 @@ function useSupabaseQuery<T>(
 
 // ── Collection hooks ──────────────────────────────────────────────
 
+type PropertyWithAreaCount = Property & { area_count: number };
+
 export const useProperties = (userId: string | undefined) => {
-  const result = useSupabaseQuery<Property[]>(
-    () => {
-      if (!userId)
-        return Promise.resolve({ data: [] as Property[], error: null });
-      return supabase.from('properties').select('*').order('created_at');
+  const result = useSupabaseQuery<PropertyWithAreaCount[]>(
+    async () => {
+      if (!userId) return { data: [] as PropertyWithAreaCount[], error: null };
+
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*, area_counts:areas(count)')
+        .order('created_at');
+      if (error) return { data: null, error };
+
+      const properties = (data ?? []).map(
+        (property: Property & { area_counts?: { count: number }[] }) => {
+          const { area_counts, ...record } = property;
+          const areaCount = Array.isArray(area_counts)
+            ? (area_counts[0]?.count ?? 0)
+            : 0;
+          return { ...record, area_count: areaCount };
+        },
+      );
+      return { data: properties, error: null };
     },
     [userId],
     [],

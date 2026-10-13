@@ -42,7 +42,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   );
 
   const totalAreas = properties.reduce(
-    (sum, property: any) => sum + (property.area_count ?? 0),
+    (sum, property) => sum + (property.area_count ?? 0),
     0,
   );
   const hasReachedFreePropertyLimit = !isPro && properties.length >= 1;

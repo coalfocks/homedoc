@@ -220,7 +220,7 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
           />
 
           <View style={styles.reminderSection}>
-            <Text style={styles.sectionTitle}>Reminder</Text>
+            <Text style={styles.sectionTitle}>Due date and time</Text>
             <View style={styles.reminderRow}>
               <Input
                 value={reminderDate}
@@ -244,7 +244,8 @@ const CreateNoteScreen: React.FC<CreateNoteScreenProps> = ({
               />
             </View>
             <Text style={styles.helperText}>
-              Optional. Leave time blank to remind at 9:00 AM.
+              Optional. This date and time is saved with the note; HomeDoc does
+              not send a notification. Leave time blank to use 9:00 AM.
             </Text>
           </View>
 

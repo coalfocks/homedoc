@@ -173,7 +173,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.label}>Reminder</Text>
+        <Text style={styles.label}>Due date and time</Text>
         <View style={styles.reminderRow}>
           <Input
             value={reminderDate}
@@ -197,7 +197,9 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
           />
         </View>
         <Text style={styles.helperText}>
-          Clear both fields to remove the reminder.
+          This date and time is saved with the todo; HomeDoc does not send a
+          notification. Leave time blank to use 9:00 AM. Clear both fields to
+          remove the due date.
         </Text>
       </View>
 

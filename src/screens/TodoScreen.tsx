@@ -105,7 +105,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
 
       {reminderLabel ? (
         <View style={styles.reminderCard}>
-          <Text style={styles.reminderLabel}>Reminder</Text>
+          <Text style={styles.reminderLabel}>Due date</Text>
           <Text style={styles.reminderValue}>{reminderLabel}</Text>
         </View>
       ) : null}

@@ -148,7 +148,7 @@ const TodosScreen: React.FC<TodosScreenProps> = ({ navigation }) => {
                   ) : null}
                   {todo.reminder_at ? (
                     <Text style={styles.reminderMeta}>
-                      Reminder: {formatReminder(todo.reminder_at)}
+                      Due date: {formatReminder(todo.reminder_at)}
                     </Text>
                   ) : null}
                   <View style={styles.cardBottom}>
