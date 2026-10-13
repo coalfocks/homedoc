@@ -17,6 +17,7 @@ import { theme } from '../utils/theme';
 import { resolveImageUri } from '../utils/privateImages';
 import { showDialog } from '../utils/dialogs';
 import { Icon } from './Icon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type InspectableImageProps = Omit<ImageProps, 'source'> & {
   imagePath?: string | null;
@@ -59,6 +60,7 @@ export const InspectableImage: React.FC<InspectableImageProps> = ({
   resizeMode = 'cover',
   ...imageProps
 }) => {
+  const insets = useSafeAreaInsets();
   const [uri, setUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(imagePath));
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -146,7 +148,15 @@ export const InspectableImage: React.FC<InspectableImageProps> = ({
         transparent
         onRequestClose={() => setViewerOpen(false)}
       >
-        <View style={styles.modal}>
+        <View
+          style={[
+            styles.modal,
+            {
+              paddingTop: insets.top + theme.spacing.lg,
+              paddingBottom: insets.bottom + theme.spacing.lg,
+            },
+          ]}
+        >
           <View style={styles.toolbar}>
             <TouchableOpacity
               style={styles.toolbarButton}
@@ -198,9 +208,7 @@ const styles = StyleSheet.create({
   modal: {
     flex: 1,
     backgroundColor: 'rgba(15, 20, 26, 0.94)',
-    paddingTop: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
   },
   toolbar: {
     zIndex: 2,

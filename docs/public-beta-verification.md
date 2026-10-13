@@ -8,6 +8,7 @@ October 13, 2026. Observed results from a new beta account using synthetic home 
 - [PR #21](https://github.com/coalfocks/homedoc/pull/21): forwards old email callbacks from the marketing host to the app, with fixed origins and whitelisted auth fields. Vercel validates before publishing too.
 - [PR #22](https://github.com/coalfocks/homedoc/pull/22) is merged at `dee88a2dfb4cc914d0ec3c1272c938a0e897f281`. Vercel status and [Expo deployment](https://github.com/coalfocks/homedoc/actions/runs/38442021898) passed. Correct due-date copy and the area counter were verified live.
 - [PR #23](https://github.com/coalfocks/homedoc/pull/23) is merged at `d06c147725b889d3c5c7ac594d1e5213171c7336`. Vercel production status and [Expo deployment](https://github.com/coalfocks/homedoc/actions/runs/38444351313) passed, including the Edge handler regressions.
+- [PR #25](https://github.com/coalfocks/homedoc/pull/25) addresses two additional findings: deletion returning to the deleted todo's detail screen, and native photo-viewer controls overlapping the status bar. The route-sensitive return and safe-area padding passed source review and automated checks. The corrected deletion path has not been retested with another production deletion; the native viewer correction requires a new installed build.
 - Supabase Auth's site URL is now `https://app.homedocumentation.com`, with the exact web callback allowed. Existing native callbacks were preserved. A newly delivered email reached the correct app and signed in successfully.
 
 ## Follow-up changes
@@ -44,13 +45,14 @@ Live testing also found `plan-todo` version 9 calling the deployed GPT-5.6 Luna 
 | AI questions, plan, and chat          | Generated questions and a cabinet-knob plan; answered a synthetic follow-up                            |
 | AI persistence                        | Saved plan and both chat messages still present after reload and reopening                             |
 | Sharing/transfer forms                | Empty recipient disables submission; Cancel returns to property; no access or ownership changed        |
+| Permanent todo deletion               | User-approved “Disposable deletion QA” deleted; absent after fresh reload; original QA task retained   |
 
-Two GPT-6 Luna workers handled separate UI and release-workflow tasks. The coordinator reviewed and integrated changes, ran checks, and performed live browser tests.
+Two GPT-6 Luna workers handled separate UI and release-workflow tasks. They also implemented and checked the two follow-up UI fixes. The coordinator reviewed and integrated changes and performed the live browser and iPhone tests.
 
 ## Open checks and limitations
 
 - Photo viewing passed. Save produced no app error, but automation did not observe a completed download; saving remains unverified.
-- Actual permanent deletion, sharing, contractor access, transfer/revocation, interrupted uploads, expired sessions, and duplicate taps have not been exercised in production. Database suites cover access regressions but do not replace UI checks.
+- Actual sharing, contractor access, transfer/revocation, account deletion, interrupted uploads, expired sessions, and duplicate taps have not been exercised in production. Database suites cover access regressions but do not replace UI checks.
 - Synthetic fixtures and the beta account are retained for continued verification. No customer records or personal photos were used.
 
 ## Native status
@@ -59,4 +61,18 @@ Two GPT-6 Luna workers handled separate UI and release-workflow tasks. The coord
 
 [First repair run](https://github.com/coalfocks/homedoc/actions/runs/38442021861) stopped at an App Store Connect HTTP 403. The [retry with the EAS profile's identifiers](https://github.com/coalfocks/homedoc/actions/runs/38444351156) confirmed the cause: `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED` — a required Apple agreement is missing or expired. Both runs stopped before upload. This requires the account holder's agreement review; credentials were not changed and no agreement was accepted. Apple's processing status remains unverified. The App Store Connect browser session also requires user sign-in.
 
-The paired iPhone has `1.1.10 (202609232143)` installed. iPhone Mirroring awaits the user's first-use setup. Simulator runtimes exist but the Simulator application is absent. No native UI tests have passed yet. The new IPA contains PR #20's source; later web handoff and copy/count changes are not in that binary.
+The paired iPhone has `1.1.10 (202609232143)` installed, confirmed with Apple's device inventory. The user completed iPhone Mirroring setup, and the following checks were performed in the installed native app with the dedicated beta account. These results do not certify the latest source or the unsubmitted new IPA. The existing `1.1.11` IPA contains PR #20's source; later web handoff, copy/count, and PR #25 changes require a new build. Simulator runtimes exist but the Simulator application is absent.
+
+| Native check                        | Observed result                                                                                                                                                                                           |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sign-out and dedicated beta login   | Sign-out succeeded. A native-requested email arrived with `homedoc://auth/callback`; opening the exact link in iPhone Safari returned to HomeDoc and signed in the beta account. No password was created. |
+| Web-to-native sync                  | Synthetic property, Kitchen QA, note, todo, due timestamps, saved AI plan, and prior chat history loaded. Deleted disposable task was absent.                                                             |
+| Photo viewer                        | Synthetic checkerboard rendered inline and full-screen. Close worked at its lower edge, but center taps were intercepted by the status bar; PR #25 adds safe-area spacing.                                |
+| Note editing and native-to-web sync | Content edited on iPhone, saved, and appeared in the live web library. Image and due timestamp were preserved.                                                                                            |
+| Todo creation                       | “Native QA task” created in Kitchen QA with a synthetic description; app showed Created successfully. Retained for future verification.                                                                   |
+| Todo status                         | In Progress → Done → In Progress passed. Original final status restored.                                                                                                                                  |
+| Archive/restore                     | Archived task left the active list, appeared under Archived, and restored successfully.                                                                                                                   |
+| AI follow-up                        | A fresh native question received a response. Both messages persisted and were visible after reopening the todo on web.                                                                                    |
+| Background/reopen                   | Leaving HomeDoc for the home screen and reopening retained the authenticated session and chat. A force-quit/cold launch was not verified.                                                                 |
+
+The installed build still displays the old zero-area counter and “Reminder” wording; PR #22 already corrects those in current source. Native camera capture and fresh photo upload, photo saving, Android UI, and a new TestFlight build remain unverified. iPhone Mirroring does not provide camera access. All visible test records and images were synthetic; no customer records were edited.
