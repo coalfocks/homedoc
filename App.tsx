@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -19,6 +19,10 @@ import { MarketingScreen } from './src/screens/MarketingScreen';
 import PrivacyScreen from './src/screens/PrivacyScreen';
 import { theme } from './src/utils/theme';
 import { isSupabaseConfigured } from './src/lib/supabase';
+import {
+  forwardMarketingAuthRedirect,
+  isMarketingAuthRedirect,
+} from './src/utils/marketingAuthRedirect';
 
 const marketingHosts = new Set([
   'homedocumentation.com',
@@ -224,6 +228,45 @@ const AppContent = () => {
 
 const App = () => {
   const [isSplashComplete, setIsSplashComplete] = useState(false);
+  const isAuthRedirectPending =
+    Platform.OS === 'web' &&
+    typeof window !== 'undefined' &&
+    isMarketingAuthRedirect(window.location.href);
+
+  useEffect(() => {
+    if (!isAuthRedirectPending || typeof window === 'undefined') return;
+    forwardMarketingAuthRedirect(window.location.href, (targetUrl) =>
+      window.location.replace(targetUrl),
+    );
+  }, [isAuthRedirectPending]);
+
+  if (isAuthRedirectPending) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.colors.background.default,
+            padding: theme.spacing.lg,
+          }}
+        >
+          <ActivityIndicator color={theme.colors.primary.main} />
+          <Text
+            style={{
+              marginTop: theme.spacing.md,
+              color: theme.colors.text.primary,
+              textAlign: 'center',
+            }}
+          >
+            Opening your HomeDoc sign-in link…
+          </Text>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   if (
     Platform.OS === 'web' &&

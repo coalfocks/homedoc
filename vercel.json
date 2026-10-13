@@ -1,4 +1,6 @@
 {
+  "buildCommand": "npx tsc --noEmit && npm run lint && npm test -- --runInBand && npm run test:db && npx expo export --platform web",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/privacy", "destination": "/" },
     { "source": "/privacy/", "destination": "/" },
