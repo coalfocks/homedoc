@@ -1,6 +1,7 @@
-import { Alert, Linking, Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { betaFeedbackEmail, betaFeedbackSubject } from '../config/beta';
+import { showDialog } from './dialogs';
 
 export const openFeedbackEmail = async (
   context: string,
@@ -27,7 +28,7 @@ export const openFeedbackEmail = async (
   try {
     const canOpen = await Linking.canOpenURL(url);
     if (!canOpen) {
-      Alert.alert(
+      showDialog(
         'Email not available',
         `Send feedback to ${betaFeedbackEmail} and include your account email.`,
       );
@@ -36,7 +37,7 @@ export const openFeedbackEmail = async (
 
     await Linking.openURL(url);
   } catch {
-    Alert.alert(
+    showDialog(
       'Email not available',
       `Send feedback to ${betaFeedbackEmail} and include your account email.`,
     );

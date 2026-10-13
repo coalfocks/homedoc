@@ -16,6 +16,7 @@ import { Logo } from '../components/Logo';
 import { theme } from '../utils/theme';
 
 const appUrl = 'https://app.homedocumentation.com';
+const privacyUrl = 'https://homedocumentation.com/privacy';
 const betaEmail = 'mailto:cfox@skriber.com?subject=HomeDoc beta access';
 const extra = Constants.expoConfig?.extra ?? {};
 const testFlightUrl =
@@ -375,6 +376,16 @@ export const MarketingScreen = () => {
       </View>
 
       {Platform.OS === 'web' ? <View style={styles.footerSpacer} /> : null}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>HomeDoc beta · 2026</Text>
+        <TouchableOpacity
+          accessibilityRole="link"
+          onPress={() => openUrl(privacyUrl)}
+          style={styles.footerLinkButton}
+        >
+          <Text style={styles.footerLink}>Privacy policy</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -907,5 +918,30 @@ const styles = StyleSheet.create({
   },
   footerSpacer: {
     height: 28,
+  },
+  footer: {
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(23, 59, 53, 0.16)',
+  },
+  footerText: {
+    color: marketingPalette.slate,
+    fontSize: 13,
+  },
+  footerLinkButton: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  footerLink: {
+    color: marketingPalette.ink,
+    fontSize: 14,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

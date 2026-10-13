@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import {
 } from '../components/AppChrome';
 import { Icon } from '../components/Icon';
 import { theme } from '../utils/theme';
+import { showDialog } from '../utils/dialogs';
 import {
   getTodoArchiveCounts,
   selectTodosForFilter,
@@ -62,7 +63,7 @@ const AreaTodosScreen: React.FC<AreaTodosScreenProps> = ({
   };
 
   const confirmDelete = (todoId: string, title: string) => {
-    Alert.alert('Delete todo', `Delete "${title}"?`, [
+    showDialog('Delete todo', `Delete "${title}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',

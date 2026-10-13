@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageProps,
   ImageStyle,
@@ -16,6 +15,7 @@ import {
 import { Text } from '@rneui/themed';
 import { theme } from '../utils/theme';
 import { resolveImageUri } from '../utils/privateImages';
+import { showDialog } from '../utils/dialogs';
 import { Icon } from './Icon';
 
 type InspectableImageProps = Omit<ImageProps, 'source'> & {
@@ -107,7 +107,7 @@ export const InspectableImage: React.FC<InspectableImageProps> = ({
         return;
       }
 
-      Alert.alert('Could not open image', 'Try again in a moment.');
+      showDialog('Could not open image', 'Try again in a moment.');
       console.error('Image save/open failed:', error);
     } finally {
       setSaving(false);

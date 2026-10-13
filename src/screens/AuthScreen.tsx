@@ -14,6 +14,7 @@ import { Logo } from '../components/Logo';
 import { theme } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { openFeedbackEmail } from '../utils/feedback';
+import { PrivacyPolicyLink } from '../components/PrivacyPolicyLink';
 
 type AuthMode = 'magic' | 'password';
 
@@ -346,6 +347,10 @@ const AuthScreen: React.FC = () => {
               request.
             </Text>
             <View style={styles.betaNoticeActions}>
+              <PrivacyPolicyLink
+                style={styles.betaNoticeButton}
+                textStyle={styles.betaNoticeButtonText}
+              />
               <TouchableOpacity
                 style={styles.betaNoticeButton}
                 onPress={() =>

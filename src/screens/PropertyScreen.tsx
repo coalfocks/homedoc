@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -21,6 +21,7 @@ import { SignedImage } from '../components/SignedImage';
 import { theme } from '../utils/theme';
 import { formatAddressBlock } from '../utils/address';
 import { SortOrder, sortRecords } from '../utils/sortRecords';
+import { showDialog } from '../utils/dialogs';
 
 type PropertyScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Property'>;
@@ -65,7 +66,7 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
   }
 
   const confirmDeleteProperty = () => {
-    Alert.alert(
+    showDialog(
       'Delete property',
       `Delete "${property.name}" and everything attached to it? This cannot be undone.`,
       [

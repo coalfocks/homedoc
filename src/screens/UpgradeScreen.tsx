@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import {
   EmptyStateCard,
@@ -14,7 +14,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useBilling } from '../hooks/useBilling';
 import { supabase } from '../lib/supabase';
 import { openFeedbackEmail } from '../utils/feedback';
+import { PrivacyPolicyLink } from '../components/PrivacyPolicyLink';
 import { theme } from '../utils/theme';
+import { showDialog } from '../utils/dialogs';
 
 const proFeatures = [
   'AI maintenance plans with materials, costs, warnings, and follow-up chat',
@@ -51,9 +53,9 @@ const UpgradeScreen: React.FC = () => {
   } = useBilling();
 
   const confirmDeleteAccount = () => {
-    Alert.alert(
+    showDialog(
       'Delete account',
-      'This permanently deletes your HomeDoc account and the properties owned by this account. This cannot be undone.',
+      'This permanently deletes your HomeDoc account. Properties with an eligible household member or collaborator may be transferred to them; other properties and their records are deleted. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -64,7 +66,7 @@ const UpgradeScreen: React.FC = () => {
               await supabase.functions.invoke('delete-account');
 
             if (deleteError) {
-              Alert.alert(
+              showDialog(
                 'Could not delete account',
                 deleteError.message || 'Please send a deletion request.',
               );
@@ -123,6 +125,10 @@ const UpgradeScreen: React.FC = () => {
           subtitle="HomeDoc stores home details, addresses, and photos. Uploaded images are private to people with record access."
         />
         <View style={styles.accountCard}>
+          <PrivacyPolicyLink
+            style={styles.secondaryButton}
+            textStyle={styles.secondaryButtonText}
+          />
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() =>
