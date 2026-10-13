@@ -13,7 +13,7 @@
     "submit:ios:testflight": "eas submit --platform ios --profile production",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "test": "jest",
+    "test": "node scripts/test-plan-todo.mjs && jest",
     "test:db": "node scripts/test-quota-permissions.mjs && node scripts/test-record-permissions.mjs"
   },
   "dependencies": {
