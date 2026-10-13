@@ -7,6 +7,7 @@ October 13, 2026. Observed results from a new beta account using synthetic home 
 - [PR #20](https://github.com/coalfocks/homedoc/pull/20): browser alerts and confirmations, accurate deletion warning, public privacy policy and in-app links, email callback route, and validation before Expo publishing.
 - [PR #21](https://github.com/coalfocks/homedoc/pull/21): forwards old email callbacks from the marketing host to the app, with fixed origins and whitelisted auth fields. Vercel validates before publishing too.
 - [PR #22](https://github.com/coalfocks/homedoc/pull/22) is merged at `dee88a2dfb4cc914d0ec3c1272c938a0e897f281`. Vercel status and [Expo deployment](https://github.com/coalfocks/homedoc/actions/runs/38442021898) passed. Correct due-date copy and the area counter were verified live.
+- [PR #23](https://github.com/coalfocks/homedoc/pull/23) is merged at `d06c147725b889d3c5c7ac594d1e5213171c7336`. Vercel production status and [Expo deployment](https://github.com/coalfocks/homedoc/actions/runs/38444351313) passed, including the Edge handler regressions.
 - Supabase Auth's site URL is now `https://app.homedocumentation.com`, with the exact web callback allowed. Existing native callbacks were preserved. A newly delivered email reached the correct app and signed in successfully.
 
 ## Follow-up changes
@@ -24,13 +25,14 @@ Live testing also found `plan-todo` version 9 calling the deployed GPT-5.6 Luna 
 | TypeScript and ESLint                 | Pass                                                                                                   |
 | Jest                                  | 30 tests, 10 suites pass                                                                               |
 | Edge handler regression               | Seven offline cases pass: questions, plan, chat, missing/invalid auth, inaccessible todo, quota denial |
-| Database quota and record permissions | Both isolated PostgreSQL suites pass through PR #22                                                    |
-| Web, iOS, Android exports             | Pass through PR #22                                                                                    |
+| Database quota and record permissions | Both isolated PostgreSQL suites pass through PR #23                                                    |
+| Web, iOS, Android exports             | Pass through PR #23                                                                                    |
 | Public privacy route                  | HTTP 200 and correct policy rendered in Chrome                                                         |
 | Signup/account privacy links          | Policy opens; closing returns to app                                                                   |
 | Empty email validation                | Inline error, no request sent                                                                          |
 | Real beta account and email sign-in   | Email delivered; magic link signed in a new account                                                    |
 | Session restoration                   | Reload and a new tab remain authenticated                                                              |
+| Sign-out and repeat sign-in           | Both tabs hide records on sign-out; fresh email link signs back in, with callback credentials cleared  |
 | Property and area                     | Created and edited synthetic home and Kitchen QA; persisted after reload                               |
 | Area counter                          | Dashboard shows 01 Known areas for the saved test area                                                 |
 | Photo note                            | Synthetic PNG uploaded/rendered; note edited without losing image; reopened in another tab             |
@@ -55,6 +57,6 @@ Two GPT-6 Luna workers handled separate UI and release-workflow tasks. The coord
 
 [iOS workflow](https://github.com/coalfocks/homedoc/actions/runs/38435093204) built `1.1.11 (202610130001)` successfully. EAS build ID: `7bf9ed20-b7c1-4d7f-a9e6-25cc1abcef65`. Submission then failed with a generic error; Apple's acceptance is unconfirmed. Build success does not prove TestFlight availability.
 
-[First repair run](https://github.com/coalfocks/homedoc/actions/runs/38442021861) stopped at an App Store Connect HTTP 403. No duplicate upload was attempted. Apple's processing status remains unverified until the corrected workflow can complete its authorized status lookup.
+[First repair run](https://github.com/coalfocks/homedoc/actions/runs/38442021861) stopped at an App Store Connect HTTP 403. The [retry with the EAS profile's identifiers](https://github.com/coalfocks/homedoc/actions/runs/38444351156) confirmed the cause: `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED` — a required Apple agreement is missing or expired. Both runs stopped before upload. This requires the account holder's agreement review; credentials were not changed and no agreement was accepted. Apple's processing status remains unverified. The App Store Connect browser session also requires user sign-in.
 
 The paired iPhone has `1.1.10 (202609232143)` installed. iPhone Mirroring awaits the user's first-use setup. Simulator runtimes exist but the Simulator application is absent. No native UI tests have passed yet. The new IPA contains PR #20's source; later web handoff and copy/count changes are not in that binary.
