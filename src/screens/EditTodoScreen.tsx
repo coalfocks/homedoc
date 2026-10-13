@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -55,6 +55,8 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
   const [status, setStatus] = useState<Status>('pending');
   const [areaId, setAreaId] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const deletingRef = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,7 +73,7 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
   }, [todo]);
 
   const handleSave = async () => {
-    if (!title.trim() || !areaId) return;
+    if (deletingRef.current || !title.trim() || !areaId) return;
     try {
       setSaving(true);
       setSaveError(null);
@@ -104,17 +106,42 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
   };
 
   const handleDelete = () => {
+    if (saving || deletingRef.current || !todo) return;
+
     showDialog('Delete todo', `Delete "${todo?.title}"?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          const { error: deleteError } = await supabase
-            .from('todos')
-            .delete()
-            .eq('id', todo!.id);
-          if (!deleteError) navigation.goBack();
+          if (deletingRef.current) return;
+          deletingRef.current = true;
+          setDeleting(true);
+          setSaveError(null);
+
+          try {
+            const { error: deleteError } = await supabase
+              .from('todos')
+              .delete()
+              .eq('id', todo.id);
+            if (deleteError) throw deleteError;
+
+            const state = navigation.getState();
+            const previousRoute = state.routes[state.index - 1];
+            const returningFromDeletedTodo =
+              previousRoute?.name === 'Todo' &&
+              (previousRoute.params as { todoId?: string } | undefined)
+                ?.todoId === todo.id;
+            navigation.pop(returningFromDeletedTodo ? 2 : 1);
+          } catch (deleteError) {
+            setSaveError(
+              deleteError instanceof Error
+                ? deleteError.message
+                : 'Could not delete this todo. Please try again.',
+            );
+            deletingRef.current = false;
+            setDeleting(false);
+          }
         },
       },
     ]);
@@ -284,15 +311,15 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
         title="Save Changes"
         onPress={handleSave}
         loading={saving}
-        disabled={saving || !title.trim()}
+        disabled={saving || deleting || !title.trim()}
         containerStyle={styles.buttonContainer}
         buttonStyle={[
           styles.button,
-          (saving || !title.trim()) && styles.disabledButton,
+          (saving || deleting || !title.trim()) && styles.disabledButton,
         ]}
         titleStyle={[
           styles.buttonText,
-          (saving || !title.trim()) && styles.disabledButtonText,
+          (saving || deleting || !title.trim()) && styles.disabledButtonText,
         ]}
         disabledStyle={styles.disabledButton}
         disabledTitleStyle={styles.disabledButtonText}
@@ -300,14 +327,22 @@ const EditTodoScreen: React.FC<EditTodoScreenProps> = ({
       <Button
         title="Cancel"
         onPress={() => navigation.goBack()}
+        disabled={deleting}
         type="outline"
         containerStyle={styles.cancelButton}
         buttonStyle={styles.cancelButtonStyle}
         titleStyle={styles.cancelButtonText}
       />
 
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-        <Text style={styles.deleteButtonText}>Delete todo</Text>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDelete}
+        disabled={saving || deleting}
+        accessibilityState={{ disabled: saving || deleting }}
+      >
+        <Text style={styles.deleteButtonText}>
+          {deleting ? 'Deleting…' : 'Delete todo'}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
