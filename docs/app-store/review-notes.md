@@ -24,7 +24,8 @@ The latest recorded native checks are against build `1.1.10 (202609232143)`. Bui
 
 ## Contact
 
-Support and privacy contact: cfox@skriber.com  
+Support and privacy contact: cfox@skriber.com
+
 Privacy policy: https://homedocumentation.com/privacy
 
 Support URL for the listing: https://homedocumentation.com/support (implemented in this branch; publish and verify before submission). The new 1.2.0 Release build compiles locally and starts a simulator process; the locked Mac prevented screen inspection. This does not verify a signed device build, purchases, or App Store processing.
