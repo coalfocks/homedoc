@@ -166,10 +166,10 @@ const PropertyScreen: React.FC<PropertyScreenProps> = ({
           <View style={styles.handoffBadge}>
             <Text style={styles.handoffBadgeText}>PRO</Text>
           </View>
-          <Text style={styles.handoffTitle}>Build a home handoff packet</Text>
+          <Text style={styles.handoffTitle}>More homes and AI with Pro</Text>
           <Text style={styles.handoffBody}>
-            Package rooms, notes, maintenance plans, and ownership transfer into
-            something a buyer, tenant, or property manager can actually use.
+            Sharing and home transfer are included free. Pro adds extra
+            properties and more AI requests for planning maintenance.
           </Text>
           <Text style={styles.handoffAction}>See Pro</Text>
         </TouchableOpacity>
