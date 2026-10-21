@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Validate selected profile
@@ -143,7 +143,7 @@ jobs:
           const allow = ['id','status','platform','profile','appIdentifier','appVersion','appBuildVersion','buildVersion','runtimeVersion','channel','distribution','sdkVersion','gitCommitHash','gitCommitMessage','createdAt','updatedAt','completedAt'];
           const build = Object.fromEntries(allow.filter((key) => ['string','number','boolean'].includes(typeof raw?.[key])).map((key) => [key, raw[key]]));
           const apple = JSON.parse(await readFile('apple-readiness.json', 'utf8').catch(() => '{"ready":false,"httpStatus":null,"appleErrorCode":"CHECK_UNAVAILABLE","bundleMatches":null}'));
-          const metadata = { requestedProfile: process.env.EAS_BUILD_PROFILE, submitRequested: ${{ inputs.submit }}, build, appleReadiness: { ready: apple.ready === true, httpStatus: Number.isInteger(apple.httpStatus) ? apple.httpStatus : null, appleErrorCode: typeof apple.appleErrorCode === 'string' ? apple.appleErrorCode : null, bundleMatches: apple.bundleMatches === true } };
+          const metadata = { requestedProfile: process.env.EAS_BUILD_PROFILE, submitRequested: ${{ inputs.submit }}, build, appleReadiness: { ready: apple.ready === true, httpStatus: Number.isInteger(apple.httpStatus) ? apple.httpStatus : null, appleErrorCode: typeof apple.appleErrorCode === 'string' ? apple.appleErrorCode : null, bundleMatches: typeof apple.bundleMatches === 'boolean' ? apple.bundleMatches : null } };
           await writeFile('eas-build-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
           await rm('eas-build-view.raw.json', { force: true });
           NODE

@@ -43,3 +43,9 @@ The new App Store release profile is intended to use RevenueCat SDK 10.15. Propo
 - Paid-build preflight correctly rejects a missing Apple SDK key. Listing fields pass their length checks.
 
 Remaining release work: decide monthly price; configure the Apple product, RevenueCat project/keys/restore policy and authenticated webhook; deploy and verify the backend before the paid build; establish reviewer credentials and allowed sandbox UUIDs; resolve Apple agreement/account access; complete real-device QA and capture store screenshots from the final signed build. The listing and privacy labels are drafts until those facts are verified.
+
+## Signed build evidence — October 20, 2026, 9:16 PM MDT
+
+[Build-only workflow](https://github.com/coalfocks/homedoc/actions/runs/39536941286) completed successfully. EAS build `a5ae0a28-b3ce-4753-aa29-669d912519d8` is FINISHED, store distribution, version 1.2.0 (202610210251), source `e188b3c`. It uses the existing **free-beta production profile**, and is a signing/native baseline, not the configured paid release. It was not submitted. Source changes made after that commit require a new final paid build after setup.
+
+The fresh Apple API check returned HTTP 403 `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`. Bundle verification was unavailable because Apple denied access; the original workflow artifact normalizes that unknown result to false, corrected to null in `build-evidence.json` and in the subsequent workflow code. The account holder must review and resolve the Apple agreement. The assistant did not accept any agreement.

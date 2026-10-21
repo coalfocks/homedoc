@@ -29,3 +29,5 @@ Support and privacy contact: cfox@skriber.com
 Privacy policy: https://homedocumentation.com/privacy
 
 Support URL for the listing: https://homedocumentation.com/support (implemented in this branch; publish and verify before submission). The new 1.2.0 Release build compiles locally and starts a simulator process; the locked Mac prevented screen inspection. This does not verify a signed device build, purchases, or App Store processing.
+
+Create the dedicated reviewer account after applying the one-time beta backfill, and confirm it has no beta bypass. Otherwise Account will show preserved beta access and hide the purchase offering. Add only its UUID to the sandbox verification allowlist.

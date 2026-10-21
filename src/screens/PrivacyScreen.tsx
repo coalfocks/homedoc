@@ -134,8 +134,9 @@ export const PrivacyContent = () => (
         restore, RevenueCat verifies purchases and receives your HomeDoc account
         ID, purchase identifiers, subscription status, and purchase-related
         device information. HomeDoc stores the verified plan and expiration to
-        provide account features. Stripe handles subscriptions purchased through
-        web checkout. HomeDoc does not collect card details in its own forms.
+        provide account features. RevenueCat also provides subscription
+        analytics. Stripe handles subscriptions purchased through web checkout.
+        HomeDoc does not collect card details in its own forms.
       </Paragraph>
       <Paragraph>
         HomeDoc uses Supabase, OpenAI for AI planning, and Apple and RevenueCat

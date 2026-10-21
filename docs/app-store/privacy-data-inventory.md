@@ -36,3 +36,7 @@ This is a source-based working inventory for App Store Connect's App Privacy ans
 
 - [Manage app privacy in App Store Connect](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy)
 - [App privacy reference](https://developer.apple.com/help/app-store-connect/reference/app-privacy/)
+
+## RevenueCat disclosure verification
+
+Checked the pinned iOS SDK's bundled privacy manifests and RevenueCat's [Apple App Privacy guidance](https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy). HomeDoc supplies a Supabase user UUID, so purchase history is linked to an identifiable account. The candidate labels must include Purchase History for **App Functionality and Analytics**, plus User ID. The SDK's generic manifest marks purchase history unlinked; that does not describe HomeDoc's custom account mapping and must not override the app-specific answer. The manifests declare no tracking. No ad-attribution integrations, IDFA collection, or customer-contact attributes are enabled in this source; confirm the eventual RevenueCat dashboard configuration before publishing labels.
