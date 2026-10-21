@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-10-21T22:18:46.282467+00:00",
+  "checkedAt": "2026-10-21T22:27:32+00:00",
   "version": "1.2.0",
-  "buildNumber": "202610212048",
+  "buildNumber": "202610212224",
   "billingProvider": "Apple StoreKit 2",
   "sourceBranch": "codex/app-store-submission",
   "checks": {
@@ -32,7 +32,11 @@
       "codeSigningAllowed": false,
       "storeKitModuleCompiled": true,
       "launchBlocker": "SDK 27 simulator requires UIScene lifecycle support",
-      "matchingToolchainNextStep": "Prepare Xcode 26 app-store-simulator EAS profile"
+      "matchingToolchainWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39685625733",
+      "matchingToolchainWorkflowStatus": "running",
+      "matchingToolchainSource": "eaae477",
+      "matchingToolchainBuildNumber": "202610212048",
+      "matchingToolchainPurpose": "UI QA only; prior build number, not final candidate; no purchase QA"
     },
     "liveAppleProductsAndPrices": "verified: both products level 1, U.S. only, 14.99/year and 2.99/month",
     "liveBackendDeployment": "billing migration, purchase sync, signed webhook, AI function deployed; auth boundaries verified",
@@ -44,7 +48,32 @@
       "primaryCategory": "Lifestyle",
       "secondaryCategory": "Productivity",
       "ageRating": "4+ saved and verified"
-    }
+    },
+    "privacyManifest": {
+      "appVersionCandidate": "1.2.0 (202610212224)",
+      "categoryCount": 9,
+      "linkedPurpose": "app functionality",
+      "tracking": false,
+      "generatedIosManifest": "verified with the same nine entries; required-reason declarations retained"
+    },
+    "appStorePrivacy": {
+      "draft": "nine categories, all linked to app functionality and marked non-tracking",
+      "privacyPolicyUrl": "saved",
+      "publicPolicy": "not published; pending final binary"
+    },
+    "legacyTableHardening": {
+      "migration": "20261021224500",
+      "status": "applied and verified",
+      "emptyLegacyTables": 4,
+      "clientAccessibleLegacyTables": 0,
+      "serviceAccessPreserved": true,
+      "users": 39,
+      "betaAccounts": 39,
+      "properties": 16,
+      "securityAdvisorErrors": 0,
+      "securityAdvisorWarnings": 33
+    },
+    "nativePrivacyArtifactInspection": "tooling added; final signed/simulator artifact inspection pending"
   },
   "paidBuild": {
     "easBuildId": "4f88a5b5-e0b4-4c4a-a41e-9f4c6bb50a90",
@@ -55,11 +84,25 @@
     "version": "1.2.0",
     "buildNumber": "202610212048",
     "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39684837111",
-    "uploadWorkflowStatus": "processing",
+    "uploadWorkflowStatus": "success",
+    "appleProcessingVerified": true,
+    "testFlightStatus": "Ready to Submit",
+    "supersededByPrivacyManifestCandidate": "202610212224"
+  },
+  "currentSourceCandidate": {
+    "version": "1.2.0",
+    "buildNumber": "202610212224",
+    "privacyManifestUpdated": true,
+    "signedEasBuild": "not built yet",
     "appleProcessingVerified": false
   },
+  "legacyMigration": {
+    "migration": "20261021224500_secure_unused_legacy_tables.sql",
+    "sourceTests": "passed",
+    "liveApply": "applied and verified; client access denied on four empty legacy tables, service privileges and existing users/properties preserved"
+  },
   "notVerified": [
-    "upload completion and Apple processing of the signed paid App Store binary",
+    "signed binary and Apple processing for the new privacy-manifest candidate 202610212224",
     "native UI/device QA",
     "actual purchase, restore, renewal, expiry and refund lifecycle",
     "final store screenshots",
@@ -70,7 +113,7 @@
   "externalGates": [
     "production API access and actual purchase lifecycle verification",
     "reviewer/QA accounts and sandbox testing",
-    "upload completion, Apple processing, launchable native QA, final listing and review assets",
-    "reviewer/contact details, content rights, App Privacy, public Apple-aware privacy policy, and final screenshots"
+    "build/upload and Apple processing for candidate 202610212224, launchable native QA, final listing and review assets",
+    "reviewer/contact details, content rights, App Privacy, publish saved Apple-aware privacy policy, and final screenshots"
   ]
 }

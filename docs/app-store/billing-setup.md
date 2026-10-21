@@ -59,7 +59,7 @@ Production and sandbox notification URLs are saved in App Store Connect as:
 
 `https://nismvycjiobjbaozjwih.supabase.co/functions/v1/app-store-webhook`
 
-Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. Apple's sandbox test notification now reports SUCCESS, and the genuine signed notification returned 200 from the hosted webhook. The production test API still returns 401, so canonical production API access is unresolved. No actual purchase, renewal, cancellation, expiry, or refund lifecycle has been verified. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
+Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. Apple's sandbox test notification reports SUCCESS, and the genuine signed notification returned 200 from the hosted webhook. The production test API still returns 401, so canonical production API access is unresolved. No actual purchase, renewal, cancellation, expiry, or refund lifecycle has been verified. Guarded legacy-table migration `20261021224500` is applied and verified. Four empty unused singular tables now deny client access; service privileges, 39 accounts, and 16 properties are preserved. Supabase reports zero security errors; 33 existing helper/trigger advisories remain for case-by-case review. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
 
 ## Exact signed-build acceptance
 

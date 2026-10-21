@@ -68,6 +68,37 @@ assert.equal(expo.ios.bundleIdentifier, 'com.coalfocks.homedoc');
 assert.match(expo.version, /^\d+\.\d+\.\d+$/);
 assert.match(expo.ios.buildNumber, /^\d{12,14}$/);
 assert.equal(expo.ios.infoPlist.ITSAppUsesNonExemptEncryption, false);
+const privacyManifest = expo.ios.privacyManifests;
+assert.ok(privacyManifest, 'Missing iOS privacy manifest configuration.');
+assert.equal(privacyManifest.NSPrivacyTracking, false);
+assert.deepEqual(privacyManifest.NSPrivacyTrackingDomains, []);
+const expectedCollectedDataTypes = [
+  'NSPrivacyCollectedDataTypeCustomerSupport',
+  'NSPrivacyCollectedDataTypeEmailAddress',
+  'NSPrivacyCollectedDataTypeName',
+  'NSPrivacyCollectedDataTypeOtherUserContent',
+  'NSPrivacyCollectedDataTypePhotosorVideos',
+  'NSPrivacyCollectedDataTypePhysicalAddress',
+  'NSPrivacyCollectedDataTypeProductInteraction',
+  'NSPrivacyCollectedDataTypePurchaseHistory',
+  'NSPrivacyCollectedDataTypeUserID',
+].sort();
+const collectedDataTypes = privacyManifest.NSPrivacyCollectedDataTypes;
+assert.ok(Array.isArray(collectedDataTypes));
+assert.deepEqual(
+  collectedDataTypes
+    .map(({ NSPrivacyCollectedDataType }) => NSPrivacyCollectedDataType)
+    .sort(),
+  expectedCollectedDataTypes,
+  'Privacy manifest collected-data categories must match the documented release inventory.',
+);
+for (const entry of collectedDataTypes) {
+  assert.equal(entry.NSPrivacyCollectedDataTypeLinked, true);
+  assert.equal(entry.NSPrivacyCollectedDataTypeTracking, false);
+  assert.deepEqual(entry.NSPrivacyCollectedDataTypePurposes, [
+    'NSPrivacyCollectedDataTypePurposeAppFunctionality',
+  ]);
+}
 const paidBuild =
   ['app-store', 'app-store-simulator'].includes(
     process.env.EAS_BUILD_PROFILE,
