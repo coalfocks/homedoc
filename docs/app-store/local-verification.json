@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-21T21:10:40.929300+00:00",
+  "checkedAt": "2026-10-21T21:50:15.941054+00:00",
   "version": "1.2.0",
   "buildNumber": "202610212048",
   "billingProvider": "Apple StoreKit 2",
@@ -31,21 +31,25 @@
       "sdk": "iphonesimulator",
       "codeSigningAllowed": false,
       "storeKitModuleCompiled": true
-    }
+    },
+    "liveAppleProductsAndPrices": "verified: both products level 1, U.S. only, 14.99/year and 2.99/month",
+    "liveBackendDeployment": "billing migration, purchase sync, signed webhook, AI function deployed; auth boundaries verified",
+    "appleServerSecrets": "approved IAP key stored in Supabase",
+    "appleNotificationUrls": "production and sandbox saved; delivery unverified"
   },
   "notVerified": [
-    "live Apple products and prices",
-    "live backend deployment",
     "signed paid App Store binary",
     "Apple processing",
     "native UI/device QA",
     "real purchase, restore, renewal, expiry and refund",
-    "final store screenshots"
+    "final store screenshots",
+    "Apple notification test delivery and live canonical API access",
+    "signed-build free/Pro/reviewer accounts",
+    "public Apple-aware privacy policy deployment"
   ],
   "externalGates": [
-    "Apple account-holder agreement review",
-    "HomeDoc Supabase owner access",
-    "Apple In-App Purchase API key and server secrets",
-    "reviewer/QA accounts and sandbox testing"
+    "Apple notification test delivery and canonical purchase verification",
+    "reviewer/QA accounts and sandbox testing",
+    "signed paid binary, native QA, final listing and review assets"
   ]
 }

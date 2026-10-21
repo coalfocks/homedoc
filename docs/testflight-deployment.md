@@ -62,11 +62,7 @@ requests do not roll over; the annual payment does not issue a yearly AI pool.
 Existing records remain accessible after a subscription expires. Preserved beta
 accounts retain the existing 20-request allowance.
 
-The backend App Store entitlement migration, Edge Functions, webhook, and
-required server secrets/configuration have not been deployed. A successful
-build or Apple API readiness response does not mean paid access is ready for
-production. Complete and verify backend deployment and native purchase/restore
-device QA before enabling paid sales.
+The App Store entitlement migration and purchase, webhook, and AI Edge Functions are deployed to HomeDoc. The approved IAP key is saved in Supabase server secrets, and both Apple notification URLs are saved. Both approved U.S. products are configured at the same service level. Test-notification delivery and real purchase verification remain pending. A successful build or API readiness response does not establish paid-release readiness; finish exact-build native purchase/restore QA and the remaining release checklist before sales.
 
 ## Local signing files
 

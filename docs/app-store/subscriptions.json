@@ -13,7 +13,10 @@
       "price": 14.99,
       "displayName": "HomeDoc Pro Yearly",
       "description": "Additional homes and 50 AI requests each month.",
-      "storeKitType": "autoRenewable"
+      "storeKitType": "autoRenewable",
+      "appleId": "6825527261",
+      "serviceLevel": 1,
+      "storeStatus": "Prepare for Submission"
     },
     {
       "interval": "monthly",
@@ -22,7 +25,10 @@
       "price": 2.99,
       "displayName": "HomeDoc Pro Monthly",
       "description": "Additional homes and 50 AI requests each month.",
-      "storeKitType": "autoRenewable"
+      "storeKitType": "autoRenewable",
+      "appleId": "6825528603",
+      "serviceLevel": 1,
+      "storeStatus": "Prepare for Submission"
     }
   ],
   "access": {
@@ -35,6 +41,10 @@
     "requestDefinition": "Each question set, generated plan, or follow-up counts as one AI request.",
     "existingRecordsAfterExpiry": "Remain accessible; creating another owned home or further AI calls follows the current free allowance."
   },
-  "storeConfigurationVerified": false,
-  "billingProvider": "apple_storekit_2"
+  "storeConfigurationVerified": true,
+  "billingProvider": "apple_storekit_2",
+  "storeConfigurationCheckedAt": "2026-10-21",
+  "availability": ["USA"],
+  "familySharing": false,
+  "multiseat": false
 }

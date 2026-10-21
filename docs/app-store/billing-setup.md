@@ -4,16 +4,16 @@ Approved October 21, 2026: Apple StoreKit 2 directly, with **no third-party subs
 
 ## App Store Connect
 
-App **6779373725**, bundle **com.coalfocks.homedoc**. Group **HomeDoc Pro** (ID **22501802**) has been created. Apple blocked creating its first product with an **Agreement Update** dialog. The account holder must review the Developer Program License Agreement before products/upload can continue.
+App **6779373725**, bundle **com.coalfocks.homedoc**. Group **HomeDoc Pro** (ID **22501802**) and both products below have been created. The account holder resolved the previous agreement blocker; the agent did not accept an agreement.
 
-Create both at the same service level within this existing group:
+Both products are saved at service level 1, available only in the U.S., with Family Sharing off and individual App Store purchase enabled. Annual Apple ID is **6825527261**; monthly is **6825528603**. Both remain Prepare for Submission:
 
 | Product ID                          | Duration | U.S. price | Localized name      | Description                                     |
 | ----------------------------------- | -------- | ---------- | ------------------- | ----------------------------------------------- |
 | `com.coalfocks.homedoc.pro.annual`  | 1 year   | $14.99     | HomeDoc Pro Yearly  | Additional homes and 50 AI requests each month. |
 | `com.coalfocks.homedoc.pro.monthly` | 1 month  | $2.99      | HomeDoc Pro Monthly | Additional homes and 50 AI requests each month. |
 
-Exact metadata is in [subscriptions.json](subscriptions.json). Review localized prices and availability before saving. Do not create another group, duplicate these product IDs, or enable Family Sharing without a separate identity policy. Annual is the default purchase selection; both options grant 50 AI requests per UTC calendar month, not a yearly pool.
+Exact metadata is in [subscriptions.json](subscriptions.json). U.S. prices and availability were verified after saving. Do not create another group, duplicate these product IDs, or enable Family Sharing without a separate identity policy. Annual is the default purchase selection; both options grant 50 AI requests per UTC calendar month, not a yearly pool.
 
 The local Expo module `HomeDocStoreKit` calls Apple's StoreKit 2 APIs. The app supplies the authenticated Supabase UUID as `appAccountToken` when purchasing. It displays Apple's localized price and exact subscription period. Transactions finish only after server verification. Manual restore uses `AppStore.sync`; quiet Account focus checks do not prompt the user. Existing-record access does not depend on a subscription.
 
@@ -28,7 +28,7 @@ Prefer the default IDs. The first pair is monthly, the second annual. No private
 
 ## Apple server credentials
 
-Use an App Store Server API **In-App Purchase key** configured by the account holder in App Store Connect. This is separate from the build/upload API key unless Apple explicitly confirms that key is appropriate. Store private key material only as server secrets. Creating a key grants new access and requires the user's confirmation; no new key has been created.
+Cole explicitly approved creating **HomeDoc Server Verification**, an App Store Server API **In-App Purchase key**, and storing it in HomeDoc's Supabase server secrets. That one key is created and its three required secrets are saved. It is separate from the build/upload API key. Never reproduce private key material in source, the app, chat, or build logs. A new or expanded credential requires separate action-time approval; do not create another key for this setup.
 
 Required Supabase function secrets:
 
@@ -46,20 +46,20 @@ The official Apple App Store Server Library is pinned server-side. Root certific
 
 ## HomeDoc backend
 
-Target only **nismvycjiobjbaozjwih**. The connected Supabase account cannot currently access it. Apply pending migrations in order, including `20261021024941_app_store_billing_access.sql`, before enabling this flow. Beta backfill preserves accounts that exist at migration time; create dedicated non-beta QA/reviewer accounts afterward.
+Target only **nismvycjiobjbaozjwih**. Its authenticated Dashboard browser access is verified; the connector still has the wrong account. Migration `20261021024941_app_store_billing_access.sql` is applied and recorded once in migration history. Verification preserved all 39 existing users as beta accounts and all 16 properties belonging to 15 owners; new billing tables have RLS and deny authenticated writes. Create dedicated non-beta QA/reviewer accounts after this backfill.
 
-Deploy and verify:
+Deployed through the authenticated HomeDoc Dashboard, with source/bundle hashes and sanitized evidence saved outside the repo in `beta-outreach-results/app-store/deployment/`:
 
 - `sync-app-store-entitlement`: authenticated `POST { "transactionId": "..." }`; server fetches canonical Apple subscription status, verifies signed transaction/renewal data, requires the account token to match the authenticated UUID, and recognizes only configured Pro products. Client-supplied plan/user flags never grant access.
 - `app-store-webhook`: App Store Server Notifications **V2**. `verify_jwt=false` is needed because Apple does not send a Supabase JWT. The handler must verify Apple's signed outer/nested data and refetch canonical status before writing; unsigned webhooks cannot grant access.
 - `plan-todo`: authoritative monthly limits are free 4, preserved beta 20, and Pro 50.
 - Web billing functions only if enabling paid web checkout. See [Stripe setup](../stripe-billing-setup.md).
 
-Set production and sandbox Notifications V2 URLs in App Store Connect to:
+Production and sandbox notification URLs are saved in App Store Connect as:
 
 `https://nismvycjiobjbaozjwih.supabase.co/functions/v1/app-store-webhook`
 
-After deployment, send Apple's test notification and check its delivery status, then verify real purchase, renewal, cancellation, expiry, and refund events. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
+Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. These verify deployment/auth boundaries, not real purchases. Initial Apple test-notification API attempts returned production 401 and sandbox 4040007 immediately after URL setup; delivery remains unverified. Retry after configuration propagation and investigate persistent errors before release. Verify Notifications V2 signatures and canonical API access in the live Edge runtime, then real purchase, renewal, cancellation, expiry, and refund events. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
 
 ## Exact signed-build acceptance
 
