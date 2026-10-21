@@ -64,6 +64,9 @@ try {
   );
   for (const user of [owner, member, admin, contractor, outsider])
     await db.query('insert into auth.users values ($1)', [user]);
+  // This suite exercises record permissions for a pre-launch beta owner.
+  // Free-plan creation limits are covered independently by test-billing-access.
+  await db.query('insert into beta_access(user_id) values ($1)', [owner]);
   await db.query(
     'insert into properties (id, name, user_id) values ($1, $2, $3)',
     [property, 'Test home', owner],

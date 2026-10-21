@@ -9,15 +9,17 @@ type UpgradeCardProps = {
   cta?: string;
   compact?: boolean;
   loading?: boolean;
+  disabled?: boolean;
   onPress: () => void;
 };
 
 export const UpgradeCard: React.FC<UpgradeCardProps> = ({
   title = 'HomeDoc Pro',
-  body = 'Unlock AI project plans, unlimited properties, handoff packets, and share-ready home records.',
+  body = 'Get more AI planning and add extra properties. Your existing home records stay available.',
   cta = 'Upgrade',
   compact = false,
   loading = false,
+  disabled = false,
   onPress,
 }) => (
   <View style={[styles.card, compact && styles.cardCompact]}>
@@ -27,9 +29,9 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
     <Text style={styles.title}>{title}</Text>
     <Text style={styles.body}>{body}</Text>
     <TouchableOpacity
-      style={[styles.button, loading && styles.buttonDisabled]}
+      style={[styles.button, (loading || disabled) && styles.buttonDisabled]}
       onPress={onPress}
-      disabled={loading}
+      disabled={loading || disabled}
       activeOpacity={0.85}
     >
       <Text style={styles.buttonText}>{loading ? 'Opening...' : cta}</Text>

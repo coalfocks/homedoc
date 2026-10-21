@@ -72,7 +72,8 @@ interface PlanChatMessage {
   createdAt: string;
 }
 
-const freeMonthlyAiCallLimit = 20;
+const freeMonthlyAiCallLimit = 4;
+const betaMonthlyAiCallLimit = 20;
 const proMonthlyAiCallLimit = 300;
 const maxAnswersPayloadLength = 6000;
 const maxChatMessageLength = 2000;
@@ -372,18 +373,20 @@ async function consumeAiPlanCall(
   adminClient: ReturnType<typeof createClient>,
   userId: string,
 ) {
-  const { data: entitlement, error: entitlementError } = await adminClient
-    .from('user_entitlements')
-    .select('plan, status')
-    .eq('user_id', userId)
-    .maybeSingle();
+  const { data: entitlement, error: entitlementError } = await adminClient.rpc(
+    'billing_access_for_user',
+    { p_user_id: userId },
+  );
 
   if (entitlementError) throw entitlementError;
 
-  const isPro =
-    entitlement?.plan === 'pro' &&
-    ['active', 'trialing'].includes(entitlement.status);
-  const limit = isPro ? proMonthlyAiCallLimit : freeMonthlyAiCallLimit;
+  const isPro = entitlement?.plan === 'pro' && entitlement?.status === 'active';
+  const limit =
+    isPro && ['app_store', 'stripe'].includes(entitlement?.provider)
+      ? proMonthlyAiCallLimit
+      : entitlement?.beta_access
+        ? betaMonthlyAiCallLimit
+        : freeMonthlyAiCallLimit;
   const now = new Date();
   const periodStart = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),

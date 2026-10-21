@@ -1,13 +1,13 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from '@rneui/themed';
 import {
-  EmptyStateCard,
-  MetricPill,
-  PageHeader,
-  Screen,
-  SectionTitle,
-} from '../components/AppChrome';
+  Linking,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Text } from '@rneui/themed';
+import { PageHeader, Screen, SectionTitle } from '../components/AppChrome';
 import { BetaFeedbackCard } from '../components/BetaFeedbackCard';
 import { UpgradeCard } from '../components/UpgradeCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,28 +17,7 @@ import { openFeedbackEmail } from '../utils/feedback';
 import { PrivacyPolicyLink } from '../components/PrivacyPolicyLink';
 import { theme } from '../utils/theme';
 import { showDialog } from '../utils/dialogs';
-
-const proFeatures = [
-  'AI maintenance plans with materials, costs, warnings, and follow-up chat',
-  'Unlimited properties for your house, rentals, cabins, and family homes',
-  'Share-ready transfer flows so home knowledge moves with the property',
-  'Property sharing and ownership transfer',
-];
-
-const goToMarketUseCases = [
-  {
-    title: 'Move-in memory',
-    body: 'Capture paint colors, appliance models, warranties, filters, shutoffs, and contractor details before they vanish into camera roll hell.',
-  },
-  {
-    title: 'Maintenance planning',
-    body: 'Turn a messy todo into a scoped plan with tools, parts, warnings, rough cost, and a clean checklist.',
-  },
-  {
-    title: 'Home handoff',
-    body: 'Transfer the home record to a buyer, partner, property manager, or tenant when ownership or responsibility changes.',
-  },
-];
+import { isFreeBeta } from '../config/beta';
 
 const UpgradeScreen: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -46,16 +25,20 @@ const UpgradeScreen: React.FC = () => {
     entitlement,
     isPro,
     betaAccess,
+    loading,
     checkoutLoading,
     error,
+    notice,
+    price,
     openCheckout,
+    restorePurchases,
     openBillingPortal,
-  } = useBilling();
-
+  } = useBilling({ loadOffering: true });
+  const isIos = Platform.OS === 'ios';
   const confirmDeleteAccount = () => {
     showDialog(
       'Delete account',
-      'This permanently deletes your HomeDoc account. Properties with an eligible household member or collaborator may be transferred to them; other properties and their records are deleted. This cannot be undone.',
+      'This permanently deletes your HomeDoc account. Properties with an eligible household member or collaborator may be transferred to them; other properties and their records are deleted. This cannot be undone. Deleting your account does not cancel an Apple subscription; manage it in App Store subscriptions.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -64,187 +47,176 @@ const UpgradeScreen: React.FC = () => {
           onPress: async () => {
             const { error: deleteError } =
               await supabase.functions.invoke('delete-account');
-
             if (deleteError) {
               showDialog(
                 'Could not delete account',
-                deleteError.message || 'Please send a deletion request.',
+                'Please try again or contact cfox@skriber.com.',
               );
               return;
             }
-
             await signOut();
           },
         },
       ],
     );
   };
-
-  if (betaAccess) {
-    const betaFeatures = [
-      'AI planning for home todos',
-      'Multiple properties while beta access is active',
-      '20 AI requests per calendar month; questions, plans, and chat each count',
-      'Share and transfer flows for home handoff testing',
-      'Feedback capture with app version and account context',
-    ];
-
-    return (
-      <Screen scroll contentContainerStyle={styles.content}>
-        <PageHeader
-          eyebrow="HOMEDOC BETA"
-          title="Free beta access is active"
-          subtitle="Use the full app, then tell us what feels useful, confusing, or missing before paid plans go live."
-        />
-
-        <View style={styles.activeCard}>
-          <Text style={styles.activeTitle}>No payment required</Text>
-          <Text style={styles.activeBody}>
-            Pro surfaces are included during beta so testers can exercise the
-            complete workflow without hitting checkout.
-          </Text>
-        </View>
-
-        <SectionTitle
-          title="What to try"
-          subtitle="The goal is to learn whether documenting a home feels valuable enough to keep doing."
-        />
-        <View style={styles.featureList}>
-          {betaFeatures.map((feature) => (
-            <View key={feature} style={styles.featureRow}>
-              <Text style={styles.check}>✓</Text>
-              <Text style={styles.featureText}>{feature}</Text>
-            </View>
-          ))}
-        </View>
-
-        <BetaFeedbackCard context="Beta" compact />
-
-        <SectionTitle
-          title="Privacy and account"
-          subtitle="HomeDoc stores home details, addresses, and photos. Uploaded images are private to people with record access."
-        />
-        <View style={styles.accountCard}>
-          <PrivacyPolicyLink
-            style={styles.secondaryButton}
-            textStyle={styles.secondaryButtonText}
-          />
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() =>
-              openFeedbackEmail('Privacy or data request', user?.email)
-            }
-          >
-            <Text style={styles.secondaryButtonText}>Privacy request</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteAccountButton}
-            onPress={confirmDeleteAccount}
-          >
-            <Text style={styles.deleteAccountButtonText}>Delete account</Text>
-          </TouchableOpacity>
-        </View>
-      </Screen>
-    );
-  }
+  const features = betaAccess
+    ? [
+        'Multiple properties while beta access is active',
+        '20 AI requests per calendar month',
+      ]
+    : [
+        'Additional properties',
+        '300 AI requests per calendar month for questions, plans, and follow-up chat',
+      ];
 
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <PageHeader
-        eyebrow={betaAccess ? 'HOMEDOC BETA' : 'HOMEDOC PRO'}
-        title={
-          betaAccess
-            ? 'Pro is included while HomeDoc is in beta'
-            : 'Keep every property record in one place'
-        }
-        subtitle={
-          betaAccess
-            ? 'Use everything, then tell us what feels useful, confusing, or missing before paid plans go live.'
-            : 'HomeDoc Pro adds AI planning, unlimited properties, and clean handoffs when a home changes hands.'
-        }
+        eyebrow="HOMEDOC"
+        title="Your plan and account"
+        subtitle="Keep home details, photos, notes, and maintenance tasks together."
       />
-
-      <View style={styles.metricRow}>
-        <MetricPill label="Plan" value={isPro ? 'Pro' : 'Free'} />
-        <MetricPill label="Status" value={entitlement.status || 'free'} />
-      </View>
-
       {betaAccess ? (
         <View style={styles.activeCard}>
           <Text style={styles.activeTitle}>Free beta access is active</Text>
           <Text style={styles.activeBody}>
-            AI planning, extra properties, and handoff surfaces are unlocked for
-            beta feedback. No payment is required right now.
+            Your beta access continues without payment. We will announce any
+            change before it ends.
           </Text>
         </View>
       ) : isPro ? (
         <View style={styles.activeCard}>
-          <Text style={styles.activeTitle}>Pro is active</Text>
+          <Text style={styles.activeTitle}>HomeDoc Pro is active</Text>
           <Text style={styles.activeBody}>
-            AI plans and Pro surfaces are unlocked on this account.
+            AI planning and additional properties are available on your account.
           </Text>
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={openBillingPortal}
-            disabled={checkoutLoading}
-          >
-            <Text style={styles.secondaryButtonText}>
-              {checkoutLoading ? 'Opening...' : 'Manage billing'}
-            </Text>
-          </TouchableOpacity>
         </View>
       ) : (
-        <UpgradeCard
-          title="Upgrade when the home record becomes valuable"
-          body="Start free. Go Pro when you want AI planning, more properties, and handoff-ready records."
-          cta="Start Pro"
-          loading={checkoutLoading}
-          onPress={openCheckout}
-        />
+        <>
+          <SectionTitle
+            title="Start with one home, free"
+            subtitle="Save photos, notes, areas, and tasks. Sharing and home transfer are included. Try AI with 4 requests each calendar month; questions, plans, and chat each count as one request."
+          />
+          <UpgradeCard
+            title="HomeDoc Pro"
+            body="Add extra properties and get 300 AI requests per calendar month. Your home records stay available if you cancel."
+            cta={
+              isIos
+                ? price
+                  ? `Subscribe — ${price}/month`
+                  : 'App Store pricing unavailable'
+                : 'See Pro pricing'
+            }
+            loading={checkoutLoading || loading}
+            disabled={(isIos && !price) || Platform.OS === 'android'}
+            onPress={openCheckout}
+          />
+          {isIos && price ? (
+            <Text style={styles.activeBody}>
+              HomeDoc Pro is an auto-renewing monthly subscription at {price}{' '}
+              per month. Payment is charged to your Apple Account at
+              confirmation. It renews unless cancelled at least 24 hours before
+              the current period ends. Manage or cancel in App Store
+              subscriptions.
+            </Text>
+          ) : null}
+        </>
       )}
-
-      <BetaFeedbackCard context="Beta and Pro" compact />
-
+      {isPro ? (
+        <>
+          <SectionTitle
+            title={
+              betaAccess
+                ? 'Included with your beta access'
+                : 'Included with Pro'
+            }
+          />
+          <View style={styles.featureList}>
+            {features.map((feature) => (
+              <View key={feature} style={styles.featureRow}>
+                <Text style={styles.check}>✓</Text>
+                <Text style={styles.featureText}>{feature}</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.activeBody}>
+            AI questions, generated plans, and follow-up messages each count as
+            a request. Allowances reset at the beginning of each UTC calendar
+            month.
+          </Text>
+        </>
+      ) : null}
+      {isIos && !isFreeBeta ? (
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          disabled={checkoutLoading}
+          onPress={restorePurchases}
+        >
+          <Text style={styles.secondaryButtonText}>Restore purchases</Text>
+        </TouchableOpacity>
+      ) : null}
+      {(isIos && !isFreeBeta) ||
+      (!isIos && entitlement.provider === 'stripe') ? (
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          disabled={checkoutLoading}
+          onPress={openBillingPortal}
+        >
+          <Text style={styles.secondaryButtonText}>
+            {isIos ? 'Manage Apple subscriptions' : 'Manage billing'}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      {isIos && entitlement.provider === 'stripe' ? (
+        <Text style={styles.activeBody}>
+          Your current plan was purchased on the web. Manage that plan on the
+          HomeDoc website.
+        </Text>
+      ) : null}
       {error ? (
         <View style={styles.errorCard}>
-          <Text style={styles.errorTitle}>Billing is not ready yet</Text>
+          <Text style={styles.errorTitle}>Could not complete billing</Text>
           <Text style={styles.errorBody}>{error}</Text>
         </View>
       ) : null}
-
-      <SectionTitle
-        title="What Pro unlocks"
-        subtitle="Practical tools for owners, rentals, moves, and repairs."
-      />
-
-      <View style={styles.featureList}>
-        {proFeatures.map((feature) => (
-          <View key={feature} style={styles.featureRow}>
-            <Text style={styles.check}>✓</Text>
-            <Text style={styles.featureText}>{feature}</Text>
-          </View>
-        ))}
+      {notice ? (
+        <Text accessibilityLiveRegion="polite" style={styles.activeBody}>
+          {notice}
+        </Text>
+      ) : null}
+      <SectionTitle title="Privacy and account" />
+      <View style={styles.accountCard}>
+        <PrivacyPolicyLink
+          style={styles.secondaryButton}
+          textStyle={styles.secondaryButtonText}
+        />
+        {isIos ? (
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() =>
+              Linking.openURL(
+                'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+              )
+            }
+          >
+            <Text style={styles.secondaryButtonText}>Terms of use</Text>
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => openFeedbackEmail('HomeDoc support', user?.email)}
+        >
+          <Text style={styles.secondaryButtonText}>Contact support</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteAccountButton}
+          onPress={confirmDeleteAccount}
+        >
+          <Text style={styles.deleteAccountButtonText}>Delete account</Text>
+        </TouchableOpacity>
       </View>
-
-      <SectionTitle
-        title="Where it helps"
-        subtitle="The value shows up when old home details suddenly matter."
-      />
-
-      <View style={styles.useCaseList}>
-        {goToMarketUseCases.map((item) => (
-          <View key={item.title} style={styles.useCaseCard}>
-            <Text style={styles.useCaseTitle}>{item.title}</Text>
-            <Text style={styles.useCaseBody}>{item.body}</Text>
-          </View>
-        ))}
-      </View>
-
-      <EmptyStateCard
-        icon="home"
-        title="Good starting points"
-        description="Realtors, inspectors, property managers, move-ins, and pre-sale cleanup all create moments where a complete home record is useful."
-      />
+      <BetaFeedbackCard context="Account" compact />
     </Screen>
   );
 };

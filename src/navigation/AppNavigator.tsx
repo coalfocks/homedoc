@@ -8,7 +8,6 @@ import { Text } from '@rneui/themed';
 import { Icon } from '../components/Icon';
 import { supabase } from '../utils/supabaseClient';
 import { theme } from '../utils/theme';
-import { isFreeBeta } from '../config/beta';
 import { useAuth } from '../contexts/AuthContext';
 import { openFeedbackEmail } from '../utils/feedback';
 
@@ -338,8 +337,8 @@ const MainTabs = () => {
         name="Pro"
         component={BetaStack}
         options={{
-          title: isFreeBeta ? 'Beta' : 'Pro',
-          tabBarLabel: isFreeBeta ? 'Beta' : 'Pro',
+          title: 'Account',
+          tabBarLabel: 'Account',
           tabBarIcon: ({ color, size }) => (
             <Icon name="priority" color={color} size={size} />
           ),

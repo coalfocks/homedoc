@@ -37,6 +37,12 @@ function loadHandler({
   existingPlan = null,
   existingChat = [],
   completionContent,
+  billingAccess = {
+    plan: 'pro',
+    status: 'active',
+    provider: 'beta',
+    beta_access: true,
+  },
 } = {}) {
   let handler;
   const completions = [];
@@ -159,6 +165,11 @@ function loadHandler({
     return {
       from: (table) => makeQuery('select', table, 'admin'),
       rpc: (name, args) => {
+        if (name === 'billing_access_for_user') {
+          assert.equal(args.p_user_id, 'user-1');
+          return Promise.resolve({ data: billingAccess, error: null });
+        }
+        assert.equal(name, 'consume_ai_plan_call');
         quotaCalls.push({ name, args });
         assert.equal(
           args.p_user_id,
@@ -385,4 +396,37 @@ for (const [name, options, authorization, expectedStatus] of [
 
 console.log(
   'Plan-todo handler passed offline checks for all phases, provider parameters, persistence, auth, user-scoped access, and quota denial.',
+);
+
+for (const [billingAccess, limit] of [
+  [{ plan: 'free', status: 'free', provider: 'free', beta_access: false }, 4],
+  [{ plan: 'pro', status: 'active', provider: 'beta', beta_access: true }, 20],
+  [
+    { plan: 'pro', status: 'active', provider: 'app_store', beta_access: true },
+    300,
+  ],
+  [
+    { plan: 'pro', status: 'active', provider: 'stripe', beta_access: false },
+    300,
+  ],
+]) {
+  const runtime = loadHandler({
+    billingAccess,
+    completionContent: JSON.stringify(questionResult),
+  });
+  const response = await runtime.handler(
+    new Request('https://example.invalid/plan-todo', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer valid',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ todoId: 'todo-1', phase: 'questions' }),
+    }),
+  );
+  assert.equal(response.status, 200);
+  assert.equal(runtime.quotaCalls[0].args.p_monthly_limit, limit);
+}
+console.log(
+  'AI allowance selection passed: free 4, beta 20, paid Apple/Stripe 300.',
 );

@@ -46,13 +46,31 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiConsent, setAiConsent] = useState(false);
+  useEffect(() => setAiConsent(false), [todoId]);
+  const consentNotice = !aiConsent ? (
+    <View style={styles.loadingCard}>
+      <RNEText style={styles.heading}>Allow AI planning?</RNEText>
+      <RNEText style={styles.subheading}>
+        HomeDoc sends OpenAI this task, your answers and follow-up messages, the
+        saved plan and recent chat, property and area names, area description,
+        priority, and city/state to generate guidance. Photos and street-address
+        fields are not sent automatically. AI can make mistakes; check the plan
+        before doing work.
+      </RNEText>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() => setAiConsent(true)}
+      >
+        <RNEText style={styles.primaryButtonText}>
+          Allow AI for this task
+        </RNEText>
+      </TouchableOpacity>
+    </View>
+  ) : null;
 
   const startPlanning = async () => {
-    if (loading) return;
-    if (!isPro && onUpgradePress) {
-      onUpgradePress();
-      return;
-    }
+    if (loading || !aiConsent) return;
 
     setLoading(true);
     setError(null);
@@ -80,11 +98,7 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   };
 
   const generatePlan = async () => {
-    if (loading) return;
-    if (!isPro && onUpgradePress) {
-      onUpgradePress();
-      return;
-    }
+    if (loading || !aiConsent) return;
 
     setLoading(true);
     setError(null);
@@ -134,31 +148,22 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   // ── Existing plan ──────────────────────────────────
   if (phase === 'plan' && plan) {
     return (
-      <PlanDisplay
-        todoId={todoId}
-        plan={plan}
-        planChat={planChat}
-        onChatUpdated={onPlanGenerated}
-        onRegenerate={() => setPhase('idle')}
-      />
+      <View>
+        {consentNotice}
+        <PlanDisplay
+          todoId={todoId}
+          plan={plan}
+          planChat={planChat}
+          onChatUpdated={onPlanGenerated}
+          onRegenerate={() => setPhase('idle')}
+          canSendAi={aiConsent}
+        />
+      </View>
     );
   }
 
   // ── Questions phase ────────────────────────────────
   if (phase === 'questions') {
-    if (!isPro && onUpgradePress) {
-      return (
-        <UpgradeCard
-          compact
-          title="AI planning is a Pro feature"
-          body="Upgrade to turn home todos into step-by-step plans with materials, costs, warnings, and follow-up chat."
-          cta="Upgrade to plan"
-          loading={upgradeLoading}
-          onPress={onUpgradePress}
-        />
-      );
-    }
-
     return (
       <View style={styles.container}>
         <RNEText style={styles.heading}>Help me plan this</RNEText>
@@ -202,29 +207,29 @@ export const PlanPanel: React.FC<PlanPanelProps> = ({
   return (
     <View style={styles.container}>
       {error && <RNEText style={styles.errorText}>{error}</RNEText>}
+      {consentNotice}
+      <TouchableOpacity
+        style={styles.planButton}
+        onPress={startPlanning}
+        disabled={!aiConsent}
+      >
+        <View style={styles.planButtonTextContainer}>
+          <RNEText style={styles.planButtonTitle}>Help me plan this</RNEText>
+          <RNEText style={styles.planButtonSubtitle}>
+            Create a plan with materials, rough costs, and safety checks
+          </RNEText>
+        </View>
+      </TouchableOpacity>
       {!isPro && onUpgradePress ? (
         <UpgradeCard
           compact
-          title="Plan projects with HomeDoc Pro"
-          body="Get materials, rough costs, safety checks, and step-by-step guidance before you start."
-          cta="Upgrade to plan"
+          title="Need more AI planning?"
+          body="Your free plan includes 4 AI requests per calendar month. Questions, plans, and chat each count as a request."
+          cta="See Pro"
           loading={upgradeLoading}
           onPress={onUpgradePress}
         />
-      ) : (
-        <View>
-          <TouchableOpacity style={styles.planButton} onPress={startPlanning}>
-            <View style={styles.planButtonTextContainer}>
-              <RNEText style={styles.planButtonTitle}>
-                Help me plan this
-              </RNEText>
-              <RNEText style={styles.planButtonSubtitle}>
-                Use AI to create a plan with materials, costs, and tips
-              </RNEText>
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
+      ) : null}
     </View>
   );
 };
@@ -237,7 +242,8 @@ const PlanDisplay: React.FC<{
   planChat: PlanChatMessage[] | null | undefined;
   onChatUpdated: () => void;
   onRegenerate: () => void;
-}> = ({ todoId, plan, planChat, onChatUpdated, onRegenerate }) => {
+  canSendAi: boolean;
+}> = ({ todoId, plan, planChat, onChatUpdated, onRegenerate, canSendAi }) => {
   const [messages, setMessages] = useState<PlanChatMessage[]>(planChat ?? []);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -255,7 +261,7 @@ const PlanDisplay: React.FC<{
 
   const sendMessage = async () => {
     const message = draft.trim();
-    if (!message || sending) return;
+    if (!message || sending || !canSendAi) return;
 
     const optimisticUserMessage: PlanChatMessage = {
       role: 'user',
@@ -522,7 +528,7 @@ const PlanDisplay: React.FC<{
               (!draft.trim() || sending) && styles.sendButtonDisabled,
             ]}
             onPress={sendMessage}
-            disabled={!draft.trim() || sending}
+            disabled={!draft.trim() || sending || !canSendAi}
           >
             {sending ? (
               <ActivityIndicator

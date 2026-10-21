@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "homedoc",
+    "name": "HomeDoc",
     "slug": "homedoc",
     "scheme": "homedoc",
-    "version": "1.1.11",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "202610130001"
+      "buildNumber": "202610210251"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,6 +41,17 @@
         "projectId": "055ce70c-4115-4c28-af17-e36f6de1123e"
       }
     },
-    "owner": "coalfocks"
+    "owner": "coalfocks",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow HomeDoc to attach selected photos to your home records.",
+          "cameraPermission": "Allow HomeDoc to take photos for your home records.",
+          "microphonePermission": false
+        }
+      ],
+      "./plugins/withPodDeploymentTarget.cjs"
+    ]
   }
 }

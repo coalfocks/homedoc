@@ -45,7 +45,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     (sum, property) => sum + (property.area_count ?? 0),
     0,
   );
-  const hasReachedFreePropertyLimit = !isPro && properties.length >= 1;
+  const hasReachedFreePropertyLimit =
+    !isPro &&
+    properties.filter((property) => property.user_id === user?.id).length >= 1;
   const handleAddProperty = () => {
     if (hasReachedFreePropertyLimit) {
       navigation.getParent()?.navigate('Pro');

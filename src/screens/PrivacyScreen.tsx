@@ -24,6 +24,14 @@ const providerLinks = [
     url: 'https://openai.com/policies/privacy-policy/',
   },
   { label: 'Stripe privacy center', url: 'https://stripe.com/privacy' },
+  {
+    label: 'RevenueCat privacy policy',
+    url: 'https://www.revenuecat.com/privacy',
+  },
+  {
+    label: 'Apple privacy policy',
+    url: 'https://www.apple.com/legal/privacy/',
+  },
 ];
 
 const openLink = (url: string) => {
@@ -53,7 +61,7 @@ export const PrivacyContent = () => (
     <Text accessibilityRole="header" style={styles.title}>
       Privacy policy
     </Text>
-    <Text style={styles.updated}>Last updated October 13, 2026</Text>
+    <Text style={styles.updated}>Last updated October 20, 2026</Text>
     <Paragraph>
       This page explains what the HomeDoc beta app handles, why it uses that
       information, and how to ask us about your data. We will update this page
@@ -120,16 +128,20 @@ export const PrivacyContent = () => (
 
     <PrivacySection title="Payments and service providers">
       <Paragraph>
-        Beta access is free and does not require payment. If you choose a paid
-        plan when one is offered, Stripe handles payment and subscription
-        processing; HomeDoc receives subscription status needed to provide
-        account features. HomeDoc does not ask you to enter payment card details
-        in its own forms.
+        Basic home records are free. Existing beta access does not require
+        payment. When you purchase a subscription in the iOS app, Apple
+        processes payment. When you view iOS subscription options, purchase, or
+        restore, RevenueCat verifies purchases and receives your HomeDoc account
+        ID, purchase identifiers, subscription status, and purchase-related
+        device information. HomeDoc stores the verified plan and expiration to
+        provide account features. Stripe handles subscriptions purchased through
+        web checkout. HomeDoc does not collect card details in its own forms.
       </Paragraph>
       <Paragraph>
-        HomeDoc uses Supabase, OpenAI for the AI planning feature, and Stripe
-        only if billing is enabled. Each provider has its own privacy and data
-        handling terms, which can change. Review their current notices below.
+        HomeDoc uses Supabase, OpenAI for AI planning, and Apple and RevenueCat
+        for iOS subscriptions. Stripe is used for web checkout. Each provider
+        has its own privacy and data handling terms, which can change. Review
+        their current notices below.
       </Paragraph>
     </PrivacySection>
 

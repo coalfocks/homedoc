@@ -4,6 +4,10 @@
 # working directory name when running `supabase init`.
 project_id = "homedoc"
 
+# RevenueCat authenticates using a configured high-entropy Authorization header.
+[functions.app-store-webhook]
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.
