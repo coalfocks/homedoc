@@ -1,33 +1,37 @@
 # App Review notes (en-US)
 
+Draft: complete the live configuration and exact-build QA in [release-checklist.md](release-checklist.md) before pasting these notes into App Store Connect.
+
 ## Reviewer account
 
-Use the dedicated review account credentials entered in App Store Connect's **App Review Information** fields. The repository intentionally contains no reviewer password or recovery code. Before submission, confirm email/password sign-in works on the exact build submitted and that the account has a property, area, note, and maintenance task with synthetic data. Do not rely on a magic link that requires access to an unprovided mailbox.
+Use the dedicated review email and password entered in App Store Connect's **App Review Information** fields. Keep credentials out of the repository. Confirm password sign-in on the submitted binary, with synthetic property, area, note, and task data. Create this account after the beta backfill and confirm it has no preserved beta bypass. Add only dedicated QA/reviewer UUIDs to the server sandbox allowlist.
 
 ## Navigation
 
-1. On sign-in, choose **Password**, enter the review email and password supplied in App Store Connect, then tap **Sign in**.
-2. **Properties** is the initial tab. Open the seeded property and an area to review notes and tasks. The **Areas**, **Notes**, and **Todos** tabs show those records across the account.
-3. Open a todo and scroll to its AI planning panel. If prompted, accept to review generated questions, a plan, and follow-up chat. Use only synthetic review data.
-4. Open **Account** to review the proposed subscription offering and restore-purchases control. Purchase, restore, cancellation, and entitlement behavior must be verified with the submitted build and sandbox account before these notes are treated as final.
-5. Open **Account** for the privacy policy and **Delete account** action. Deletion is permanent; cancel the confirmation to preserve the review account. Use a separate disposable account to test deletion.
+1. On sign-in, choose **Password**, enter the supplied review email/password, and tap **Sign in**.
+2. **Properties** is the initial tab. Open the seeded property and area for notes and tasks. **Areas**, **Notes**, and **Todos** show records across the account.
+3. Open a todo and its AI panel. After the explicit data-sharing consent, request questions, generate a plan, and send follow-up questions using synthetic data. Each question set, plan, or follow-up counts as one AI request.
+4. Open **Account** for yearly/monthly Pro, localized Apple pricing, **Restore purchases**, and Apple subscription management. The annual option is selected by default; the two options provide identical features.
+5. **Account** also provides privacy, support, and **Delete account**. Deletion is permanent and does not cancel Apple billing. Cancel the deletion confirmation to preserve the reviewer account; test deletion using a separate disposable account.
 
-## Proposed release configuration (not verified live)
+## Release access
 
-The new App Store release profile is intended to use RevenueCat SDK 10.15. The proposed free tier includes one home and four AI requests per month. Pro is proposed to include 300 AI requests per month and additional homes; monthly price is pending a product decision. These values and the purchase flow are proposed implementation details, not claims that a production App Store product or live entitlement has been verified. Update these notes after reviewing the exact release build, App Store Connect products, and sandbox transactions.
+Basic records for one owned home are free: areas, notes, photos, maintenance tasks, sharing, and home transfer. Free accounts have four AI requests per UTC calendar month. HomeDoc Pro adds owned homes and 50 AI requests each month, at US$14.99/year or US$2.99/month. Both subscriptions renew automatically; actual localized Apple prices appear before purchase. Annual billing does not grant a yearly AI pool. Existing records remain accessible after cancellation. Existing beta accounts keep their previously granted beta access.
 
-Due dates are stored with tasks; the app does not send due-date notifications. Sharing and transfer require another existing HomeDoc account. Photo selection uses the device photo library; current-build photo upload and save flows remain unverified.
+Purchases use Apple StoreKit 2 with the HomeDoc account UUID as the app account token. The server fetches canonical subscription status from Apple and verifies Apple signatures using the official App Store Server Library; client purchase data cannot grant access. The server separates Apple, Stripe, and beta access. App Store sandbox verification is restricted to designated review/QA accounts. iOS does not launch Stripe checkout.
 
-## Submission status to update before pasting
+Due dates are stored; the app does not send due-date notifications. Sharing and transfer require an existing recipient HomeDoc account. AI guidance can be inaccurate and is not a substitute for a qualified professional.
 
-The latest recorded native checks are against build `1.1.10 (202609232143)`. Build `1.1.11 (202610130001)` completed an EAS build but has not been accepted or processed by App Store Connect. Submission attempts recorded October 13, 2026 stopped before upload because a required Apple agreement was missing or expired. Replace this status after resolving the agreement, uploading and processing the current build, and checking the exact binary.
+## Contact and links
 
-## Contact
+Support/privacy: cfox@skriber.com
 
-Support and privacy contact: cfox@skriber.com
+Support: https://homedocumentation.com/support
 
-Privacy policy: https://homedocumentation.com/privacy
+Privacy: https://homedocumentation.com/privacy
 
-Support URL for the listing: https://homedocumentation.com/support (implemented in this branch; publish and verify before submission). The new 1.2.0 Release build compiles locally and starts a simulator process; the locked Mac prevented screen inspection. This does not verify a signed device build, purchases, or App Store processing.
+Terms: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
-Create the dedicated reviewer account after applying the one-time beta backfill, and confirm it has no beta bypass. Otherwise Account will show preserved beta access and hide the purchase offering. Add only its UUID to the sandbox verification allowlist.
+## Internal verification status — remove before pasting
+
+The new source candidate is 1.2.0 (202610212048). Product prices are user-approved, but Apple product/server setup, live backend deployment, a dedicated reviewer account, exact signed-build purchase/restore QA, and final screenshots are still pending. The older EAS build recorded in build-evidence.json uses the free-beta profile and was not submitted. Apple is now signed in. Group HomeDoc Pro (22501802) was created, but product creation is explicitly blocked by the updated Developer Program License Agreement. Do not claim upload, processing, or production purchase verification until actually observed.

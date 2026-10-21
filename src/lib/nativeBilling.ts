@@ -1,10 +1,11 @@
 /**
- * Platform fallback for RevenueCat billing. Native iOS builds resolve
- * nativeBilling.ios.ts; other platforms intentionally never load the native
- * purchase SDK.
+ * Platform fallback for StoreKit billing. Native iOS builds resolve
+ * nativeBilling.ios.ts; other platforms never load the StoreKit module.
  */
 
-export interface MonthlyBillingPackage {
+export type BillingInterval = 'monthly' | 'annual';
+
+export interface BillingPackage {
   identifier: string;
   packageType: string;
   product: {
@@ -23,8 +24,11 @@ export type NativeBillingErrorCode =
   | 'billing_unavailable'
   | 'invalid_user'
   | 'monthly_plan_unavailable'
+  | 'annual_plan_unavailable'
   | 'purchase_cancelled'
+  | 'purchase_pending'
   | 'purchase_failed'
+  | 'transaction_finish_failed'
   | 'restore_failed'
   | 'manage_failed';
 
@@ -44,19 +48,41 @@ const unavailable = (): NativeBillingError =>
     'Purchases are available in the iOS app. Please try again on an iPhone or iPad.',
   );
 
-export async function getMonthlyPackage(
+export async function getBillingPackages(
   _userId: string,
-): Promise<MonthlyBillingPackage> {
+): Promise<Record<BillingInterval, BillingPackage>> {
   throw unavailable();
 }
 
-/** Returns only after the App Store purchase completes; entitlement authority stays on the server. */
-export async function purchaseMonthly(_userId: string): Promise<void> {
+/** Returns the Apple transaction ID; only the server can confirm entitlement. */
+export async function purchaseBillingPackage(
+  _userId: string,
+  _interval: BillingInterval,
+): Promise<string> {
   throw unavailable();
 }
 
-/** Returns only after the App Store restore completes; entitlement authority stays on the server. */
-export async function restorePurchases(_userId: string): Promise<void> {
+/** Returns active transaction IDs matched to the authenticated account token. */
+export async function getCurrentEntitlementTransactionIDs(
+  _userId: string,
+): Promise<string[]> {
+  throw unavailable();
+}
+
+export function subscribeToTransactionUpdates(
+  _userId: string,
+  _listener: (transactionId: string) => void,
+): { remove: () => void } {
+  return { remove: () => undefined };
+}
+
+/** Calls StoreKit restore and returns only verified active transaction IDs. */
+export async function restorePurchases(_userId: string): Promise<string[]> {
+  throw unavailable();
+}
+
+/** Finishes a StoreKit transaction after server verification succeeds. */
+export async function finishTransaction(_transactionId: string): Promise<void> {
   throw unavailable();
 }
 

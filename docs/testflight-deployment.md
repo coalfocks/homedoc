@@ -7,7 +7,7 @@ building. Choose one of the two EAS profiles:
 - `production` retains the existing production configuration, including its
   current beta-access setting.
 - `app-store` is the paid-build candidate. It disables the global beta bypass
-  and requires a valid RevenueCat Apple public SDK key before build.
+  and includes the local Apple StoreKit 2 module. No third-party billing account or client SDK key is required.
 
 The workflow builds with the selected profile and does not submit by default.
 Select **Submit to App Store Connect** only when the completed build should be
@@ -34,20 +34,33 @@ credentials, tokens, and raw EAS/API error bodies are excluded.
 - `IOS_DIST_CERT_P12_BASE64`
 - `IOS_DIST_CERT_PASSWORD`
 - `IOS_PROVISIONING_PROFILE_BASE64`
-- `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY` (required by the `app-store` profile)
 
-The RevenueCat key is a public Apple SDK key, not a secret RevenueCat API key.
-It must also be configured in the EAS `production` environment used by remote
-builds. GitHub Actions secrets passed to the local preflight do not propagate
-into the EAS remote build environment. The EAS app-store profile is configured
-with `EXPO_PUBLIC_HOMEDOC_FREE_BETA=false`; do not change the existing
-`production` profile's beta setting until release activation is intended.
+Apple App Store Server API credentials belong only in Supabase server secrets.
+Never place an In-App Purchase private key in `EXPO_PUBLIC_*`, app configuration,
+GitHub build output, or a client bundle. The `app-store` EAS profile is configured
+with `EXPO_PUBLIC_HOMEDOC_FREE_BETA=false`; preserve the existing `production`
+profile's beta setting until release activation is intended.
 
-The native subscription product identifier is
-`com.coalfocks.homedoc.pro.monthly`. RevenueCat must have that product attached
-to the current offering's monthly package and the `pro` entitlement. The final
-subscription price has not been set yet, so customer-facing pricing and the
-App Store product configuration remain release work.
+The approved U.S. subscription options are **$14.99/year** (default selection)
+and **$2.99/month**. Configure both at the same service level in a single
+**HomeDoc Pro** subscription group. The product IDs are
+`com.coalfocks.homedoc.pro.annual` and `com.coalfocks.homedoc.pro.monthly`.
+The native app requests both products directly from Apple StoreKit. Exact product metadata is in
+`docs/app-store/subscriptions.json`.
+
+The SDK displays Apple's localized prices. Optional public overrides are
+`EXPO_PUBLIC_APP_STORE_PRO_PRODUCT_ID` (monthly) and
+`EXPO_PUBLIC_APP_STORE_PRO_ANNUAL_PRODUCT_ID` (annual). If overridden, they
+must exactly match the server's `APP_STORE_PRO_PRODUCT_ID` and
+`APP_STORE_PRO_ANNUAL_PRODUCT_ID`; otherwise a purchase can succeed at Apple
+while server verification rejects access. Keep the default IDs where possible.
+
+Both billing periods include **50 AI requests per UTC calendar month** and
+additional owned homes. Basic records for one home remain free, with four AI
+requests monthly. Question sets, plans, and chat each use one request. Unused
+requests do not roll over; the annual payment does not issue a yearly AI pool.
+Existing records remain accessible after a subscription expires. Preserved beta
+accounts retain the existing 20-request allowance.
 
 The backend App Store entitlement migration, Edge Functions, webhook, and
 required server secrets/configuration have not been deployed. A successful
@@ -67,4 +80,4 @@ requires the iOS 26 SDK. The local timestamp-style iOS build number is retained;
 do not switch `cli.appVersionSource` to `remote` unless the remote counter is
 first moved above the highest build already uploaded to App Store Connect.
 
-Sandbox verification also requires `APP_STORE_SANDBOX_USER_IDS`, a comma-separated list of dedicated QA/reviewer HomeDoc user UUIDs. Only those accounts may receive production-backend access from sandbox purchases when `APP_STORE_ALLOW_SANDBOX=true`. Keep RevenueCat restore behavior set to **Keep with original App User ID**; do not enable purchase transfers between unrelated signed-in HomeDoc accounts without separately designing that policy.
+Sandbox verification also requires `APP_STORE_SANDBOX_USER_IDS`, a comma-separated list of dedicated QA/reviewer HomeDoc user UUIDs. Only those accounts may receive production-backend access from sandbox purchases when `APP_STORE_ALLOW_SANDBOX=true`. StoreKit supplies the signed-in Supabase UUID as `appAccountToken`; the server requires an exact token match. Purchases cannot be restored to a different HomeDoc account.

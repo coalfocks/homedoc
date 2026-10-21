@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-10-21T21:10:40.929300+00:00",
+  "version": "1.2.0",
+  "buildNumber": "202610212048",
+  "billingProvider": "Apple StoreKit 2",
+  "sourceBranch": "codex/app-store-submission",
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "prettier": "passed",
+    "jest": {
+      "suites": 11,
+      "tests": 51,
+      "status": "passed"
+    },
+    "serverBillingAndAiHandlers": "passed",
+    "appleReadinessUnitTests": {
+      "tests": 4,
+      "status": "passed"
+    },
+    "databaseBillingQuotaAndRecordPermissions": "passed",
+    "denoCheck": "passed",
+    "submissionMetadata": "passed",
+    "paidBuildPreflight": "passed",
+    "expoExports": ["web", "ios", "android"],
+    "paidModeExpoExports": ["web", "ios", "android"],
+    "native": {
+      "status": "BUILD SUCCEEDED",
+      "xcode": "27.1",
+      "configuration": "Release",
+      "sdk": "iphonesimulator",
+      "codeSigningAllowed": false,
+      "storeKitModuleCompiled": true
+    }
+  },
+  "notVerified": [
+    "live Apple products and prices",
+    "live backend deployment",
+    "signed paid App Store binary",
+    "Apple processing",
+    "native UI/device QA",
+    "real purchase, restore, renewal, expiry and refund",
+    "final store screenshots"
+  ],
+  "externalGates": [
+    "Apple account-holder agreement review",
+    "HomeDoc Supabase owner access",
+    "Apple In-App Purchase API key and server secrets",
+    "reviewer/QA accounts and sandbox testing"
+  ]
+}

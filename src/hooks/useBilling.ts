@@ -4,11 +4,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { isFreeBeta } from '../config/beta';
+import type { BillingInterval } from '../lib/nativeBilling';
 import {
-  getMonthlyPackage,
+  finishTransaction,
+  getCurrentEntitlementTransactionIDs,
+  getBillingPackages,
   manageSubscriptions,
-  purchaseMonthly,
+  purchaseBillingPackage,
   restorePurchases as restoreNativePurchases,
+  subscribeToTransactionUpdates,
 } from '../lib/nativeBilling';
 
 export type Entitlement = {
@@ -62,9 +66,12 @@ export const useBilling = ({ loadOffering = false } = {}) => {
   const [priceState, setPriceState] = useState<{
     userId: string | undefined;
     generation: number;
-    value: string | null;
+    value: Record<BillingInterval, string> | null;
   }>({ userId, generation: userGeneration.current, value: null });
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>('annual');
   const billingLock = useRef(false);
+  const syncingTransactions = useRef(new Set<string>());
 
   const isCurrentContext = useCallback(
     (context: BillingContext) =>
@@ -130,43 +137,6 @@ export const useBilling = ({ loadOffering = false } = {}) => {
     }
   }, [isCurrentContext, updateUi, userId]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const context = { userId, generation: userGeneration.current };
-      updateUi(context, { error: null, notice: null });
-      void refresh();
-
-      if (
-        loadOffering &&
-        Platform.OS === 'ios' &&
-        !isFreeBeta &&
-        context.userId
-      ) {
-        void getMonthlyPackage(context.userId)
-          .then((pkg) => {
-            if (!isCurrentContext(context)) return;
-            setPriceState({
-              ...context,
-              value: pkg.product.priceString,
-            });
-          })
-          .catch(() => {
-            if (isCurrentContext(context)) {
-              updateUi(context, {
-                error:
-                  'App Store pricing is unavailable. Please try again later.',
-              });
-            }
-          });
-      }
-
-      const subscription = AppState.addEventListener('change', (state) => {
-        if (state === 'active') void refresh();
-      });
-      return () => subscription.remove();
-    }, [isCurrentContext, loadOffering, refresh, updateUi, userId]),
-  );
-
   const runBilling = useCallback(
     async (operation: (context: BillingContext) => Promise<void>) => {
       if (billingLock.current) return;
@@ -195,8 +165,11 @@ export const useBilling = ({ loadOffering = false } = {}) => {
     [isCurrentContext, updateUi, userId],
   );
 
-  const syncPurchase = useCallback(
-    async (context: BillingContext, action: 'purchase' | 'restore') => {
+  const syncTransaction = useCallback(
+    async (
+      context: BillingContext,
+      transactionId: string,
+    ): Promise<{ verified: boolean; finishFailed: boolean }> => {
       if (!context.userId || !isCurrentContext(context)) {
         throw new Error(
           'Your account changed. Sign in to the purchasing account and restore purchases.',
@@ -205,6 +178,7 @@ export const useBilling = ({ loadOffering = false } = {}) => {
 
       const { error: syncError } = await supabase.functions.invoke(
         'sync-app-store-entitlement',
+        { body: { transactionId } },
       );
       if (syncError) {
         throw new Error(
@@ -226,26 +200,181 @@ export const useBilling = ({ loadOffering = false } = {}) => {
         updated.value.status === 'active' &&
         updated.value.provider === 'app_store';
 
-      if (action === 'restore' && !hasAppStorePro) {
+      if (!hasAppStorePro) return { verified: false, finishFailed: false };
+
+      let finishFailed = false;
+      try {
+        await finishTransaction(transactionId);
+      } catch {
+        finishFailed = true;
         updateUi(context, {
           notice:
-            'No active Apple subscription was found for this HomeDoc account. If you subscribed with another account, sign in to that account and restore again.',
+            'Your subscription is active, but Apple could not finish syncing it. Restore purchases to retry.',
         });
-        return;
       }
-      if (!hasAppStorePro) {
-        throw new Error(
-          'Apple completed the purchase, but HomeDoc has not verified the subscription yet. Please restore purchases to retry.',
-        );
-      }
-      updateUi(context, {
-        notice:
-          action === 'restore'
-            ? 'Apple subscription restored and verified.'
-            : 'Purchase verified. HomeDoc Pro is active.',
-      });
+      return { verified: true, finishFailed };
     },
     [isCurrentContext, refresh, updateUi],
+  );
+
+  const processAppleTransactions = useCallback(
+    async (
+      context: BillingContext,
+      transactionIds: string[],
+      showResult = false,
+      allowBillingOperation = false,
+    ) => {
+      if (
+        !context.userId ||
+        !isCurrentContext(context) ||
+        Platform.OS !== 'ios' ||
+        isFreeBeta ||
+        (billingLock.current && !allowBillingOperation)
+      ) {
+        return;
+      }
+
+      try {
+        let verified = false;
+        let finishFailed = false;
+        for (const transactionId of transactionIds) {
+          if (!isCurrentContext(context)) return;
+          const syncKey = `${context.userId}:${context.generation}:${transactionId}`;
+          if (syncingTransactions.current.has(syncKey)) continue;
+          syncingTransactions.current.add(syncKey);
+          try {
+            const result = await syncTransaction(context, transactionId);
+            verified = result.verified || verified;
+            finishFailed = result.finishFailed || finishFailed;
+          } finally {
+            syncingTransactions.current.delete(syncKey);
+          }
+        }
+        if (transactionIds.length === 0) await refresh();
+        if (showResult && isCurrentContext(context)) {
+          updateUi(context, {
+            notice: verified
+              ? finishFailed
+                ? 'Apple subscription restored and verified, but Apple could not finish syncing it. Restore purchases to retry.'
+                : 'Apple subscription restored and verified.'
+              : 'No active Apple subscription was found for this HomeDoc account. If you subscribed with another account, sign in to that account and restore again.',
+          });
+        }
+      } catch (error) {
+        if (isCurrentContext(context)) await refresh();
+        if (showResult && isCurrentContext(context)) {
+          updateUi(context, {
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Purchases could not be restored. Please try again.',
+          });
+        }
+      }
+    },
+    [isCurrentContext, refresh, syncTransaction, updateUi],
+  );
+
+  const recoverAppleEntitlements = useCallback(
+    async (context: BillingContext) => {
+      if (!context.userId || !isCurrentContext(context) || billingLock.current)
+        return;
+      try {
+        const transactionIds = await getCurrentEntitlementTransactionIDs(
+          context.userId,
+        );
+        if (!isCurrentContext(context)) return;
+        await processAppleTransactions(context, transactionIds);
+      } catch {
+        if (isCurrentContext(context)) await refresh();
+      }
+    },
+    [isCurrentContext, processAppleTransactions, refresh],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const context = { userId, generation: userGeneration.current };
+      updateUi(context, { error: null, notice: null });
+
+      if (
+        loadOffering &&
+        Platform.OS === 'ios' &&
+        !isFreeBeta &&
+        context.userId
+      ) {
+        setPriceState({ ...context, value: null });
+        void getBillingPackages(context.userId)
+          .then((packages) => {
+            if (!isCurrentContext(context)) return;
+            setPriceState({
+              ...context,
+              value: {
+                monthly: packages.monthly.product.priceString,
+                annual: packages.annual.product.priceString,
+              },
+            });
+          })
+          .catch(() => {
+            if (isCurrentContext(context)) {
+              setPriceState({ ...context, value: null });
+              updateUi(context, {
+                error:
+                  'App Store pricing is unavailable. Please try again later.',
+              });
+            }
+          });
+        void recoverAppleEntitlements(context);
+        const transactionSubscription = subscribeToTransactionUpdates(
+          context.userId,
+          (transactionId) => {
+            void processAppleTransactions(context, [transactionId]);
+          },
+        );
+        const appStateSubscription = AppState.addEventListener(
+          'change',
+          (state) => {
+            if (state === 'active') void recoverAppleEntitlements(context);
+          },
+        );
+        return () => {
+          appStateSubscription.remove();
+          transactionSubscription.remove();
+        };
+      } else {
+        void refresh();
+      }
+
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state !== 'active') return;
+        void refresh();
+      });
+      return () => subscription.remove();
+    }, [
+      isCurrentContext,
+      loadOffering,
+      recoverAppleEntitlements,
+      refresh,
+      updateUi,
+      userId,
+    ]),
+  );
+
+  const syncPurchasedTransaction = useCallback(
+    async (context: BillingContext, transactionId: string) => {
+      const result = await syncTransaction(context, transactionId);
+      if (!result.verified) {
+        throw new Error(
+          'Apple completed the purchase, but HomeDoc has not verified the subscription yet. Restore purchases to retry.',
+        );
+      }
+      if (!result.finishFailed) {
+        updateUi(context, {
+          notice: 'Purchase verified. HomeDoc Pro is active.',
+        });
+      }
+    },
+    [syncTransaction, updateUi],
   );
 
   const openCheckout = useCallback(
@@ -253,8 +382,11 @@ export const useBilling = ({ loadOffering = false } = {}) => {
       runBilling(async (context) => {
         if (!context.userId) throw new Error('Sign in before subscribing.');
         if (Platform.OS === 'ios') {
-          await purchaseMonthly(context.userId);
-          await syncPurchase(context, 'purchase');
+          const transactionId = await purchaseBillingPackage(
+            context.userId,
+            billingInterval,
+          );
+          await syncPurchasedTransaction(context, transactionId);
           return;
         }
         if (Platform.OS !== 'web') {
@@ -262,13 +394,14 @@ export const useBilling = ({ loadOffering = false } = {}) => {
         }
         const { data, error: functionError } = await supabase.functions.invoke(
           'create-checkout-session',
+          { body: { interval: billingInterval } },
         );
         if (functionError || !data?.url) {
           throw new Error('Checkout is unavailable. Please try again later.');
         }
         await Linking.openURL(data.url);
       }),
-    [runBilling, syncPurchase],
+    [billingInterval, runBilling, syncPurchasedTransaction],
   );
 
   const restore = useCallback(
@@ -279,10 +412,10 @@ export const useBilling = ({ loadOffering = false } = {}) => {
         if (Platform.OS !== 'ios') {
           throw new Error('Restore purchases is available in the iOS app.');
         }
-        await restoreNativePurchases(context.userId);
-        await syncPurchase(context, 'restore');
+        const transactionIds = await restoreNativePurchases(context.userId);
+        await processAppleTransactions(context, transactionIds, true, true);
       }),
-    [runBilling, syncPurchase],
+    [processAppleTransactions, runBilling],
   );
 
   const openBillingPortal = useCallback(
@@ -330,7 +463,9 @@ export const useBilling = ({ loadOffering = false } = {}) => {
     betaAccess,
     loading: userId ? (sameLoadingContext ? loadingState.value : true) : false,
     checkoutLoading: sameContext && uiState.checkoutLoading,
-    price: samePriceContext ? priceState.value : null,
+    prices: samePriceContext ? priceState.value : null,
+    billingInterval,
+    setBillingInterval,
     error: sameContext ? uiState.error : null,
     notice: sameContext ? uiState.notice : null,
     refresh,

@@ -1,0 +1,40 @@
+{
+  "approvedAt": "2026-10-21",
+  "currency": "USD",
+  "subscriptionGroupReferenceName": "HomeDoc Pro",
+  "subscriptionGroupId": "22501802",
+  "entitlement": "pro",
+  "defaultInterval": "annual",
+  "products": [
+    {
+      "interval": "annual",
+      "productId": "com.coalfocks.homedoc.pro.annual",
+      "period": "P1Y",
+      "price": 14.99,
+      "displayName": "HomeDoc Pro Yearly",
+      "description": "Additional homes and 50 AI requests each month.",
+      "storeKitType": "autoRenewable"
+    },
+    {
+      "interval": "monthly",
+      "productId": "com.coalfocks.homedoc.pro.monthly",
+      "period": "P1M",
+      "price": 2.99,
+      "displayName": "HomeDoc Pro Monthly",
+      "description": "Additional homes and 50 AI requests each month.",
+      "storeKitType": "autoRenewable"
+    }
+  ],
+  "access": {
+    "freeOwnedHomes": 1,
+    "basicRecordsFree": true,
+    "freeAiRequestsPerMonth": 4,
+    "preservedBetaAiRequestsPerMonth": 20,
+    "proAiRequestsPerMonth": 50,
+    "quotaReset": "UTC calendar month",
+    "requestDefinition": "Each question set, generated plan, or follow-up counts as one AI request.",
+    "existingRecordsAfterExpiry": "Remain accessible; creating another owned home or further AI calls follows the current free allowance."
+  },
+  "storeConfigurationVerified": false,
+  "billingProvider": "apple_storekit_2"
+}

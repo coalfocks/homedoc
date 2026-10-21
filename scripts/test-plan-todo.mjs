@@ -403,11 +403,11 @@ for (const [billingAccess, limit] of [
   [{ plan: 'pro', status: 'active', provider: 'beta', beta_access: true }, 20],
   [
     { plan: 'pro', status: 'active', provider: 'app_store', beta_access: true },
-    300,
+    50,
   ],
   [
     { plan: 'pro', status: 'active', provider: 'stripe', beta_access: false },
-    300,
+    50,
   ],
 ]) {
   const runtime = loadHandler({
@@ -428,5 +428,5 @@ for (const [billingAccess, limit] of [
   assert.equal(runtime.quotaCalls[0].args.p_monthly_limit, limit);
 }
 console.log(
-  'AI allowance selection passed: free 4, beta 20, paid Apple/Stripe 300.',
+  'AI allowance selection passed: free 4, beta 20, paid Apple/Stripe 50.',
 );

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { theme } from '../utils/theme';
+import type { BillingInterval } from '../lib/nativeBilling';
 
 type UpgradeCardProps = {
   title?: string;
@@ -10,6 +11,10 @@ type UpgradeCardProps = {
   compact?: boolean;
   loading?: boolean;
   disabled?: boolean;
+  interval?: BillingInterval;
+  prices?: Partial<Record<BillingInterval, string>> | null;
+  selectionDisabled?: boolean;
+  onIntervalChange?: (interval: BillingInterval) => void;
   onPress: () => void;
 };
 
@@ -20,6 +25,10 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
   compact = false,
   loading = false,
   disabled = false,
+  interval,
+  prices,
+  selectionDisabled = false,
+  onIntervalChange,
   onPress,
 }) => (
   <View style={[styles.card, compact && styles.cardCompact]}>
@@ -28,6 +37,42 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
     </View>
     <Text style={styles.title}>{title}</Text>
     <Text style={styles.body}>{body}</Text>
+    {interval && onIntervalChange ? (
+      <View style={styles.intervalOptions}>
+        {(['annual', 'monthly'] as const).map((option) => {
+          const selected = interval === option;
+          const price = prices?.[option];
+          return (
+            <TouchableOpacity
+              key={option}
+              accessibilityRole="radio"
+              accessibilityState={{ selected, disabled: selectionDisabled }}
+              style={[
+                styles.intervalOption,
+                selected && styles.intervalSelected,
+              ]}
+              onPress={() => onIntervalChange(option)}
+              disabled={selectionDisabled}
+            >
+              <View style={styles.intervalCopy}>
+                <Text style={styles.intervalTitle}>
+                  {option === 'annual' ? 'Annual' : 'Monthly'}
+                  {option === 'annual' ? ' · Save with yearly billing' : ''}
+                </Text>
+                <Text style={styles.intervalPrice}>
+                  {price
+                    ? `${price}/${option === 'annual' ? 'year' : 'month'}`
+                    : `Billed ${option === 'annual' ? 'yearly' : 'monthly'}`}
+                </Text>
+              </View>
+              <View style={[styles.radio, selected && styles.radioSelected]}>
+                {selected ? <View style={styles.radioDot} /> : null}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    ) : null}
     <TouchableOpacity
       style={[styles.button, (loading || disabled) && styles.buttonDisabled]}
       onPress={onPress}
@@ -78,6 +123,57 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
     marginBottom: theme.spacing.md,
+  },
+  intervalOptions: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  intervalOption: {
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)',
+    gap: theme.spacing.md,
+  },
+  intervalSelected: {
+    borderColor: theme.colors.secondary.main,
+    backgroundColor: 'rgba(255,255,255,0.09)',
+  },
+  intervalCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+  },
+  intervalTitle: {
+    color: theme.colors.primary.contrast,
+    fontWeight: '800',
+  },
+  intervalPrice: {
+    color: 'rgba(255,255,255,0.82)',
+  },
+  radio: {
+    flexShrink: 0,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.72)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioSelected: {
+    borderColor: theme.colors.secondary.main,
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: theme.colors.secondary.main,
   },
   button: {
     alignItems: 'center',

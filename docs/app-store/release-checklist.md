@@ -1,51 +1,42 @@
 # App Store release checklist
 
-## Evidence already recorded
+## Approved release — October 21, 2026
 
-- App name, bundle identifier, version, and iOS build number are configured in `app.json`; EAS has production build and App Store Connect submission profiles in `eas.json`.
-- Source includes in-app privacy policy access and account deletion. The public privacy page was recorded as HTTP 200.
-- Web, iOS, and Android exports, TypeScript/ESLint, Jest, Edge handler regressions, and isolated database permission suites passed through PR #23, as recorded in `docs/public-beta-verification.md`.
-- An installed iPhone build verified passwordless email-link sign-in, record sync, note editing, todo creation/status, archive/restore, and AI follow-up on `1.1.10`. These checks do not verify the current release profile or current native build.
-- A billing migration and isolated PGlite test cover beta backfill, Apple/Stripe entitlement priority, access control, and free owned-home limits. This is local test evidence, not a live Supabase or App Store verification.
+HomeDoc Pro is **US$14.99/year** or **US$2.99/month**, with yearly selected by default. Both periods include additional owned homes and **50 AI requests per UTC calendar month**. Basic records for one home remain free, including photos, notes, areas, tasks, sharing, and transfer, plus four monthly AI requests. A question set, plan, or follow-up consumes one request. Existing records remain accessible after cancellation. Existing beta accounts retain the preserved 20-request allowance until an announced transition.
 
-## Proposed release configuration
+Exact product IDs, store copy, and limits are recorded in [subscriptions.json](subscriptions.json). Candidate version is **1.2.0 (202610212048)**. Store configuration and purchase QA are not yet verified.
 
-The new App Store release profile is intended to use RevenueCat SDK 10.15. Proposed access is one home and four AI requests per month for free; Pro includes 300 AI requests per month and additional homes. Monthly price is pending. The release profile, RevenueCat product setup, and purchase flow have not been verified live; do not describe them as approved, tested in production, or available until the exact binary and App Store Connect products are checked.
+## Source preparation
 
-## Open blockers and checks
+- Native iOS purchases use Apple StoreKit 2 through a local Expo module, with live localized prices, annual/monthly selection, exact SKU and period validation, restore, and Apple subscription management. iOS does not invoke Stripe checkout.
+- The backend verifies purchases directly with Apple using the official App Store Server Library, checks account-token binding, signed data, expiry/refund/environment, and restricts sandbox access to named QA/reviewer account UUIDs. Unknown products fail closed. Apple, Stripe, and preserved beta access remain separate.
+- Stripe web checkout validates the configured recurring price against the selected approved USD amount and period. Existing body-less checkout clients retain the monthly default. Android purchase initiation remains disabled.
+- The billing migration preserves existing beta accounts and enforces one free owned home at insertion. Existing record access, sharing, and transfers remain available.
+- Explicit consent precedes OpenAI data sharing. Account includes privacy policy, support, permanent account deletion, and Apple cancellation guidance. Public support/privacy routes and listing copy are prepared in this branch.
+- Listing metadata, subscription setup, privacy inventory, reviewer instructions, and screenshot capture plan are saved in this directory. CI runs metadata, Apple readiness unit tests, application checks, isolated database permission suites, and all-platform exports.
 
-- **Apple account:** Resolve the required agreement issue in App Store Connect. Recorded October 13, 2026 uploads stopped before upload with `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`; successful processing is not recorded.
-- **Current binary:** Build and upload the latest source, then verify processing and test that exact build on a physical iPhone. `1.1.11 (202610130001)` built, but upload/acceptance is unconfirmed and later changes are absent.
-- **Reviewer access:** Create/designate a dedicated email/password account, enter credentials securely in App Store Connect, and confirm sign-in on the submitted build. Do not rely on an inaccessible magic-link mailbox.
-- **Billing and pricing:** Decide the Pro monthly price and finalize App Store products before submission. Verify RevenueCat 10.15 configuration, sandbox purchase and restore, transaction verification, expiry/refund behavior, Beta fallback, monthly AI limits, and the one-home/additional-home rules on the release profile. Confirm the displayed price and entitlement behavior match App Store Connect. No live verification is recorded.
-- **Destructive flow:** Test account deletion on a disposable account and verify promised record/image cleanup and transferred shared data. Production deletion remains untested in recorded beta checks.
-- **Photos:** Verify permission text and current-build upload, view, and save/download behavior, including interrupted-upload recovery.
-- **Sharing:** Test share, contractor access/revocation, transfer, and deletion with two disposable accounts.
-- **Store listing:** Capture screenshots from the submitted iOS build, choose category and age rating, enter final listing text and keywords, and provide support and privacy URLs.
-- **Privacy labels:** Resolve questions in `privacy-data-inventory.md`, review third-party SDK collection and provider settings, then publish matching App Privacy answers.
-- **Due-date copy:** Keep listing and screenshots clear that due dates are stored but notifications are not sent.
+## External gates — still required
 
-## Apple rule references checked October 20, 2026
+1. **Account access:** Apple is signed in. The connected Supabase account/browser cannot access HomeDoc project `nismvycjiobjbaozjwih`; switch to its owning account. No RevenueCat account is needed or used.
+2. **Apple agreement:** The signed-in App Store Connect page explicitly blocks creating subscription products with **Agreement Update**: the Apple Developer Program License Agreement needs account-holder review. A screenshot and the exact state are saved in `beta-outreach-results/app-store/` outside the repository. No agreement was accepted.
+3. **Products and Apple server setup:** Created subscription group **HomeDoc Pro**, ID **22501802**. No subscription product was created: the agreement dialog blocked that action. After the agreement is resolved, configure monthly/yearly at the same service level and verify Apple prices, App Store Server API credentials, and Notifications V2. See [billing-setup.md](billing-setup.md).
+4. **Backend deployment:** Apply the pending billing migration and deploy the purchase/AI functions to the correct HomeDoc project. Check auth/RLS, free limits, beta preservation, and canonical entitlement refresh in that live environment. This has not been deployed.
+5. **Reviewer access:** Create/designate a dedicated email/password review account after beta backfill; seed synthetic property/area/note/task data and ensure it has no beta bypass. Store credentials securely in App Store Connect. Allow only dedicated reviewer/QA UUIDs to verify sandbox purchases.
+6. **Exact binary and transactions:** Build the final `app-store` profile after configuration; upload, confirm Apple processing, and test monthly/annual purchase, cancel, restore, expiry/refund, account switching, and free/beta behavior on the exact signed build.
+7. **Native flows:** Verify current-build photos (including interruption), two-account sharing/revocation/transfer, and account deletion with a disposable account. The Mac is unlocked; current native app control cannot locate Simulator, so no new native screen or transaction QA is claimed.
+8. **Listing:** Capture actual iPhone/iPad screenshots from the configured final build. Enter final text, category, age rating, support/privacy URLs, and reviewed App Privacy answers. Due dates must not imply notifications. Include both initial subscriptions with the new app version for review.
 
-- [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/): submitted builds should be complete, login apps should provide a demo account, metadata should match the product, and digital features unlocked in an iOS app generally require In-App Purchase subject to listed exceptions and storefront terms.
-- [Account deletion guideline 5.1.1(v)](https://developer.apple.com/help/app-review/guideline-reference/5-1-1-account-deletion): apps that support account creation must let users initiate deletion within the app.
-- [App privacy requirements](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy): publish a privacy policy URL and disclose collection by the app and third-party partners.
-- [Product page metadata limits](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information): description 4,000 characters, promotional text 170 characters, keywords 100 bytes; screenshots and support URL are product-page requirements.
+## Existing build evidence
 
-## October 20/21 submission preparation
+The direct-Apple source candidate passed a local **Xcode 27.1 Release simulator build** on October 21, 2026, including the new `HomeDocStoreKit` Swift module. TypeScript, ESLint, 51 Jest tests, server billing/AI handler checks, four Apple-readiness tests, isolated database permission suites, Deno checks, metadata checks, and all-platform Expo exports passed. A second all-platform export explicitly disabled the free-beta bypass. These are source/build checks; this simulator build is unsigned and does not verify purchases, native screens, Apple processing, or live backend deployment. See [local-verification.json](local-verification.json).
 
-- Implemented native Apple purchases, localized monthly pricing, restore, and Apple subscription management through pinned RevenueCat 10.15.0. iOS does not invoke Stripe checkout.
-- Added server-to-server verification and authenticated webhooks with separate Apple/Stripe entitlements, expiry/refund checks, and sandbox access limited to dedicated reviewer/QA UUIDs.
-- Preserved existing beta accounts in the migration; no cutoff or price was invented. The live backend and existing web beta were not changed.
-- Added explicit OpenAI sharing consent before planning/chat requests, public `/support`, accessible Account privacy/deletion controls, and standard Apple terms links.
-- Local Release simulator binary 1.2.0 (202610210251) built successfully with Xcode 27 after pod deployment-target and fmt compatibility repairs. It installed and the simulator started its app process. Native screen inspection is blocked by the locked Mac; no screenshot, signed-device, or purchase QA is claimed.
-- TypeScript and ESLint pass; 41 Jest tests plus App Store/AI handler checks, four Apple-readiness tests, all isolated billing/quota/record permission suites, and all-platform exports pass. Re-run on the final commit in CI.
-- Paid-build preflight correctly rejects a missing Apple SDK key. Listing fields pass their length checks.
+[Build-only workflow](https://github.com/coalfocks/homedoc/actions/runs/39536941286) completed EAS build `a5ae0a28-b3ce-4753-aa29-669d912519d8`, version 1.2.0 (202610210251), source `e188b3c`. It used the existing **free-beta production profile**, and was not submitted. It is a signing baseline, not the final paid candidate. See [build-evidence.json](build-evidence.json).
 
-Remaining release work: decide monthly price; configure the Apple product, RevenueCat project/keys/restore policy and authenticated webhook; deploy and verify the backend before the paid build; establish reviewer credentials and allowed sandbox UUIDs; resolve Apple agreement/account access; complete real-device QA and capture store screenshots from the final signed build. The listing and privacy labels are drafts until those facts are verified.
+Earlier local Xcode 27 evidence recorded a Release simulator build, installation, and process launch for the older candidate. That evidence does not verify these new pricing changes, the signed paid build, or App Store processing.
 
-## Signed build evidence — October 20, 2026, 9:16 PM MDT
+## References checked October 21, 2026
 
-[Build-only workflow](https://github.com/coalfocks/homedoc/actions/runs/39536941286) completed successfully. EAS build `a5ae0a28-b3ce-4753-aa29-669d912519d8` is FINISHED, store distribution, version 1.2.0 (202610210251), source `e188b3c`. It uses the existing **free-beta production profile**, and is a signing/native baseline, not the configured paid release. It was not submitted. Source changes made after that commit require a new final paid build after setup.
-
-The fresh Apple API check returned HTTP 403 `FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED`. Bundle verification was unavailable because Apple denied access; the original workflow artifact normalizes that unknown result to false, corrected to null in `build-evidence.json` and in the subsequent workflow code. The account holder must review and resolve the Apple agreement. The assistant did not accept any agreement.
+- [Apple subscriptions](https://developer.apple.com/help/app-store-connect/manage-subscriptions/offer-auto-renewable-subscriptions/): use one group for variants of the same service; initial subscriptions accompany a new app version.
+- [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/): complete app, accessible reviewer account, accurate metadata, and appropriate In-App Purchase.
+- [Account deletion](https://developer.apple.com/help/app-review/guideline-reference/5-1-1-account-deletion) and [App Privacy](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy).
+- [Apple App Store Server Library](https://github.com/apple/app-store-server-library-node): signed-data verification and App Store Server API access.

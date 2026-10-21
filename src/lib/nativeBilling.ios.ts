@@ -1,8 +1,13 @@
 import Constants from 'expo-constants';
 import { Linking } from 'react-native';
-import Purchases, { type PurchasesPackage } from 'react-native-purchases';
+import StoreKit, {
+  type NativeStoreProduct,
+  type NativeStoreTransactionUpdate,
+} from '../../modules/homedoc-storekit/src';
 
-interface MonthlyBillingPackage {
+export type BillingInterval = 'monthly' | 'annual';
+
+export interface BillingPackage {
   identifier: string;
   packageType: string;
   product: {
@@ -20,8 +25,11 @@ type NativeBillingErrorCode =
   | 'billing_unavailable'
   | 'invalid_user'
   | 'monthly_plan_unavailable'
+  | 'annual_plan_unavailable'
   | 'purchase_cancelled'
+  | 'purchase_pending'
   | 'purchase_failed'
+  | 'transaction_finish_failed'
   | 'restore_failed'
   | 'manage_failed';
 
@@ -37,10 +45,11 @@ class NativeBillingError extends Error {
 
 const APPLE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
 const DEFAULT_PRO_MONTHLY_PRODUCT_ID = 'com.coalfocks.homedoc.pro.monthly';
+const DEFAULT_PRO_ANNUAL_PRODUCT_ID = 'com.coalfocks.homedoc.pro.annual';
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const TRANSACTION_ID_PATTERN = /^\d+$/;
 
-let configured = false;
 let operationQueue: Promise<void> = Promise.resolve();
 
 function enqueue<T>(operation: () => Promise<T>): Promise<T> {
@@ -68,129 +77,198 @@ function validateUserId(userId: string): void {
   }
 }
 
-function apiKey(): string {
+function expectedProductId(interval: BillingInterval): string {
   const extra = Constants.expoConfig?.extra ?? {};
-  const key =
-    process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ||
-    (typeof extra.revenueCatIosApiKey === 'string'
-      ? extra.revenueCatIosApiKey
-      : '');
+  if (interval === 'monthly') {
+    return (
+      process.env.EXPO_PUBLIC_APP_STORE_PRO_PRODUCT_ID ||
+      (typeof extra.appStoreProProductId === 'string'
+        ? extra.appStoreProProductId
+        : '') ||
+      DEFAULT_PRO_MONTHLY_PRODUCT_ID
+    );
+  }
+  return (
+    process.env.EXPO_PUBLIC_APP_STORE_PRO_ANNUAL_PRODUCT_ID ||
+    (typeof extra.appStoreProAnnualProductId === 'string'
+      ? extra.appStoreProAnnualProductId
+      : '') ||
+    DEFAULT_PRO_ANNUAL_PRODUCT_ID
+  );
+}
 
-  const normalizedKey = key.trim();
-  if (!normalizedKey || (!__DEV__ && normalizedKey.startsWith('test_'))) {
+function expectedProductIds(): string[] {
+  return [
+    ...new Set([expectedProductId('monthly'), expectedProductId('annual')]),
+  ];
+}
+
+function unavailableCode(interval: BillingInterval): NativeBillingErrorCode {
+  return interval === 'monthly'
+    ? 'monthly_plan_unavailable'
+    : 'annual_plan_unavailable';
+}
+
+function periodFor(interval: BillingInterval): string {
+  return interval === 'monthly' ? 'P1M' : 'P1Y';
+}
+
+function toBillingPackage(
+  product: NativeStoreProduct | undefined,
+  interval: BillingInterval,
+): BillingPackage {
+  if (
+    !product ||
+    product.productId !== expectedProductId(interval) ||
+    product.subscriptionPeriod !== periodFor(interval) ||
+    product.isAutoRenewable !== true
+  ) {
+    throw billingError(
+      unavailableCode(interval),
+      `The ${interval} plan is temporarily unavailable. Please try again later.`,
+    );
+  }
+
+  return {
+    identifier: interval,
+    packageType: interval === 'monthly' ? 'MONTHLY' : 'ANNUAL',
+    product: {
+      identifier: product.productId,
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      priceString: product.priceString,
+      currencyCode: product.currencyCode,
+      subscriptionPeriod: product.subscriptionPeriod,
+    },
+  };
+}
+
+async function loadPackages(): Promise<
+  Record<BillingInterval, BillingPackage>
+> {
+  try {
+    const products = await StoreKit.getProducts(expectedProductIds());
+    return {
+      monthly: toBillingPackage(
+        products.find(
+          (product) => product.productId === expectedProductId('monthly'),
+        ),
+        'monthly',
+      ),
+      annual: toBillingPackage(
+        products.find(
+          (product) => product.productId === expectedProductId('annual'),
+        ),
+        'annual',
+      ),
+    };
+  } catch (error) {
+    if (error instanceof NativeBillingError) throw error;
     throw billingError(
       'billing_unavailable',
       'Purchases are temporarily unavailable. Please try again later.',
     );
   }
-
-  return normalizedKey;
 }
 
-function expectedMonthlyProductId(): string {
-  const extra = Constants.expoConfig?.extra ?? {};
-  return (
-    process.env.EXPO_PUBLIC_APP_STORE_PRO_PRODUCT_ID ||
-    (typeof extra.appStoreProProductId === 'string'
-      ? extra.appStoreProProductId
-      : '') ||
-    DEFAULT_PRO_MONTHLY_PRODUCT_ID
-  );
-}
-
-async function ensureIdentity(userId: string): Promise<void> {
-  validateUserId(userId);
-
-  if (!configured) {
-    Purchases.configure({ apiKey: apiKey(), appUserID: userId });
-    configured = true;
-    return;
-  }
-
-  const activeUserId = await Purchases.getAppUserID();
-  if (activeUserId !== userId) {
-    await Purchases.logIn(userId);
-  }
-}
-
-async function loadMonthlyPackage(): Promise<PurchasesPackage> {
-  try {
-    const offerings = await Purchases.getOfferings();
-    const monthly = offerings.current?.monthly;
-    if (!monthly) {
-      throw billingError(
-        'monthly_plan_unavailable',
-        'The monthly plan is temporarily unavailable. Please try again later.',
-      );
-    }
-    if (
-      monthly.product.identifier !== expectedMonthlyProductId() ||
-      monthly.product.subscriptionPeriod !== 'P1M'
-    ) {
-      throw billingError(
-        'monthly_plan_unavailable',
-        'The monthly plan is temporarily unavailable. Please try again later.',
-      );
-    }
-    return monthly;
-  } catch (error) {
-    if (error instanceof NativeBillingError) throw error;
-    throw billingError(
-      'monthly_plan_unavailable',
-      'The monthly plan is temporarily unavailable. Please try again later.',
-    );
-  }
-}
-
-function isCancelled(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false;
-  const candidate = error as { userCancelled?: unknown; code?: unknown };
-  return (
-    candidate.userCancelled === true ||
-    candidate.code === 'PURCHASE_CANCELLED_ERROR' ||
-    candidate.code === '1'
-  );
-}
-
-export async function getMonthlyPackage(
+export async function getBillingPackages(
   userId: string,
-): Promise<MonthlyBillingPackage> {
+): Promise<Record<BillingInterval, BillingPackage>> {
   return enqueue(async () => {
-    await ensureIdentity(userId);
-    const monthly = await loadMonthlyPackage();
-    // RevenueCat's typed package carries the localized price and ISO period on
-    // `product`; the returned object remains the SDK package, not a price copy.
-    return monthly as PurchasesPackage & MonthlyBillingPackage;
+    validateUserId(userId);
+    return loadPackages();
   });
 }
 
-export async function purchaseMonthly(userId: string): Promise<void> {
+export async function purchaseBillingPackage(
+  userId: string,
+  interval: BillingInterval,
+): Promise<string> {
   return enqueue(async () => {
-    await ensureIdentity(userId);
-    const monthly = await loadMonthlyPackage();
+    validateUserId(userId);
+    const selected = (await loadPackages())[interval];
+    let result;
     try {
-      await Purchases.purchasePackage(monthly);
-      // The server validates the App Store transaction independently after
-      // this succeeds. Client entitlement data is neither returned nor trusted.
-    } catch (error) {
-      if (isCancelled(error)) {
-        throw billingError('purchase_cancelled', 'Purchase cancelled.');
-      }
-      if (error instanceof NativeBillingError) throw error;
+      result = await StoreKit.purchase(selected.product.identifier, userId);
+    } catch {
       throw billingError(
         'purchase_failed',
         'The purchase could not be completed. Please try again.',
       );
     }
+
+    if (result.status === 'cancelled') {
+      throw billingError('purchase_cancelled', 'Purchase cancelled.');
+    }
+    if (result.status === 'pending') {
+      throw billingError(
+        'purchase_pending',
+        'This purchase is pending Apple approval. HomeDoc Pro will activate when Apple approves it.',
+      );
+    }
+    if (
+      result.status !== 'purchased' ||
+      result.productId !== selected.product.identifier ||
+      !TRANSACTION_ID_PATTERN.test(result.transactionId)
+    ) {
+      throw billingError(
+        'purchase_failed',
+        'Apple did not return a verified transaction for this plan.',
+      );
+    }
+    return result.transactionId;
   });
 }
 
-export async function restorePurchases(userId: string): Promise<void> {
+export async function getCurrentEntitlementTransactionIDs(
+  userId: string,
+): Promise<string[]> {
   return enqueue(async () => {
-    await ensureIdentity(userId);
+    validateUserId(userId);
     try {
-      await Purchases.restorePurchases();
-      // CustomerInfo is deliberately not returned or treated as server truth.
+      return await StoreKit.getCurrentEntitlements(
+        userId,
+        expectedProductIds(),
+      );
+    } catch {
+      throw billingError(
+        'billing_unavailable',
+        'Apple subscription information is temporarily unavailable.',
+      );
+    }
+  });
+}
+
+export function subscribeToTransactionUpdates(
+  userId: string,
+  listener: (transactionId: string) => void,
+): { remove: () => void } {
+  validateUserId(userId);
+  const accountToken = userId.toLowerCase();
+  const productIDs = new Set(expectedProductIds());
+  return StoreKit.addListener(
+    'onTransactionUpdate',
+    (update: NativeStoreTransactionUpdate) => {
+      if (
+        !update ||
+        !TRANSACTION_ID_PATTERN.test(update.transactionId) ||
+        !productIDs.has(update.productId) ||
+        typeof update.appAccountToken !== 'string' ||
+        update.appAccountToken.toLowerCase() !== accountToken
+      ) {
+        return;
+      }
+      listener(update.transactionId);
+    },
+  );
+}
+
+export async function restorePurchases(userId: string): Promise<string[]> {
+  return enqueue(async () => {
+    validateUserId(userId);
+    try {
+      return await StoreKit.restorePurchases(userId, expectedProductIds());
     } catch {
       throw billingError(
         'restore_failed',
@@ -200,37 +278,31 @@ export async function restorePurchases(userId: string): Promise<void> {
   });
 }
 
-function safeAppleSubscriptionsUrl(candidate: string | null): string | null {
-  if (!candidate) return null;
-  try {
-    const url = new URL(candidate);
-    if (
-      url.protocol === 'https:' &&
-      url.hostname === 'apps.apple.com' &&
-      url.pathname === '/account/subscriptions'
-    ) {
-      return url.toString();
+export async function finishTransaction(transactionId: string): Promise<void> {
+  return enqueue(async () => {
+    if (!TRANSACTION_ID_PATTERN.test(transactionId)) {
+      throw billingError(
+        'transaction_finish_failed',
+        'The App Store transaction could not be finished. Restore purchases to retry.',
+      );
     }
-  } catch {
-    // Fall back to Apple's fixed subscriptions page below.
-  }
-  return null;
+    try {
+      // A false return means Apple already considers this transaction finished.
+      await StoreKit.finishTransaction(transactionId);
+    } catch {
+      throw billingError(
+        'transaction_finish_failed',
+        'Your subscription is active, but Apple could not finish syncing it. Restore purchases to retry.',
+      );
+    }
+  });
 }
 
 export async function manageSubscriptions(userId: string): Promise<void> {
   return enqueue(async () => {
-    await ensureIdentity(userId);
-    let url = APPLE_SUBSCRIPTIONS_URL;
-
+    validateUserId(userId);
     try {
-      const customerInfo = await Purchases.getCustomerInfo();
-      url = safeAppleSubscriptionsUrl(customerInfo.managementURL) ?? url;
-    } catch {
-      // Apple's fixed subscriptions URL is available even if CustomerInfo is not.
-    }
-
-    try {
-      await Linking.openURL(url);
+      await Linking.openURL(APPLE_SUBSCRIPTIONS_URL);
     } catch {
       throw billingError(
         'manage_failed',

@@ -13,18 +13,47 @@ serve(async (req: Request) => {
   }
 
   const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-  const priceId = Deno.env.get('STRIPE_PRO_PRICE_ID');
+  const monthlyPriceId =
+    Deno.env.get('STRIPE_PRO_PRICE_ID') || Deno.env.get('STRIPE_PRICE_ID');
+  const annualPriceId =
+    Deno.env.get('STRIPE_PRO_ANNUAL_PRICE_ID') ||
+    Deno.env.get('STRIPE_ANNUAL_PRICE_ID');
   const successUrl =
     Deno.env.get('STRIPE_SUCCESS_URL') || 'homedoc://billing/success';
   const cancelUrl =
     Deno.env.get('STRIPE_CANCEL_URL') || 'homedoc://billing/cancel';
 
-  if (!stripeSecretKey || !priceId) {
+  if (!stripeSecretKey || !monthlyPriceId) {
     return jsonError(
       503,
       'Stripe is not configured yet. Add STRIPE_SECRET_KEY and STRIPE_PRO_PRICE_ID.',
     );
   }
+
+  let parsedBody: unknown = {};
+  const rawBody = await req.text();
+  if (rawBody.trim().length > 0) {
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      return jsonError(400, 'Invalid checkout request');
+    }
+  }
+  if (
+    !parsedBody ||
+    typeof parsedBody !== 'object' ||
+    Array.isArray(parsedBody)
+  ) {
+    return jsonError(400, 'Invalid checkout request');
+  }
+  const body = parsedBody as { interval?: unknown };
+  const interval = body?.interval ?? 'monthly';
+  if (interval !== 'monthly' && interval !== 'annual') {
+    return jsonError(400, 'Interval must be monthly or annual');
+  }
+  const priceId = interval === 'annual' ? annualPriceId : monthlyPriceId;
+  if (!priceId)
+    return jsonError(503, 'Annual Stripe billing is not configured.');
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
@@ -49,6 +78,28 @@ serve(async (req: Request) => {
     apiVersion: '2024-06-20',
     httpClient: Stripe.createFetchHttpClient(),
   });
+
+  let price: Awaited<ReturnType<typeof stripe.prices.retrieve>>;
+  try {
+    price = await stripe.prices.retrieve(priceId);
+  } catch {
+    return jsonError(503, 'The configured Stripe price could not be verified.');
+  }
+  const expectedStripeInterval = interval === 'annual' ? 'year' : 'month';
+  const expectedAmount = interval === 'annual' ? 1499 : 299;
+  const recurring = price.recurring;
+  if (
+    !price.active ||
+    price.currency !== 'usd' ||
+    price.unit_amount !== expectedAmount ||
+    recurring?.interval !== expectedStripeInterval ||
+    recurring.interval_count !== 1
+  ) {
+    return jsonError(
+      503,
+      'The configured Stripe price does not match the approved billing terms.',
+    );
+  }
 
   const user = userData.user;
   const { data: entitlement } = await adminClient

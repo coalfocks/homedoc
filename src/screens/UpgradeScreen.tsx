@@ -29,12 +29,19 @@ const UpgradeScreen: React.FC = () => {
     checkoutLoading,
     error,
     notice,
-    price,
+    prices,
+    billingInterval,
+    setBillingInterval,
     openCheckout,
     restorePurchases,
     openBillingPortal,
   } = useBilling({ loadOffering: true });
   const isIos = Platform.OS === 'ios';
+  const displayedPrices = isIos
+    ? prices
+    : Platform.OS === 'web'
+      ? { annual: 'US$14.99', monthly: 'US$2.99' }
+      : null;
   const confirmDeleteAccount = () => {
     showDialog(
       'Delete account',
@@ -67,7 +74,7 @@ const UpgradeScreen: React.FC = () => {
       ]
     : [
         'Additional properties',
-        '300 AI requests per calendar month for questions, plans, and follow-up chat',
+        '50 AI requests per calendar month. Questions, plans, and follow-up messages each count as one request.',
       ];
 
   return (
@@ -96,29 +103,35 @@ const UpgradeScreen: React.FC = () => {
         <>
           <SectionTitle
             title="Start with one home, free"
-            subtitle="Save photos, notes, areas, and tasks. Sharing and home transfer are included. Try AI with 4 requests each calendar month; questions, plans, and chat each count as one request."
+            subtitle="Basic home records stay free and accessible. Save photos, notes, areas, and tasks; sharing and home transfer are included. Try AI with 4 requests each calendar month."
           />
           <UpgradeCard
             title="HomeDoc Pro"
-            body="Add extra properties and get 300 AI requests per calendar month. Your home records stay available if you cancel."
+            body="Add extra properties and get 50 AI requests per calendar month. Questions, plans, and follow-up messages each count as one request. Basic home records stay free and accessible if you cancel."
+            interval={billingInterval}
+            prices={displayedPrices}
+            selectionDisabled={checkoutLoading}
+            onIntervalChange={setBillingInterval}
             cta={
-              isIos
-                ? price
-                  ? `Subscribe — ${price}/month`
-                  : 'App Store pricing unavailable'
-                : 'See Pro pricing'
+              displayedPrices?.[billingInterval]
+                ? `${isIos ? 'Subscribe' : 'Continue'} — ${displayedPrices[billingInterval]}/${billingInterval === 'annual' ? 'year' : 'month'}`
+                : 'App Store pricing unavailable'
             }
             loading={checkoutLoading || loading}
-            disabled={(isIos && !price) || Platform.OS === 'android'}
+            disabled={
+              (isIos && !displayedPrices?.[billingInterval]) ||
+              Platform.OS === 'android'
+            }
             onPress={openCheckout}
           />
-          {isIos && price ? (
+          {isIos && prices?.[billingInterval] ? (
             <Text style={styles.activeBody}>
-              HomeDoc Pro is an auto-renewing monthly subscription at {price}{' '}
-              per month. Payment is charged to your Apple Account at
-              confirmation. It renews unless cancelled at least 24 hours before
-              the current period ends. Manage or cancel in App Store
-              subscriptions.
+              HomeDoc Pro is an auto-renewing {billingInterval} subscription at{' '}
+              {prices[billingInterval]} per{' '}
+              {billingInterval === 'annual' ? 'year' : 'month'}. Payment is
+              charged to your Apple Account at confirmation. It renews unless
+              cancelled at least 24 hours before the current period ends. Manage
+              or cancel in App Store subscriptions.
             </Text>
           ) : null}
         </>

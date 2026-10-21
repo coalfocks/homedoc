@@ -1,51 +1,26 @@
-# Stripe Billing Setup
+# Stripe web billing setup
 
-HomeDoc billing is wired through Supabase Edge Functions and a small
-`user_entitlements` table.
+The iOS app uses Apple StoreKit 2 purchases. Stripe checkout is web-only.
 
-## Required Stripe Values
+Create two active, fixed-price USD recurring Prices for the same HomeDoc Pro benefits:
 
-Set these Supabase function secrets before checkout can charge real money:
+| Setting                      | Price    | Recurrence              |
+| ---------------------------- | -------- | ----------------------- |
+| `STRIPE_PRO_PRICE_ID`        | US$2.99  | month, interval_count 1 |
+| `STRIPE_PRO_ANNUAL_PRICE_ID` | US$14.99 | year, interval_count 1  |
 
-```bash
-npx supabase secrets set STRIPE_SECRET_KEY=sk_live_...
-npx supabase secrets set STRIPE_PRO_PRICE_ID=price_...
-npx supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...
-```
+Set those IDs plus `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` securely as HomeDoc Supabase function secrets. Do not commit keys. Legacy `STRIPE_PRICE_ID` and `STRIPE_ANNUAL_PRICE_ID` are accepted as fallbacks, but prefer the explicit Pro names.
 
-Optional redirect overrides:
+`create-checkout-session` accepts `{ "interval": "annual" }` or `{ "interval": "monthly" }`. A body-less request or omitted interval defaults monthly for older clients; malformed JSON, primitive/array bodies, and unknown intervals fail. The server verifies price activity, USD currency, exact amount, and recurrence before creating a customer or checkout session. Client-supplied amounts or price IDs cannot select what is charged.
 
-```bash
-npx supabase secrets set STRIPE_SUCCESS_URL=homedoc://billing/success
-npx supabase secrets set STRIPE_CANCEL_URL=homedoc://billing/cancel
-npx supabase secrets set STRIPE_PORTAL_RETURN_URL=homedoc://billing
-```
+Optional redirect settings are `STRIPE_SUCCESS_URL`, `STRIPE_CANCEL_URL`, and `STRIPE_PORTAL_RETURN_URL`. Set appropriate HTTPS return URLs for the web deployment. Current defaults are `homedoc://billing/success`, `homedoc://billing/cancel`, and `homedoc://billing`, so confirm web return behavior before enabling sales.
 
-## Webhook
+Stripe webhook URL:
 
-Create a Stripe webhook endpoint pointing to:
+`https://nismvycjiobjbaozjwih.supabase.co/functions/v1/stripe-webhook`
 
-```text
-https://nismvycjiobjbaozjwih.supabase.co/functions/v1/stripe-webhook
-```
+Subscribe to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, and `customer.subscription.deleted`. Verify signatures and monthly/annual lifecycle events in the intended mode before enabling live checkout.
 
-Subscribe it to:
+The client reads `get_billing_access`, which resolves Apple, Stripe, beta, or free access. Stripe webhook state is stored separately in `user_entitlements`; canonical Apple state uses `app_store_entitlements`. Active/trialing Stripe Pro has the same 50 monthly AI requests and additional-home entitlement as Apple Pro. Basic records remain free and accessible after expiry. Existing beta users retain their preserved allowance.
 
-- `checkout.session.completed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-
-## Entitlement Model
-
-The app reads `public.user_entitlements`.
-
-- Free users have no row or `plan = free`.
-- Pro users have `plan = pro` and Stripe status `active` or `trialing`.
-- Stripe webhooks are the source of truth for paid state.
-
-## Current Product Gates
-
-- Free: one property and basic records.
-- Pro: AI planning and additional properties.
-- Transfer remains open for now because it is the GTM/share loop.
+See [App Store billing setup](app-store/billing-setup.md) for deployment and native verification requirements. No live Stripe prices or secrets were configured in this source-preparation step.

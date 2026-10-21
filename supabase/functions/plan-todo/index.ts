@@ -74,7 +74,7 @@ interface PlanChatMessage {
 
 const freeMonthlyAiCallLimit = 4;
 const betaMonthlyAiCallLimit = 20;
-const proMonthlyAiCallLimit = 300;
+const proMonthlyAiCallLimit = 50;
 const maxAnswersPayloadLength = 6000;
 const maxChatMessageLength = 2000;
 // Match the deployed model. Disable reasoning so the bounded completion budget

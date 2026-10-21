@@ -25,10 +25,6 @@ const providerLinks = [
   },
   { label: 'Stripe privacy center', url: 'https://stripe.com/privacy' },
   {
-    label: 'RevenueCat privacy policy',
-    url: 'https://www.revenuecat.com/privacy',
-  },
-  {
     label: 'Apple privacy policy',
     url: 'https://www.apple.com/legal/privacy/',
   },
@@ -57,15 +53,15 @@ const Paragraph = ({ children }: { children: React.ReactNode }) => (
 
 export const PrivacyContent = () => (
   <View style={styles.content}>
-    <Text style={styles.eyebrow}>HOMEDOC · PUBLIC BETA</Text>
+    <Text style={styles.eyebrow}>HOMEDOC</Text>
     <Text accessibilityRole="header" style={styles.title}>
       Privacy policy
     </Text>
-    <Text style={styles.updated}>Last updated October 20, 2026</Text>
+    <Text style={styles.updated}>Last updated October 21, 2026</Text>
     <Paragraph>
-      This page explains what the HomeDoc beta app handles, why it uses that
+      This page explains what the HomeDoc app handles, why it uses that
       information, and how to ask us about your data. We will update this page
-      when our data practices change as the beta develops.
+      when our data practices change as the service develops.
     </Paragraph>
 
     <PrivacySection title="Information you put in HomeDoc">
@@ -85,9 +81,9 @@ export const PrivacyContent = () => (
         supports email-and-password sign-in and email sign-in links.
       </Paragraph>
       <Paragraph>
-        If you choose to send beta feedback by email, HomeDoc opens your email
-        app with the screen, platform, app version, and account email prefilled.
-        You decide whether to send it and can edit the message first.
+        If you choose to send feedback by email, HomeDoc opens your email app
+        with the screen, platform, app version, and account email prefilled. You
+        decide whether to send it and can edit the message first.
       </Paragraph>
     </PrivacySection>
 
@@ -129,20 +125,21 @@ export const PrivacyContent = () => (
     <PrivacySection title="Payments and service providers">
       <Paragraph>
         Basic home records are free. Existing beta access does not require
-        payment. When you purchase a subscription in the iOS app, Apple
-        processes payment. When you view iOS subscription options, purchase, or
-        restore, RevenueCat verifies purchases and receives your HomeDoc account
-        ID, purchase identifiers, subscription status, and purchase-related
-        device information. HomeDoc stores the verified plan and expiration to
-        provide account features. RevenueCat also provides subscription
-        analytics. Stripe handles subscriptions purchased through web checkout.
-        HomeDoc does not collect card details in its own forms.
+        payment. When you view subscription products, purchase, or restore in
+        the iOS app, Apple's StoreKit handles the interaction and Apple
+        processes payment. HomeDoc supplies an account token based on your
+        HomeDoc user ID to link a purchase to the correct account. HomeDoc's
+        server verifies signed Apple transaction and subscription data and
+        stores product ID, subscription status, environment, and expiration to
+        provide account features. Apple also sends signed subscription lifecycle
+        notifications to HomeDoc. Stripe handles subscriptions purchased through
+        web checkout. HomeDoc does not collect card details in its own forms.
       </Paragraph>
       <Paragraph>
-        HomeDoc uses Supabase, OpenAI for AI planning, and Apple and RevenueCat
-        for iOS subscriptions. Stripe is used for web checkout. Each provider
-        has its own privacy and data handling terms, which can change. Review
-        their current notices below.
+        HomeDoc uses Supabase, OpenAI for AI planning, and Apple for iOS
+        subscriptions. Stripe is used for web checkout. Each provider has its
+        own privacy and data handling terms, which can change. Review their
+        current notices below.
       </Paragraph>
     </PrivacySection>
 
