@@ -9,6 +9,7 @@ on:
         options:
           - production
           - app-store
+          - app-store-simulator
         default: app-store
         required: true
       submit:
@@ -25,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EAS_BUILD_PROFILE: ${{ inputs.profile }}
-      EXPO_PUBLIC_HOMEDOC_FREE_BETA: ${{ inputs.profile == 'app-store' && 'false' || '' }}
+      EXPO_PUBLIC_HOMEDOC_FREE_BETA: ${{ startsWith(inputs.profile, 'app-store') && 'false' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,11 +36,17 @@ jobs:
           cache: npm
 
       - name: Validate selected profile
+        env:
+          SUBMIT_REQUESTED: ${{ inputs.submit }}
         run: |
           case "$EAS_BUILD_PROFILE" in
-            production|app-store) ;;
+            production|app-store|app-store-simulator) ;;
             *) echo "Unsupported EAS profile" >&2; exit 1 ;;
           esac
+          if [ "$EAS_BUILD_PROFILE" = app-store-simulator ] && [ "$SUBMIT_REQUESTED" = true ]; then
+            echo "Simulator builds cannot be submitted to App Store Connect" >&2
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -75,6 +82,7 @@ jobs:
         run: node scripts/check-apple-readiness.mjs
 
       - name: Restore local iOS signing credentials
+        if: inputs.profile != 'app-store-simulator'
         env:
           IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
           IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}

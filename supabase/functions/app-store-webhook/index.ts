@@ -55,8 +55,25 @@ serve(async (req: Request) => {
     // back to an older transaction.
     await saveAppStoreAccess(admin, userId, transactionId);
     return jsonResponse({ received: true });
-  } catch {
+  } catch (error) {
     // A non-2xx response asks Apple to retry. Never log signed user data.
+    const cause =
+      error instanceof Error
+        ? (error as Error & { cause?: unknown }).cause
+        : undefined;
+    const missingMethod =
+      cause instanceof Error
+        ? cause.message.match(
+            /crypto\.X509Certificate(?:\.prototype)?\.\w+/,
+          )?.[0]
+        : undefined;
+    console.error('App Store notification verification failed', {
+      missingCertificateMethod: missingMethod ?? null,
+      verificationStatus:
+        error && typeof error === 'object' && 'status' in error
+          ? Number(error.status)
+          : null,
+    });
     return jsonError(503, 'Subscription sync failed. Retry this notification.');
   }
 });

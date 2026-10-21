@@ -136,6 +136,10 @@ vm.runInNewContext(
         return appleLibrary;
       if (path === './apple-roots.ts')
         return { appleRootCertificatesBase64: ['dGVzdA=='] };
+      if (path === './apple-certificate-compat.ts')
+        return { installAppleCertificateCompat: () => false };
+      if (path === './apple-curve-compat.ts')
+        return { installAppleCurveCompat: () => false };
       throw new Error(`Unexpected import ${path}`);
     },
   },

@@ -62,7 +62,7 @@ requests do not roll over; the annual payment does not issue a yearly AI pool.
 Existing records remain accessible after a subscription expires. Preserved beta
 accounts retain the existing 20-request allowance.
 
-The App Store entitlement migration and purchase, webhook, and AI Edge Functions are deployed to HomeDoc. The approved IAP key is saved in Supabase server secrets, and both Apple notification URLs are saved. Both approved U.S. products are configured at the same service level. Test-notification delivery and real purchase verification remain pending. A successful build or API readiness response does not establish paid-release readiness; finish exact-build native purchase/restore QA and the remaining release checklist before sales.
+The App Store entitlement migration and purchase, webhook, and AI Edge Functions are deployed to HomeDoc. The approved IAP key is saved in Supabase server secrets, and both Apple notification URLs are saved. Both approved U.S. products are configured at the same service level. Apple's sandbox test notification reports SUCCESS, and the genuine signed event returned HTTP 200 from the hosted webhook. The production test API still returns 401 and real purchase lifecycle verification remains pending. Paid EAS build `4f88a5b5-e0b4-4c4a-a41e-9f4c6bb50a90` (source `e5cc6f1`, version 1.2.0 / 202610212048) finished, but upload workflow 39684837111 is still processing and Apple processing is unconfirmed. Complete exact-build native purchase/restore QA and the remaining release checklist before sales.
 
 ## Local signing files
 
@@ -75,5 +75,11 @@ The EAS iOS image is pinned in `eas.json` to Xcode 26 because App Store Connect
 requires the iOS 26 SDK. The local timestamp-style iOS build number is retained;
 do not switch `cli.appVersionSource` to `remote` unless the remote counter is
 first moved above the highest build already uploaded to App Store Connect.
+
+The local Xcode 27.1 Release simulator build compiled but the app could not
+launch because the SDK 27 simulator requires UIScene lifecycle support. A
+matching Xcode 26 `app-store-simulator` profile is being prepared to check the
+app with the release-matched SDK. Simulator rendering can support native screen
+QA and screenshot capture; it cannot verify actual App Store sandbox purchases.
 
 Sandbox verification also requires `APP_STORE_SANDBOX_USER_IDS`, a comma-separated list of dedicated QA/reviewer HomeDoc user UUIDs. Only those accounts may receive production-backend access from sandbox purchases when `APP_STORE_ALLOW_SANDBOX=true`. StoreKit supplies the signed-in Supabase UUID as `appAccountToken`; the server requires an exact token match. Purchases cannot be restored to a different HomeDoc account.

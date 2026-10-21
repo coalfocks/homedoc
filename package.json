@@ -13,7 +13,7 @@
     "submit:ios:testflight": "eas submit --platform ios --profile production",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "test": "node scripts/test-app-store.mjs && node scripts/test-app-store-handlers.mjs && node scripts/test-plan-todo.mjs && jest",
+    "test": "node scripts/test-apple-certificate-compat.mjs && node scripts/test-apple-curve-compat.mjs && node scripts/test-app-store.mjs && node scripts/test-app-store-handlers.mjs && node scripts/test-plan-todo.mjs && jest",
     "test:db": "node scripts/test-billing-access.mjs && node scripts/test-quota-permissions.mjs && node scripts/test-record-permissions.mjs",
     "check:submission": "node scripts/check-submission.mjs",
     "eas-build-post-install": "node scripts/check-submission.mjs"

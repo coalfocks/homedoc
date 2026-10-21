@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-21T21:50:15.941054+00:00",
+  "checkedAt": "2026-10-21T22:18:46.282467+00:00",
   "version": "1.2.0",
   "buildNumber": "202610212048",
   "billingProvider": "Apple StoreKit 2",
@@ -25,31 +25,52 @@
     "expoExports": ["web", "ios", "android"],
     "paidModeExpoExports": ["web", "ios", "android"],
     "native": {
-      "status": "BUILD SUCCEEDED",
+      "status": "BUILD SUCCEEDED; APP LAUNCH BLOCKED",
       "xcode": "27.1",
       "configuration": "Release",
       "sdk": "iphonesimulator",
       "codeSigningAllowed": false,
-      "storeKitModuleCompiled": true
+      "storeKitModuleCompiled": true,
+      "launchBlocker": "SDK 27 simulator requires UIScene lifecycle support",
+      "matchingToolchainNextStep": "Prepare Xcode 26 app-store-simulator EAS profile"
     },
     "liveAppleProductsAndPrices": "verified: both products level 1, U.S. only, 14.99/year and 2.99/month",
     "liveBackendDeployment": "billing migration, purchase sync, signed webhook, AI function deployed; auth boundaries verified",
     "appleServerSecrets": "approved IAP key stored in Supabase",
-    "appleNotificationUrls": "production and sandbox saved; delivery unverified"
+    "appleNotificationUrls": "production and sandbox saved; Apple sandbox TEST reports SUCCESS and genuine signed event returned hosted webhook HTTP 200; production test API returns 401",
+    "webhookRuntimeCompatibility": "Deno 2.1.4 compatibility deployed; signature, certificate identity/date, and online OCSP validation retained",
+    "listingMetadata": {
+      "subtitle": "Your home, documented",
+      "primaryCategory": "Lifestyle",
+      "secondaryCategory": "Productivity",
+      "ageRating": "4+ saved and verified"
+    }
+  },
+  "paidBuild": {
+    "easBuildId": "4f88a5b5-e0b4-4c4a-a41e-9f4c6bb50a90",
+    "sourceCommit": "e5cc6f1b8fdbbac669fead4fe37e4b7bc2477950",
+    "profile": "app-store",
+    "status": "FINISHED",
+    "distribution": "STORE",
+    "version": "1.2.0",
+    "buildNumber": "202610212048",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39684837111",
+    "uploadWorkflowStatus": "processing",
+    "appleProcessingVerified": false
   },
   "notVerified": [
-    "signed paid App Store binary",
-    "Apple processing",
+    "upload completion and Apple processing of the signed paid App Store binary",
     "native UI/device QA",
-    "real purchase, restore, renewal, expiry and refund",
+    "actual purchase, restore, renewal, expiry and refund lifecycle",
     "final store screenshots",
-    "Apple notification test delivery and live canonical API access",
+    "live production canonical API access (test API returns 401)",
     "signed-build free/Pro/reviewer accounts",
     "public Apple-aware privacy policy deployment"
   ],
   "externalGates": [
-    "Apple notification test delivery and canonical purchase verification",
+    "production API access and actual purchase lifecycle verification",
     "reviewer/QA accounts and sandbox testing",
-    "signed paid binary, native QA, final listing and review assets"
+    "upload completion, Apple processing, launchable native QA, final listing and review assets",
+    "reviewer/contact details, content rights, App Privacy, public Apple-aware privacy policy, and final screenshots"
   ]
 }

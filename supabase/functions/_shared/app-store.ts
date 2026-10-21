@@ -8,6 +8,8 @@ import {
   Type,
 } from 'npm:@apple/app-store-server-library@3.1.0';
 import { appleRootCertificatesBase64 } from './apple-roots.ts';
+import { installAppleCertificateCompat } from './apple-certificate-compat.ts';
+import { installAppleCurveCompat } from './apple-curve-compat.ts';
 
 export const monthlyProductId = 'com.coalfocks.homedoc.pro.monthly';
 export const annualProductId = 'com.coalfocks.homedoc.pro.annual';
@@ -48,6 +50,8 @@ type StatusResponse = {
 const appleRootCertificates = appleRootCertificatesBase64.map((certificate) =>
   Buffer.from(certificate, 'base64'),
 );
+installAppleCurveCompat(appleRootCertificates[2]);
+installAppleCertificateCompat(appleRootCertificates[0]);
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

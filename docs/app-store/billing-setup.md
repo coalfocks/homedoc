@@ -42,7 +42,7 @@ Required Supabase function secrets:
 | `APP_STORE_PRO_PRODUCT_ID`        | Optional monthly ID override                        |
 | `APP_STORE_PRO_ANNUAL_PRODUCT_ID` | Optional yearly ID override                         |
 
-The official Apple App Store Server Library is pinned server-side. Root certificates come from Apple's official PKI, with provenance and SHA-256 evidence beside their source. Verify certificate deployment, Node-compatible Deno runtime, online certificate checking, and Apple API access in the live Edge environment.
+The official Apple App Store Server Library is pinned server-side. Root certificates come from Apple's official PKI, with provenance and SHA-256 evidence beside their source. The deployed compatibility path runs on Deno 2.1.4 and retains signed-data signature, certificate identity and validity-date, and online OCSP revocation checks. A genuine Apple sandbox test notification passed those checks and reached the hosted webhook, which returned HTTP 200. This verifies notification delivery and signed webhook handling, not a purchase transaction.
 
 ## HomeDoc backend
 
@@ -59,7 +59,7 @@ Production and sandbox notification URLs are saved in App Store Connect as:
 
 `https://nismvycjiobjbaozjwih.supabase.co/functions/v1/app-store-webhook`
 
-Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. These verify deployment/auth boundaries, not real purchases. Initial Apple test-notification API attempts returned production 401 and sandbox 4040007 immediately after URL setup; delivery remains unverified. Retry after configuration propagation and investigate persistent errors before release. Verify Notifications V2 signatures and canonical API access in the live Edge runtime, then real purchase, renewal, cancellation, expiry, and refund events. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
+Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. Apple's sandbox test notification now reports SUCCESS, and the genuine signed notification returned 200 from the hosted webhook. The production test API still returns 401, so canonical production API access is unresolved. No actual purchase, renewal, cancellation, expiry, or refund lifecycle has been verified. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
 
 ## Exact signed-build acceptance
 

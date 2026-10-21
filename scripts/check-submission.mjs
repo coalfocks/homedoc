@@ -69,8 +69,9 @@ assert.match(expo.version, /^\d+\.\d+\.\d+$/);
 assert.match(expo.ios.buildNumber, /^\d{12,14}$/);
 assert.equal(expo.ios.infoPlist.ITSAppUsesNonExemptEncryption, false);
 const paidBuild =
-  process.env.EAS_BUILD_PROFILE === 'app-store' ||
-  process.argv.includes('--paid');
+  ['app-store', 'app-store-simulator'].includes(
+    process.env.EAS_BUILD_PROFILE,
+  ) || process.argv.includes('--paid');
 if (paidBuild) {
   assert.equal(
     process.env.EXPO_PUBLIC_HOMEDOC_FREE_BETA,
