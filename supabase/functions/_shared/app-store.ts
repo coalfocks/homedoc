@@ -119,6 +119,10 @@ function isTransactionIdNotFound(error: unknown) {
   );
 }
 
+function isUnauthorized(error: unknown) {
+  return error instanceof APIException && error.httpStatusCode === 401;
+}
+
 async function getStatuses(transactionId: string, userId: string) {
   try {
     const response = (await apiClient('Production').getAllSubscriptionStatuses(
@@ -126,9 +130,19 @@ async function getStatuses(transactionId: string, userId: string) {
     )) as StatusResponse;
     return { response, environment: 'Production' as const };
   } catch (error) {
-    if (!isTransactionIdNotFound(error) || !sandboxAllowedForUser(userId)) {
+    const allowedReviewerFallback =
+      sandboxAllowedForUser(userId) &&
+      (isTransactionIdNotFound(error) || isUnauthorized(error));
+    if (!allowedReviewerFallback) {
       throw new Error('Could not verify the App Store subscription.');
     }
+    // Apple's staff has said production API access is unavailable until an app
+    // is released (https://developer.apple.com/forums/thread/806452), while
+    // App Review IAP tests use Sandbox
+    // (https://developer.apple.com/help/app-review/before-submitting-for-review/configure-in-app-purchases/).
+    // A pre-release 401 is therefore a plausible gate, not generally expected:
+    // Apple's endpoint docs define 401 as an invalid JWT. Keep this retry
+    // limited to explicitly allowlisted reviewers and validate Sandbox fully.
     const response = (await apiClient('Sandbox').getAllSubscriptionStatuses(
       transactionId,
     )) as StatusResponse;

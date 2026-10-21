@@ -321,6 +321,88 @@ state.env.APP_STORE_SANDBOX_USER_IDS = USER_B;
 const callsBeforeOtherSandbox = state.apiCalls.length;
 await assert.rejects(loadAppStoreAccess(USER_A, '10010'));
 assert.equal(state.apiCalls.length, callsBeforeOtherSandbox + 1);
+state.env.APP_STORE_ALLOW_SANDBOX = 'true';
+state.apiErrors.Production = new MockAPIException(401, 4010000);
+state.responses.Sandbox = statusResponse(
+  [
+    {
+      status: 1,
+      transaction: transaction(USER_A, ANNUAL, { environment: 'Sandbox' }),
+      renewal: renewal(USER_A, ANNUAL, { environment: 'Sandbox' }),
+    },
+  ],
+  'Sandbox',
+);
+state.env.APP_STORE_SANDBOX_USER_IDS = USER_A;
+const callsBeforeReview401 = state.apiCalls.length;
+const reviewSandboxAccess = await loadAppStoreAccess(USER_A, '10016');
+assert.equal(reviewSandboxAccess.environment, 'sandbox');
+assert.equal(reviewSandboxAccess.productId, ANNUAL);
+assert.deepEqual(
+  state.apiCalls
+    .slice(callsBeforeReview401)
+    .map(({ environment }) => environment),
+  ['Production', 'Sandbox'],
+  'An allowlisted reviewer retries a production 401 against Sandbox.',
+);
+
+state.env.APP_STORE_SANDBOX_USER_IDS = USER_B;
+const callsBeforeNonAllowlisted401 = state.apiCalls.length;
+await assert.rejects(loadAppStoreAccess(USER_A, '10017'));
+assert.equal(state.apiCalls.length, callsBeforeNonAllowlisted401 + 1);
+assert.equal(state.apiCalls.at(-1).environment, 'Production');
+
+state.env.APP_STORE_SANDBOX_USER_IDS = USER_A;
+state.apiErrors.Sandbox = new MockAPIException(401, 4010000);
+const callsBeforeSandbox401 = state.apiCalls.length;
+await assert.rejects(loadAppStoreAccess(USER_A, '10018'));
+assert.deepEqual(
+  state.apiCalls
+    .slice(callsBeforeSandbox401)
+    .map(({ environment }) => environment),
+  ['Production', 'Sandbox'],
+  'A Sandbox authorization failure is returned without another fallback.',
+);
+state.apiErrors.Sandbox = null;
+
+state.responses.Sandbox = statusResponse(
+  [
+    {
+      status: 1,
+      transaction: transaction(USER_B, MONTHLY, { environment: 'Sandbox' }),
+      renewal: renewal(USER_B, MONTHLY, { environment: 'Sandbox' }),
+    },
+  ],
+  'Sandbox',
+);
+await assert.rejects(loadAppStoreAccess(USER_A, '10019'));
+
+state.responses.Sandbox = statusResponse(
+  [
+    {
+      status: 1,
+      transaction: transaction(USER_A, MONTHLY, { environment: 'Sandbox' }),
+    },
+  ],
+  'Sandbox',
+);
+for (const error of [
+  new MockAPIException(403, 4030000),
+  new MockAPIException(404, 4040999),
+  new MockAPIException(429, 4290000),
+  new MockAPIException(500, 5000000),
+  new Error('Unexpected API failure'),
+]) {
+  state.apiErrors.Production = error;
+  const callsBeforeUnexpectedError = state.apiCalls.length;
+  await assert.rejects(loadAppStoreAccess(USER_A, '10020'));
+  assert.equal(state.apiCalls.length, callsBeforeUnexpectedError + 1);
+  assert.equal(
+    state.apiCalls.at(-1).environment,
+    'Production',
+    'Only allowlisted 4040010 or 401 APIExceptions may retry in Sandbox.',
+  );
+}
 state.env.APP_STORE_ALLOW_SANDBOX = 'false';
 state.env.APP_STORE_SANDBOX_USER_IDS = '';
 state.apiErrors.Production = null;
