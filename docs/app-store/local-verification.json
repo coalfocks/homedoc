@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-22T18:05:30.050800+00:00",
+  "checkedAt": "2026-10-22T18:19:35.564706+00:00",
   "version": "1.2.0",
   "buildNumber": "202610221728",
   "sourceBranch": "codex/app-store-submission",
@@ -53,7 +53,10 @@
       "saveClicked": true,
       "disabledSaveAndCheckmarkObserved": true,
       "fullReloadVerification": false,
-      "reopenedViaAppsVerified": true
+      "reopenedViaAppsVerified": true,
+      "draftStatus": "Ready for Review",
+      "draftContents": ["iOS App 1.2.0 (202610221728) only"],
+      "finalSubmitForReviewClicked": false
     },
     "internalTestingGroup": "internal; build 202610221728 in Testing with existing tester Cole",
     "screenshots": {
@@ -64,6 +67,27 @@
       "status": "uploaded and processed",
       "conversion": "opaque JPEG from device PNG using sips; no resize or content change; capture manifest retained",
       "reopenedViaAppsVerified": true
+    },
+    "reviewSubmissionDraft": {
+      "createdVia": "version 1.2.0 Add for Review",
+      "status": "Ready for Review",
+      "contents": ["iOS App 1.2.0 (202610221728) only"],
+      "finalSubmitForReviewClicked": false,
+      "annualSubscription": "Add for Review validation failed: “You must add a Review Information screenshot.” Remains Prepare for Submission and was not added.",
+      "monthlySubscription": "Add for Review not attempted; remains Prepare for Submission.",
+      "subscriptionGroup": "not attached",
+      "evidence": [
+        "app-store/draft-app-review-1.2.0.png",
+        "app-store/yearly-review-screenshot-required.png"
+      ]
+    },
+    "physicalDeviceCheck": {
+      "device": "iPhone 15 Pro",
+      "exactBundleBuild": "202610220235",
+      "method": "read-only devicectl lookup",
+      "reviewerSignInClaim": "reviewer sign-in verified on both Mac simulators; physical TestFlight build 202610221728 not verified",
+      "testFlight1728Install": "not verified",
+      "desktopAccess": "Mac locked; user unlock and physical TestFlight update requested"
     }
   },
   "previousPrivacyCandidate": {
@@ -95,7 +119,12 @@
     "monthlyUsd": 2.99,
     "availability": "U.S. only",
     "serviceLevel": 1,
-    "status": "both products Prepare for Submission; English (U.S.) localization and U.S. sale availability verified"
+    "status": "yearly and monthly Prepare for Submission; English (U.S.) localization and U.S. sale availability verified",
+    "reviewSubmissionState": {
+      "annual": "Add for Review attempted; blocked by missing Review Information screenshot; not added",
+      "monthly": "not attempted; not added",
+      "subscriptionGroup": "not attached to draft"
+    }
   },
   "appleNotificationsAndPurchaseVerification": {
     "sandboxTestNotification": "Apple reported SUCCESS; genuine signed notification returned hosted webhook HTTP 200",
@@ -214,7 +243,13 @@
     "deviceAvailabilityStatus": "Mac and Vision Pro disabled, saved and verified after reload",
     "selectedBuildNumber": "202610221728",
     "versionSelection": "Save clicked; disabled Save/checkmark observed; selection and both screenshot sets persisted after reopening via Apps",
-    "versionSelectionReopenVerified": true
+    "versionSelectionReopenVerified": true,
+    "appReviewDraft": {
+      "version": "1.2.0",
+      "status": "Ready for Review",
+      "items": ["iOS App 1.2.0 (202610221728) only"],
+      "finalSubmitForReviewClicked": false
+    }
   },
   "appStorePrivacy": {
     "dataCategoryCount": 9,
@@ -224,7 +259,7 @@
     "privacyPolicyUrl": "https://homedocumentation.com/privacy",
     "status": "published",
     "publishedBy": "Cole Fox",
-    "publicationObserved": "App Store Connect showed \u201cPublished a few seconds ago by Cole Fox\u201d",
+    "publicationObserved": "App Store Connect showed “Published a few seconds ago by Cole Fox”",
     "humanApproval": "explicit approval to publish received",
     "finalCandidateArtifactInspection": "passed on 202610221728: nine categories, no tracking, five SDK manifests"
   },
@@ -242,13 +277,17 @@
   },
   "notVerified": [
     "TestFlight 202610221728 actual localized prices, purchase, restore, renewal, expiry, and refund lifecycle; no transaction attempted",
-    "subscription review images and attaching both initial subscriptions to version 1.2.0",
+    "yearly and monthly subscription review screenshots; annual Add for Review was blocked by the missing screenshot",
+    "adding both initial subscriptions and, if still unapproved, their group to the existing app-version draft",
+    "physical-device confirmation that the logged-in iPhone is running TestFlight build 202610221728",
+    "final Submit for Review after QA and all required items are staged",
     "post-release production API verification after current production test API 401"
   ],
   "preReviewGates": [
-    "install TestFlight build 202610221728 and verify actual localized prices and account access",
+    "unlock the Mac, update the physical iPhone 15 Pro through TestFlight to 202610221728, and verify actual localized Account prices",
     "complete actual TestFlight Sandbox purchase, restore, and lifecycle QA with only the allowlisted reviewer",
-    "create subscription review images and attach both initial subscriptions to version 1.2.0"
+    "add review screenshots to both subscriptions, then add both subscriptions and the unapproved group if applicable to the existing version 1.2.0 draft",
+    "review the complete draft and click final Submit for Review only after QA is complete"
   ],
   "postReleaseVerification": [
     "verify production App Store Server API behavior; current test API response is 401 and Sandbox fallback is reviewer-only"
@@ -335,6 +374,19 @@
     "nativeQa": "installed over 202610220235 on iPhone 18 Pro and iPad Pro 13-inch (M5); sessions persisted; copy and sample records verified; saved plan visible on both; no additional AI requests",
     "selectedForVersion": "1.2.0; Save clicked, disabled Save/checkmark observed, and selection persisted after reopening via Apps",
     "internalTesting": "group internal contains build in Testing with Cole existing tester",
-    "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained"
+    "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained",
+    "reviewSubmissionDraft": {
+      "status": "Ready for Review",
+      "items": ["iOS App 1.2.0 (202610221728) only"],
+      "finalSubmitForReviewClicked": false,
+      "annualSubscriptionAddForReview": "blocked by required Review Information screenshot; remains Prepare for Submission",
+      "monthlySubscriptionAddForReview": "not attempted",
+      "subscriptionGroupAttached": false,
+      "evidence": [
+        "app-store/draft-app-review-1.2.0.png",
+        "app-store/yearly-review-screenshot-required.png"
+      ]
+    },
+    "physicalDeviceCheck": "read-only devicectl lookup found the connected iPhone 15 Pro on build 202610220235; Mac simulator reviewer sessions are verified; TestFlight 202610221728 remains unconfirmed on physical hardware, and Mac access is locked pending user unlock"
   }
 }
