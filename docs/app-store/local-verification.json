@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-22T18:19:35.564706+00:00",
+  "checkedAt": "2026-10-22T19:37:57.385344+00:00",
   "version": "1.2.0",
   "buildNumber": "202610221728",
   "sourceBranch": "codex/app-store-submission",
@@ -46,7 +46,8 @@
       "keyboardQa": "not rerun; AuthScreen is unchanged from previously verified candidate 202610220235",
       "selectionVersion": "1.2.0",
       "listingScreenshotsProcessed": true,
-      "simulatorProductPrices": "unavailable on replacement1728; actual TestFlight check pending"
+      "simulatorProductPrices": "live $14.99/year and $2.99/month loaded after normal Account navigation",
+      "purchaseRestoreLifecycleVerified": false
     },
     "appStoreSelection": {
       "version": "1.2.0",
@@ -54,8 +55,13 @@
       "disabledSaveAndCheckmarkObserved": true,
       "fullReloadVerification": false,
       "reopenedViaAppsVerified": true,
-      "draftStatus": "Ready for Review",
-      "draftContents": ["iOS App 1.2.0 (202610221728) only"],
+      "draftStatus": "Ready for Review; app, annual subscription, monthly subscription, and subscription group staged",
+      "draftContents": [
+        "iOS App 1.2.0 (202610221728)",
+        "HomeDoc Pro annual subscription",
+        "HomeDoc Pro monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
       "finalSubmitForReviewClicked": false
     },
     "internalTestingGroup": "internal; build 202610221728 in Testing with existing tester Cole",
@@ -66,28 +72,45 @@
       "ipadSlot": "2064x2752",
       "status": "uploaded and processed",
       "conversion": "opaque JPEG from device PNG using sips; no resize or content change; capture manifest retained",
-      "reopenedViaAppsVerified": true
+      "reopenedViaAppsVerified": true,
+      "subscriptionReview": {
+        "annual": "uploaded and processed",
+        "monthly": "uploaded and processed",
+        "captureManifest": "beta-outreach-results/app-store/subscription-review-202610221728/capture-manifest.json",
+        "source": "native iPhone 18 Pro UI on build 202610221728 with live localized Apple products"
+      }
     },
     "reviewSubmissionDraft": {
       "createdVia": "version 1.2.0 Add for Review",
       "status": "Ready for Review",
-      "contents": ["iOS App 1.2.0 (202610221728) only"],
+      "contents": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "itemsReadyToSubmit": 4,
       "finalSubmitForReviewClicked": false,
-      "annualSubscription": "Add for Review validation failed: “You must add a Review Information screenshot.” Remains Prepare for Submission and was not added.",
-      "monthlySubscription": "Add for Review not attempted; remains Prepare for Submission.",
-      "subscriptionGroup": "not attached",
+      "annualSubscription": "Ready for Review; review information screenshot uploaded and processed",
+      "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
+      "subscriptionGroup": "Ready for Review; attached to the same existing draft",
       "evidence": [
-        "app-store/draft-app-review-1.2.0.png",
-        "app-store/yearly-review-screenshot-required.png"
+        "subscription-review-202610221728/annual-review.jpg",
+        "subscription-review-202610221728/monthly-review.jpg",
+        "subscription-review-202610221728/review-draft-four-items.png"
       ]
     },
     "physicalDeviceCheck": {
       "device": "iPhone 15 Pro",
-      "exactBundleBuild": "202610220235",
-      "method": "read-only devicectl lookup",
-      "reviewerSignInClaim": "reviewer sign-in verified on both Mac simulators; physical TestFlight build 202610221728 not verified",
-      "testFlight1728Install": "not verified",
-      "desktopAccess": "Mac locked; user unlock and physical TestFlight update requested"
+      "exactBundleBuild": "202610221728",
+      "method": "read-only devicectl exact bundle lookup",
+      "testFlight1728Install": "verified",
+      "localizedPrices": {
+        "annual": "$14.99/year",
+        "monthly": "$2.99/month",
+        "evidence": "user confirmed on updated physical TestFlight build"
+      },
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement"
     }
   },
   "previousPrivacyCandidate": {
@@ -119,11 +142,13 @@
     "monthlyUsd": 2.99,
     "availability": "U.S. only",
     "serviceLevel": 1,
-    "status": "yearly and monthly Prepare for Submission; English (U.S.) localization and U.S. sale availability verified",
+    "status": "yearly and monthly products and group Ready for Review; English (U.S.) localization and U.S. sale availability verified",
     "reviewSubmissionState": {
-      "annual": "Add for Review attempted; blocked by missing Review Information screenshot; not added",
-      "monthly": "not attempted; not added",
-      "subscriptionGroup": "not attached to draft"
+      "annual": "Ready for Review; annual screenshot uploaded and processed",
+      "monthly": "Ready for Review; monthly screenshot uploaded and processed",
+      "subscriptionGroup": "attached to existing version 1.2.0 draft; Ready for Review",
+      "draftItemsReadyToSubmit": 4,
+      "finalSubmitForReviewClicked": false
     }
   },
   "appleNotificationsAndPurchaseVerification": {
@@ -176,8 +201,18 @@
       "tasks": 2
     },
     "credentialsAndReviewContact": "saved privately in App Store Connect",
-    "nativeHumanLogin": "verified on build 202610221728 on iPhone 18 Pro and iPad Pro 13-inch (M5)",
-    "purchaseRestoreQa": "not verified",
+    "nativeHumanLogin": "verified on iPhone 18 Pro and iPad Pro 13-inch (M5), build 202610221728",
+    "purchaseRestoreQa": {
+      "buildNumber": "202610221728",
+      "yearlySandboxPurchase": "user reports Pro became active with 50-request monthly feature copy after instructed sandbox purchase while signed in as appreview@homedoc.invalid",
+      "physicalRestore": "pending user response",
+      "crossDevice": "already-signed-in reviewer simulator refreshed Account and showed Pro active, additional properties, and 50-request feature copy; no purchase on simulator",
+      "interpretation": "cross-device Account Pro display does not independently establish app_store provider, purchase account binding, or backend quota counter; this same candidate showed the free paywall before the reported purchase",
+      "actualBackendQuotaCounterVerified": false,
+      "backendProviderAndBindingVerified": false,
+      "databasePurchaseRowVerified": false,
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and account-switch behavior not verified"
+    },
     "databaseRoleVerification": {
       "role": "authenticated",
       "claims": "transaction-local reviewer UUID",
@@ -276,18 +311,18 @@
     "scopeNote": "Separate from native iOS StoreKit products and prices."
   },
   "notVerified": [
-    "TestFlight 202610221728 actual localized prices, purchase, restore, renewal, expiry, and refund lifecycle; no transaction attempted",
-    "yearly and monthly subscription review screenshots; annual Add for Review was blocked by the missing screenshot",
-    "adding both initial subscriptions and, if still unapproved, their group to the existing app-version draft",
-    "physical-device confirmation that the logged-in iPhone is running TestFlight build 202610221728",
-    "final Submit for Review after QA and all required items are staged",
+    "original-account cold-start and Restore result; physical restore response pending",
+    "backend app_store provider and account binding for the yearly purchase; no current database purchase row or lifecycle state verified",
+    "actual backend 50-request quota counter behavior; Account feature copy alone is not a usage counter",
+    "monthly purchase, renewal, cancellation, expiry, refund, and account-switch behavior",
+    "final Submit for Review; draft is staged as Ready for Review with four items, final submit was not clicked",
     "post-release production API verification after current production test API 401"
   ],
   "preReviewGates": [
-    "unlock the Mac, update the physical iPhone 15 Pro through TestFlight to 202610221728, and verify actual localized Account prices",
-    "complete actual TestFlight Sandbox purchase, restore, and lifecycle QA with only the allowlisted reviewer",
-    "add review screenshots to both subscriptions, then add both subscriptions and the unapproved group if applicable to the existing version 1.2.0 draft",
-    "review the complete draft and click final Submit for Review only after QA is complete"
+    "complete original-account cold-start and Restore QA with the allowlisted reviewer; capture the result",
+    "verify backend provider/account binding and actual quota behavior when authorized HomeDoc project access is available; do not infer from Account copy",
+    "complete monthly purchase and remaining renewal/cancellation/expiry/refund/account-switch lifecycle QA as applicable",
+    "review the four-item existing App Store draft and submit only after required QA is complete"
   ],
   "postReleaseVerification": [
     "verify production App Store Server API behavior; current test API response is 401 and Sandbox fallback is reviewer-only"
@@ -371,22 +406,52 @@
     "appleValidAt": "2026-10-22T17:46:08Z",
     "sdk": "26.0",
     "artifactPrivacyInspection": "passed: nine collected categories, no tracking, five embedded SDK manifests",
-    "nativeQa": "installed over 202610220235 on iPhone 18 Pro and iPad Pro 13-inch (M5); sessions persisted; copy and sample records verified; saved plan visible on both; no additional AI requests",
+    "nativeQa": "core read flows and stored plan verified on iPhone/iPad; physical TestFlight build confirmed with live $14.99/year and $2.99/month prices; user reports yearly sandbox purchase activated Pro",
     "selectedForVersion": "1.2.0; Save clicked, disabled Save/checkmark observed, and selection persisted after reopening via Apps",
     "internalTesting": "group internal contains build in Testing with Cole existing tester",
     "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained",
     "reviewSubmissionDraft": {
+      "createdVia": "version 1.2.0 Add for Review",
       "status": "Ready for Review",
-      "items": ["iOS App 1.2.0 (202610221728) only"],
+      "contents": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "itemsReadyToSubmit": 4,
       "finalSubmitForReviewClicked": false,
-      "annualSubscriptionAddForReview": "blocked by required Review Information screenshot; remains Prepare for Submission",
-      "monthlySubscriptionAddForReview": "not attempted",
-      "subscriptionGroupAttached": false,
+      "annualSubscription": "Ready for Review; review information screenshot uploaded and processed",
+      "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
+      "subscriptionGroup": "Ready for Review; attached to the same existing draft",
       "evidence": [
-        "app-store/draft-app-review-1.2.0.png",
-        "app-store/yearly-review-screenshot-required.png"
+        "subscription-review-202610221728/annual-review.jpg",
+        "subscription-review-202610221728/monthly-review.jpg",
+        "subscription-review-202610221728/review-draft-four-items.png"
       ]
     },
-    "physicalDeviceCheck": "read-only devicectl lookup found the connected iPhone 15 Pro on build 202610220235; Mac simulator reviewer sessions are verified; TestFlight 202610221728 remains unconfirmed on physical hardware, and Mac access is locked pending user unlock"
+    "physicalDeviceCheck": {
+      "device": "iPhone 15 Pro",
+      "exactBundleBuild": "202610221728",
+      "method": "read-only devicectl exact bundle lookup",
+      "testFlight1728Install": "verified",
+      "localizedPrices": {
+        "annual": "$14.99/year",
+        "monthly": "$2.99/month",
+        "evidence": "user confirmed on updated physical TestFlight build"
+      },
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement"
+    },
+    "purchaseQa": {
+      "buildNumber": "202610221728",
+      "yearlySandboxPurchase": "user reports Pro became active with 50-request monthly feature copy after instructed sandbox purchase while signed in as appreview@homedoc.invalid",
+      "physicalRestore": "pending user response",
+      "crossDevice": "already-signed-in reviewer simulator refreshed Account and showed Pro active, additional properties, and 50-request feature copy; no purchase on simulator",
+      "interpretation": "cross-device Account Pro display does not independently establish app_store provider, purchase account binding, or backend quota counter; this same candidate showed the free paywall before the reported purchase",
+      "actualBackendQuotaCounterVerified": false,
+      "backendProviderAndBindingVerified": false,
+      "databasePurchaseRowVerified": false,
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and account-switch behavior not verified"
+    }
   }
 }

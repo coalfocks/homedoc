@@ -6,14 +6,14 @@ Approved October 21, 2026: Apple StoreKit 2 directly, with **no third-party subs
 
 App **6779373725**, bundle **com.coalfocks.homedoc**. Group **HomeDoc Pro** (ID **22501802**) and both products below have been created. The account holder resolved the previous agreement blocker; the agent did not accept an agreement.
 
-Both products are saved at service level 1, available only in the U.S., with Family Sharing off and individual App Store purchase enabled. Annual Apple ID is **6825527261**; monthly is **6825528603**. Both remain Prepare for Submission:
+Both products are saved at service level 1, available only in the U.S., with Family Sharing off and individual App Store purchase enabled. Annual Apple ID is **6825527261**; monthly is **6825528603**. Both products and their group are now Ready for Review in the same existing version 1.2.0 draft:
 
 | Product ID                          | Duration | U.S. price | Localized name      | Description                                     |
 | ----------------------------------- | -------- | ---------- | ------------------- | ----------------------------------------------- |
 | `com.coalfocks.homedoc.pro.annual`  | 1 year   | $14.99     | HomeDoc Pro Yearly  | Additional homes and 50 AI requests each month. |
 | `com.coalfocks.homedoc.pro.monthly` | 1 month  | $2.99      | HomeDoc Pro Monthly | Additional homes and 50 AI requests each month. |
 
-Exact metadata is in [subscriptions.json](subscriptions.json). U.S. prices and availability were verified after saving. Do not create another group, duplicate these product IDs, or enable Family Sharing without a separate identity policy. Annual is the default purchase selection; both options grant 50 AI requests per UTC calendar month, not a yearly pool.
+Exact metadata is in [subscriptions.json](subscriptions.json). U.S. prices and availability were verified after saving. User also confirmed the physical TestFlight build displays $14.99/year and $2.99/month. Do not create another group, duplicate these product IDs, or enable Family Sharing without a separate identity policy. Annual is the default purchase selection; both options grant 50 AI requests per UTC calendar month, not a yearly pool.
 
 The local Expo module `HomeDocStoreKit` calls Apple's StoreKit 2 APIs. The app supplies the authenticated Supabase UUID as `appAccountToken` when purchasing. It displays Apple's localized price and exact subscription period. Transactions finish only after server verification. Manual restore uses `AppStore.sync`; quiet Account focus checks do not prompt the user. Existing-record access does not depend on a subscription.
 
@@ -59,15 +59,17 @@ Production and sandbox notification URLs are saved in App Store Connect as:
 
 `https://nismvycjiobjbaozjwih.supabase.co/functions/v1/app-store-webhook`
 
-Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. Apple's sandbox test notification reports SUCCESS, and the genuine signed notification returned 200 from the hosted webhook. The production test API still returns 401, so canonical production API access is unresolved. No actual purchase, renewal, cancellation, expiry, or refund lifecycle has been verified. Guarded legacy-table migration `20261021224500` is applied and verified. Four empty unused singular tables now deny client access; service privileges, 39 accounts, and 16 properties are preserved. Supabase reports zero security errors; 33 existing helper/trigger advisories remain for case-by-case review. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
+Anonymous sync and AI calls return 401, and a webhook without signed payload returns 400. Apple's sandbox test notification reports SUCCESS, and the genuine signed notification returned 200 from the hosted webhook. The production test API still returns 401, so canonical production API access is unresolved. The user reports a yearly Sandbox purchase on physical TestFlight build 202610221728 activated Pro for the dedicated reviewer. The original-account cold-start and Restore result remains pending. No backend purchase row/provider/account binding or live quota counter was verified; monthly purchase, renewal, cancellation, expiry, refund, and account-switch behavior remain unverified. The current Dashboard/connector account does not expose the target HomeDoc project, so backend state could not be checked. Guarded legacy-table migration `20261021224500` is applied and verified. Four empty unused singular tables now deny client access; service privileges, 39 accounts, and 16 properties are preserved. Supabase reports zero security errors; 33 existing helper/trigger advisories remain for case-by-case review. Check database security advisors, own-row access, service-only writes, preserved beta access, and expired-subscriber record access. A server outage must leave existing verified state intact rather than invent or erase access.
 
 ## Exact signed-build acceptance
 
-Build the `app-store` profile after backend/product configuration. The existing `production` profile retains free-beta behavior and is not the paid release.
+Candidate 1.2.0 (202610221728), source `219be299d336cf42d244e4fee0f7fcd2debec410`, is installed on the physical iPhone and selected in App Store Connect. Physical TestFlight prices were confirmed at $14.99/year and $2.99/month. The user reports a yearly Sandbox purchase activated Pro for the dedicated reviewer. This is user-reported device evidence; it does not verify the backend provider, purchase-to-account row, or live quota counter. The original-account cold-start and Restore response is pending.
 
-- Purchase annual and monthly with dedicated non-beta HomeDoc accounts. Confirm localized amount/period, Apple confirmation, provider `app_store`, and 50 monthly requests.
-- Cancel the purchase sheet: no charge or entitlement change. A pending/Ask to Buy result must not grant Pro. Cancel renewal: access continues through paid expiry.
-- Restore in the original HomeDoc account after reinstall. Another HomeDoc account must not inherit that purchase. Finish only server-verified transactions.
+Remaining acceptance work:
+
+- Complete cold-start and Restore in the original HomeDoc account. Verify that a different HomeDoc account cannot inherit the purchase; finish only server-verified transactions.
+- Verify backend provider/account binding and actual quota enforcement when access to the correct HomeDoc project is available. Account feature copy is not a quota counter.
+- Verify monthly purchase and, as applicable, renewal, cancellation, expiry, refund, and account-switch behavior. Cancelled subscriptions should remain active through paid expiry; pending/Ask to Buy must not grant Pro.
 - Verify renewal while the app is closed, signed notification delivery, Account-focus recovery, expiry/refund removal, and blocked sandbox access for ordinary users.
 - Confirm one free owned home, free basic records/sharing/transfer, and preserved beta fallback. After Pro ends, existing records remain accessible; additional-home creation and AI follow current free limits.
 - Verify annual AI allowance resets monthly. A question set plus generated plan uses two requests; each follow-up uses one.
