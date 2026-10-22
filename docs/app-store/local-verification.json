@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-22T19:37:57.385344+00:00",
+  "checkedAt": "2026-10-22T20:32:43.239263+00:00",
   "version": "1.2.0",
   "buildNumber": "202610221728",
   "sourceBranch": "codex/app-store-submission",
@@ -7,7 +7,7 @@
   "currentCandidate": {
     "buildNumber": "202610221728",
     "sourceRevision": "219be299d336cf42d244e4fee0f7fcd2debec410",
-    "status": "signed and simulator builds finished; upload succeeded; Apple reports VALID",
+    "status": "processed selected binary; live annual Sandbox purchase and original-account Restore verified; release candidate prepared for review; final Submit for Review not clicked",
     "changes": [
       "General feedback, empty-state, and create-state wording updated for non-beta users; existing beta-access behavior is preserved"
     ],
@@ -25,7 +25,8 @@
       "lint": "passed",
       "typescript": "passed",
       "jest": "passed: 51 tests across 11 suites",
-      "serverAppleTests": "passed"
+      "serverAppleTests": "passed",
+      "releaseRecordFollowUp": "format, lint, Apple/server tests, and 51 Jest tests across 11 suites passed on 2026-10-22; documentation-only follow-up"
     },
     "signedBuildId": "5ed8c9a7-eefa-4466-b751-2d241e3d3688",
     "simulatorBuildId": "30258387-54b7-404b-a84d-1a7fe643fb0e",
@@ -47,7 +48,8 @@
       "selectionVersion": "1.2.0",
       "listingScreenshotsProcessed": true,
       "simulatorProductPrices": "live $14.99/year and $2.99/month loaded after normal Account navigation",
-      "purchaseRestoreLifecycleVerified": false
+      "purchaseRestoreLifecycleVerified": false,
+      "annualSandboxPurchaseAndOriginalAccountRestoreVerified": true
     },
     "appStoreSelection": {
       "version": "1.2.0",
@@ -55,7 +57,7 @@
       "disabledSaveAndCheckmarkObserved": true,
       "fullReloadVerification": false,
       "reopenedViaAppsVerified": true,
-      "draftStatus": "Ready for Review; app, annual subscription, monthly subscription, and subscription group staged",
+      "draftStatus": "Ready for Review; four items staged; final Submit for Review not clicked",
       "draftContents": [
         "iOS App 1.2.0 (202610221728)",
         "HomeDoc Pro annual subscription",
@@ -95,10 +97,15 @@
       "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
       "subscriptionGroup": "Ready for Review; attached to the same existing draft",
       "evidence": [
-        "subscription-review-202610221728/annual-review.jpg",
-        "subscription-review-202610221728/monthly-review.jpg",
-        "subscription-review-202610221728/review-draft-four-items.png"
-      ]
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-draft-four-items.png",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json"
+      ],
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-ready-for-approval.png"
     },
     "physicalDeviceCheck": {
       "device": "iPhone 15 Pro",
@@ -110,8 +117,42 @@
         "monthly": "$2.99/month",
         "evidence": "user confirmed on updated physical TestFlight build"
       },
-      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement"
-    }
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement",
+      "yearlyPurchase": "user confirmed yearly Sandbox purchase on physical TestFlight build while signed in as appreview@homedoc.invalid",
+      "originalAccountRestore": "user confirmed cold-start and Restore retained Pro on the original reviewer account"
+    },
+    "reviewerBillingVerification": {
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+      "readOnly": true,
+      "reviewerIdentityMatches": true,
+      "billingAccess": {
+        "plan": "pro",
+        "status": "active",
+        "provider": "app_store",
+        "beta_access": false,
+        "current_period_end": "2026-10-23T19:33:47+00:00"
+      },
+      "appStoreEntitlement": {
+        "product_id": "com.coalfocks.homedoc.pro.annual",
+        "status": "active",
+        "environment": "sandbox",
+        "expires_at": "2026-10-23T19:33:47+00:00",
+        "updated_at": "2026-10-22T20:20:07.74+00:00"
+      },
+      "currentMonthAiPlanCalls": 2
+    },
+    "purchaseSyncEvidence": {
+      "syncFunction": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+      "purchaseWebhook": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+      "syncPost200Count": 7,
+      "lastObservedSyncPostsUtc": [
+        "2026-10-22T20:19:40Z",
+        "2026-10-22T20:20:08Z"
+      ],
+      "purchaseTimeWebhookPost200Utc": "2026-10-22T19:33:49Z",
+      "payloadOrNotificationTypeRetained": false
+    },
+    "releaseReadiness": "Prepared for Apple review based on signed annual Sandbox purchase, original-account Restore, read-only backend association, and automated billing coverage. This does not mean every lifecycle case has been exercised or submitted."
   },
   "previousPrivacyCandidate": {
     "buildNumber": "202610212224",
@@ -156,7 +197,9 @@
     "signatureAndOnlineValidation": "Deno 2.1.4 compatibility retains signature, certificate identity/date, and online OCSP checks",
     "productionTestApi": "401; allowlisted reviewer-only Sandbox fallback is deployed",
     "production401Gate": "post-release production verification; does not block pre-review Sandbox QA",
-    "actualPurchaseRestoreRenewalExpiryRefund": "not verified"
+    "actualPurchaseRestoreRenewalExpiryRefund": "annual Sandbox purchase and original-account Restore verified by user; backend annual app_store/pro/active Sandbox entitlement independently confirmed after Restore. Renewal, expiry, refund, cancellation, and monthly lifecycle remain unverified.",
+    "purchaseWebhook": "one POST 200 at 2026-10-22T19:33:49Z, two seconds after reported purchase; payload/type not retained; no manual TEST sent during the check",
+    "restoreSync": "seven sync-app-store-entitlement POST 200 invocations observed, including 2026-10-22T20:19:40Z and 20:20:08Z; payload metadata not retained"
   },
   "backend": {
     "deployedSourceCommit": "e30b470",
@@ -204,14 +247,15 @@
     "nativeHumanLogin": "verified on iPhone 18 Pro and iPad Pro 13-inch (M5), build 202610221728",
     "purchaseRestoreQa": {
       "buildNumber": "202610221728",
-      "yearlySandboxPurchase": "user reports Pro became active with 50-request monthly feature copy after instructed sandbox purchase while signed in as appreview@homedoc.invalid",
-      "physicalRestore": "pending user response",
-      "crossDevice": "already-signed-in reviewer simulator refreshed Account and showed Pro active, additional properties, and 50-request feature copy; no purchase on simulator",
-      "interpretation": "cross-device Account Pro display does not independently establish app_store provider, purchase account binding, or backend quota counter; this same candidate showed the free paywall before the reported purchase",
-      "actualBackendQuotaCounterVerified": false,
-      "backendProviderAndBindingVerified": false,
-      "databasePurchaseRowVerified": false,
-      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and account-switch behavior not verified"
+      "yearlySandboxPurchase": "user confirmed Pro activation on physical TestFlight build, signed in as appreview@homedoc.invalid",
+      "physicalColdStartAndRestore": "user confirmed Pro remained active after fully reopening and Restore in the original reviewer account",
+      "crossDevice": "already-signed-in reviewer simulator refreshed to Pro; no purchase occurred on simulator; screen displays feature copy, not provider/quota count",
+      "backendVerification": "read-only SQL on correct HomeDoc project confirms matching reviewer identity, pro/active/app_store, beta false, annual SKU, Sandbox; expiry 2026-10-23T19:33:47Z; row updated 2026-10-22T20:20:07.74Z after Restore",
+      "currentMonthAiPlanCalls": 2,
+      "quotaEvidence": "backend provider is app_store and deployed plan-todo code selects 50; actual quota exhaustion/reset not exercised",
+      "purchaseWebhook": "POST 200 at 19:33:49Z, two seconds after purchase; payload/type not retained",
+      "restoreSync": "seven POST 200 invocations; includes 20:19:40Z and 20:20:08Z; payload not retained",
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and alternate-account behavior not verified"
     },
     "databaseRoleVerification": {
       "role": "authenticated",
@@ -220,7 +264,7 @@
       "visibleAreas": 3,
       "visibleNotes": 4,
       "visibleTasks": 2,
-      "billingPlan": "free",
+      "billingPlan": "free (historical pre-purchase read-only check; current account-scoped query confirms app_store Pro active)",
       "betaAccess": false,
       "writes": "none; transaction rolled back"
     },
@@ -260,6 +304,32 @@
         "native-billing-unavailable-ipad-202610220235.png",
         "native-ai-consent-202610220235.png"
       ]
+    },
+    "currentBillingVerification": {
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+      "readOnly": true,
+      "reviewerIdentityMatches": true,
+      "billingAccess": {
+        "plan": "pro",
+        "status": "active",
+        "provider": "app_store",
+        "beta_access": false,
+        "current_period_end": "2026-10-23T19:33:47+00:00"
+      },
+      "appStoreEntitlement": {
+        "product_id": "com.coalfocks.homedoc.pro.annual",
+        "status": "active",
+        "environment": "sandbox",
+        "expires_at": "2026-10-23T19:33:47+00:00",
+        "updated_at": "2026-10-22T20:20:07.74+00:00"
+      },
+      "currentMonthAiPlanCalls": 2
+    },
+    "savedReviewNotesClarification": {
+      "saved": true,
+      "currentAccountState": "active Sandbox Pro after yearly purchase and Restore; a free account shows both purchase options",
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/reviewer-notes-saved.png",
+      "exactNotes": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/reviewer-notes-saved.txt"
     }
   },
   "listing": {
@@ -282,7 +352,12 @@
     "appReviewDraft": {
       "version": "1.2.0",
       "status": "Ready for Review",
-      "items": ["iOS App 1.2.0 (202610221728) only"],
+      "items": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
       "finalSubmitForReviewClicked": false
     }
   },
@@ -294,7 +369,7 @@
     "privacyPolicyUrl": "https://homedocumentation.com/privacy",
     "status": "published",
     "publishedBy": "Cole Fox",
-    "publicationObserved": "App Store Connect showed “Published a few seconds ago by Cole Fox”",
+    "publicationObserved": "App Store Connect showed \u201cPublished a few seconds ago by Cole Fox\u201d",
     "humanApproval": "explicit approval to publish received",
     "finalCandidateArtifactInspection": "passed on 202610221728: nine categories, no tracking, five SDK manifests"
   },
@@ -311,21 +386,16 @@
     "scopeNote": "Separate from native iOS StoreKit products and prices."
   },
   "notVerified": [
-    "original-account cold-start and Restore result; physical restore response pending",
-    "backend app_store provider and account binding for the yearly purchase; no current database purchase row or lifecycle state verified",
-    "actual backend 50-request quota counter behavior; Account feature copy alone is not a usage counter",
-    "monthly purchase, renewal, cancellation, expiry, refund, and account-switch behavior",
-    "final Submit for Review; draft is staged as Ready for Review with four items, final submit was not clicked",
-    "post-release production API verification after current production test API 401"
+    "live monthly purchase and renewal, cancellation, expiry, refund, and alternate-account behavior before public release",
+    "actual quota exhaustion/reset behavior; current usage query shows two AI plan calls",
+    "post-release production App Store Server API verification; current production API returns 401",
+    "final Submit for Review; the four-item draft is Ready for Review and submission has not been performed"
   ],
   "preReviewGates": [
-    "complete original-account cold-start and Restore QA with the allowlisted reviewer; capture the result",
-    "verify backend provider/account binding and actual quota behavior when authorized HomeDoc project access is available; do not infer from Account copy",
-    "complete monthly purchase and remaining renewal/cancellation/expiry/refund/account-switch lifecycle QA as applicable",
-    "review the four-item existing App Store draft and submit only after required QA is complete"
+    "No remaining purchase/Restore or account-association evidence gate identified for review preparation; final Submit for Review remains unclicked."
   ],
   "postReleaseVerification": [
-    "verify production App Store Server API behavior; current test API response is 401 and Sandbox fallback is reviewer-only"
+    "Verify production App Store Server API access when Apple enables production for the app; the last production test response was HTTP 401."
   ],
   "publicSupportPage": {
     "pullRequest": 28,
@@ -425,10 +495,15 @@
       "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
       "subscriptionGroup": "Ready for Review; attached to the same existing draft",
       "evidence": [
-        "subscription-review-202610221728/annual-review.jpg",
-        "subscription-review-202610221728/monthly-review.jpg",
-        "subscription-review-202610221728/review-draft-four-items.png"
-      ]
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-draft-four-items.png",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json"
+      ],
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-ready-for-approval.png"
     },
     "physicalDeviceCheck": {
       "device": "iPhone 15 Pro",
@@ -440,18 +515,32 @@
         "monthly": "$2.99/month",
         "evidence": "user confirmed on updated physical TestFlight build"
       },
-      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement"
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement",
+      "yearlyPurchase": "user confirmed yearly Sandbox purchase on physical TestFlight build while signed in as appreview@homedoc.invalid",
+      "originalAccountRestore": "user confirmed cold-start and Restore retained Pro on the original reviewer account"
     },
     "purchaseQa": {
       "buildNumber": "202610221728",
-      "yearlySandboxPurchase": "user reports Pro became active with 50-request monthly feature copy after instructed sandbox purchase while signed in as appreview@homedoc.invalid",
-      "physicalRestore": "pending user response",
-      "crossDevice": "already-signed-in reviewer simulator refreshed Account and showed Pro active, additional properties, and 50-request feature copy; no purchase on simulator",
-      "interpretation": "cross-device Account Pro display does not independently establish app_store provider, purchase account binding, or backend quota counter; this same candidate showed the free paywall before the reported purchase",
-      "actualBackendQuotaCounterVerified": false,
-      "backendProviderAndBindingVerified": false,
-      "databasePurchaseRowVerified": false,
-      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and account-switch behavior not verified"
-    }
+      "yearlySandboxPurchase": "user confirmed Pro activation on physical TestFlight build, signed in as appreview@homedoc.invalid",
+      "physicalColdStartAndRestore": "user confirmed Pro remained active after fully reopening and Restore in the original reviewer account",
+      "crossDevice": "already-signed-in reviewer simulator refreshed to Pro; no purchase occurred on simulator; screen displays feature copy, not provider/quota count",
+      "backendVerification": "read-only SQL on correct HomeDoc project confirms matching reviewer identity, pro/active/app_store, beta false, annual SKU, Sandbox; expiry 2026-10-23T19:33:47Z; row updated 2026-10-22T20:20:07.74Z after Restore",
+      "currentMonthAiPlanCalls": 2,
+      "quotaEvidence": "backend provider is app_store and deployed plan-todo code selects 50; actual quota exhaustion/reset not exercised",
+      "purchaseWebhook": "POST 200 at 19:33:49Z, two seconds after purchase; payload/type not retained",
+      "restoreSync": "seven POST 200 invocations; includes 20:19:40Z and 20:20:08Z; payload not retained",
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and alternate-account behavior not verified"
+    },
+    "releaseReadiness": "Prepared for Apple review based on signed annual Sandbox purchase, original-account Restore, read-only backend association, and automated billing coverage. This does not mean every lifecycle case has been exercised or submitted."
+  },
+  "beforePublicReleaseValidation": [
+    "Live monthly purchase, renewal/cancellation/expiry/refund, and alternate-account behavior; automated coverage passed but these live cases are not yet observed.",
+    "Quota exhaustion and UTC monthly reset; current reviewer usage is two calls."
+  ],
+  "reviewPreparationComplete": true,
+  "manualReleaseConfirmed": {
+    "checkedAt": "2026-10-22T20:27:34.768516+00:00",
+    "selected": true,
+    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/manual-release-confirmed.png"
   }
 }
