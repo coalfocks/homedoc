@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { openFeedbackEmail } from '../utils/feedback';
 import { PrivacyPolicyLink } from '../components/PrivacyPolicyLink';
 import { isFreeBeta } from '../config/beta';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type AuthMode = 'magic' | 'password';
 
@@ -90,7 +91,10 @@ const AuthScreen: React.FC = () => {
 
   if (magicLinkSent) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView
+        edges={['top', 'left', 'right', 'bottom']}
+        style={styles.container}
+      >
         <View style={[styles.content, isWideViewport && styles.contentWide]}>
           <View style={styles.authCard}>
             <View style={styles.header}>
@@ -137,17 +141,20 @@ const AuthScreen: React.FC = () => {
             />
           </View>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={styles.container}
+    >
       <View style={[styles.content, isWideViewport && styles.contentWide]}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentInsetAdjustmentBehavior="automatic"
+          contentInsetAdjustmentBehavior="never"
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === 'ios' ? 'interactive' : 'on-drag'
@@ -380,7 +387,7 @@ const AuthScreen: React.FC = () => {
           </View>
         </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,10 +1,10 @@
 # App Review notes (en-US)
 
-Draft: complete the live configuration and exact-build QA in [release-checklist.md](release-checklist.md) before pasting these notes into App Store Connect.
+Reviewer-facing guidance is saved in App Store Connect. Complete the remaining live configuration and exact-build QA in [release-checklist.md](release-checklist.md) before submission.
 
 ## Reviewer account
 
-Use the dedicated review email and password entered in App Store Connect's **App Review Information** fields. Keep credentials out of the repository. Confirm password sign-in on the submitted binary, with synthetic property, area, note, and task data. Create this account after the beta backfill and confirm it has no preserved beta bypass. Add only dedicated QA/reviewer UUIDs to the server sandbox allowlist.
+Use the dedicated review email and password entered in App Store Connect's **App Review Information** fields. Keep credentials out of the repository. Confirm password sign-in on the submitted binary, with synthetic property, area, note, and task data. The dedicated reviewer account was created after beta backfill, has no beta bypass, and is the only sandbox-allowlisted account. Its fictional Maple House contains three areas, four notes, and two tasks.
 
 ## Navigation
 
@@ -32,10 +32,14 @@ Privacy: https://homedocumentation.com/privacy
 
 Terms: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
-## Internal verification status — remove before pasting
+## Internal verification status — do not paste
 
-The current source candidate is 1.2.0 (202610212224), with the updated nine-category, app-functionality-linked, non-tracking privacy manifest. Both products and approved U.S. prices are saved at service level 1 in HomeDoc Pro (22501802), with U.S. availability. Apple's sandbox test notification reports SUCCESS and the genuine signed notification reached the hosted webhook with HTTP 200. Production test API access returns 401, and actual purchase lifecycle QA remains unverified. The listing is saved with manual release; subtitle, Lifestyle/Productivity categories, and 4+ age rating are saved and verified. The App Privacy draft and policy URL are saved, but the public policy is not published pending the final binary. Prior signed EAS build `4f88a5b5-e0b4-4c4a-a41e-9f4c6bb50a90` (source `e5cc6f1`, build 202610212048) is TestFlight Ready to Submit; its upload workflow 39684837111 succeeded. That build predates the privacy manifest and is superseded. The SDK 26 simulator workflow 39685625733 is still running for `eaae477` with the prior build number and is for UI QA only. The new candidate has no signed build or Apple processing result yet. A dedicated reviewer account/contact, purchase/restore QA, public privacy-policy publication, and final native screenshots remain required. Guarded legacy-table migration `20261021224500` passed source tests, but its live apply is unconfirmed. Do not claim purchase QA or final-binary readiness.
+Current source candidate: **1.2.0 (202610220235)**. The AuthScreen safe-area fix requires replacement signed and simulator builds. Prior build 202610212224 (source `8dfcb1e`) passed exact SDK 26 metadata and privacy inspection in both artifacts, including nine declared data categories, no tracking, and five embedded SDK manifests. Apple processed that signed build successfully; it is superseded by the layout fix.
 
-Dedicated reviewer login: `appreview@homedoc.invalid`. Its password is saved privately in App Store Connect, never in source. The confirmed account is separate from preserved beta accounts, has one fictional Maple House with three areas, four notes, and two tasks, and is explicitly allowlisted for Apple sandbox verification. Reviewer contact is saved in App Store Connect. The public October 21 Apple-aware privacy policy is live.
+The dedicated reviewer account is confirmed, seeded, has no beta bypass, and is the only sandbox-allowlisted account. Its password and Cole's contact details are saved privately in App Store Connect. Native sign-in awaits Cole's direct password entry because automation receives only Apple's redaction. Actual purchase/restore/lifecycle QA and final native screenshots remain unverified.
 
-App Review uses Apple Sandbox. Production API HTTP 401 is still unverified; Apple staff describes production API access as gated until release ([Apple forum response](https://developer.apple.com/forums/thread/806452)). Retry production notification delivery after public release; do not treat the sandbox TEST as proof of production purchases. Canonical verification may retry Sandbox after production 401/4040010 only for the designated review account, and still requires valid Apple signatures and matching account identity. [Apple review sandbox guidance](https://developer.apple.com/help/app-review/before-submitting-for-review/configure-in-app-purchases/).
+Both products and approved U.S. prices are saved at service level 1 in HomeDoc Pro (22501802), with U.S. availability. The listing has manual release, Lifestyle/Productivity categories, subtitle, 4+ age rating, and content rights saved. App Privacy has a complete nine-category draft; publishing its final attestation awaits Cole's approval. The public October 21 Apple-aware privacy policy is live. The separate Paid Apps Agreement is still New and requires account-holder business setup. Guarded legacy migration `20261021224500` is applied and verified with zero security-advisor errors; existing warnings remain.
+
+Apple's sandbox TEST notification reports SUCCESS and genuine signed webhook handling returns HTTP 200. App Review uses Sandbox. Production API HTTP 401 remains unverified; [Apple staff describes production API access as gated until release](https://developer.apple.com/forums/thread/806452). Retry production delivery after public release. The sandbox TEST does not prove purchases work. Canonical verification may retry Sandbox after production 401/4040010 only for the designated review account, while requiring valid Apple signatures and matching account identity. See [Apple review sandbox guidance](https://developer.apple.com/help/app-review/before-submitting-for-review/configure-in-app-purchases/).
+
+The full billing PR remains a draft; web Stripe annual configuration is not deployed. Do not claim purchase QA or submission readiness.
