@@ -5,16 +5,18 @@
   "scripts": {
     "start": "expo start",
     "start:dev-client": "expo start --dev-client",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "build:ios:device": "eas build --platform ios --profile preview",
     "build:ios:testflight": "eas build --platform ios --profile production",
     "submit:ios:testflight": "eas submit --platform ios --profile production",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "test": "node scripts/test-plan-todo.mjs && jest",
-    "test:db": "node scripts/test-quota-permissions.mjs && node scripts/test-record-permissions.mjs"
+    "test": "node scripts/test-apple-certificate-compat.mjs && node scripts/test-apple-curve-compat.mjs && node scripts/test-app-store.mjs && node scripts/test-app-store-handlers.mjs && node scripts/test-plan-todo.mjs && jest",
+    "test:db": "node scripts/test-legacy-table-permissions.mjs && node scripts/test-billing-access.mjs && node scripts/test-quota-permissions.mjs && node scripts/test-record-permissions.mjs",
+    "check:submission": "node scripts/check-submission.mjs",
+    "eas-build-post-install": "node scripts/check-submission.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
@@ -29,6 +31,7 @@
     "expo-constants": "~17.1.8",
     "expo-image-picker": "~16.1.4",
     "expo-linking": "~7.1.7",
+    "expo-modules-core": "2.5.0",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -40,6 +43,7 @@
     "react-native-web": "^0.20.0"
   },
   "devDependencies": {
+    "@apple/app-store-server-library": "3.1.0",
     "@babel/core": "^7.25.2",
     "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "^1.61.1",

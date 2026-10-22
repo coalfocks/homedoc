@@ -1,0 +1,592 @@
+{
+  "checkedAt": "2026-10-22T21:44:24Z",
+  "version": "1.2.0",
+  "buildNumber": "202610221728",
+  "sourceBranch": "codex/app-store-submission",
+  "billingProvider": "Apple StoreKit 2",
+  "currentCandidate": {
+    "buildNumber": "202610221728",
+    "sourceRevision": "219be299d336cf42d244e4fee0f7fcd2debec410",
+    "status": "Submitted to Apple review; all four items Waiting for Review. Annual Sandbox purchase and original-account Restore verified; manual release selected.",
+    "changes": [
+      "General feedback, empty-state, and create-state wording updated for non-beta users; existing beta-access behavior is preserved"
+    ],
+    "nativeUiVerified": true,
+    "appleProcessingVerified": true,
+    "artifactPrivacyInspection": "both exact artifact inspections passed: nine categories, no tracking, five SDK manifests",
+    "nativeLoginVerified": true,
+    "signedWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823693711",
+    "simulatorWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823697805",
+    "ciWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823684487",
+    "ciStatus": "passed",
+    "vercelStatus": "passed",
+    "localValidation": {
+      "format": "passed",
+      "lint": "passed",
+      "typescript": "passed",
+      "jest": "passed: 51 tests across 11 suites",
+      "serverAppleTests": "passed",
+      "releaseRecordFollowUp": "format, lint, Apple/server tests, and 51 Jest tests across 11 suites passed on 2026-10-22; documentation-only follow-up"
+    },
+    "signedBuildId": "5ed8c9a7-eefa-4466-b751-2d241e3d3688",
+    "simulatorBuildId": "30258387-54b7-404b-a84d-1a7fe643fb0e",
+    "appleBuildId": "944a9276-935b-44ba-b7f3-a11b4de96921",
+    "appleValidAt": "2026-10-22T17:46:08Z",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39825012334",
+    "uploadWorkflowStatus": "success",
+    "sdk": "26.0",
+    "nativeRegressionQa": {
+      "devices": ["iPhone 18 Pro", "iPad Pro 13-inch (M5)"],
+      "installedOver": "202610220235",
+      "reviewerSessionsPersisted": true,
+      "updatedFreeAccountCopyVerified": true,
+      "recordFlows": "one home, three areas, four notes, two tasks loaded",
+      "savedAiPlanVisibleOnBothDevices": true,
+      "additionalAiRequests": 0,
+      "layouts": "visually verified",
+      "keyboardQa": "not rerun; AuthScreen is unchanged from previously verified candidate 202610220235",
+      "selectionVersion": "1.2.0",
+      "listingScreenshotsProcessed": true,
+      "simulatorProductPrices": "live $14.99/year and $2.99/month loaded after normal Account navigation",
+      "purchaseRestoreLifecycleVerified": false,
+      "annualSandboxPurchaseAndOriginalAccountRestoreVerified": true
+    },
+    "appStoreSelection": {
+      "version": "1.2.0",
+      "saveClicked": true,
+      "disabledSaveAndCheckmarkObserved": true,
+      "fullReloadVerification": false,
+      "reopenedViaAppsVerified": true,
+      "draftStatus": "Submitted; Waiting for Review; four items",
+      "draftContents": [
+        "iOS App 1.2.0 (202610221728)",
+        "HomeDoc Pro annual subscription",
+        "HomeDoc Pro monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "finalSubmitForReviewClicked": true
+    },
+    "internalTestingGroup": "internal; build 202610221728 in Testing with existing tester Cole",
+    "screenshots": {
+      "iphoneCount": 3,
+      "iphoneSlot": "1206x2622",
+      "ipadCount": 3,
+      "ipadSlot": "2064x2752",
+      "status": "uploaded and processed",
+      "conversion": "opaque JPEG from device PNG using sips; no resize or content change; capture manifest retained",
+      "reopenedViaAppsVerified": true,
+      "subscriptionReview": {
+        "annual": "uploaded and processed",
+        "monthly": "uploaded and processed",
+        "captureManifest": "beta-outreach-results/app-store/subscription-review-202610221728/capture-manifest.json",
+        "source": "native iPhone 18 Pro UI on build 202610221728 with live localized Apple products"
+      }
+    },
+    "reviewSubmissionDraft": {
+      "createdVia": "version 1.2.0 Add for Review",
+      "status": "Waiting for Review",
+      "contents": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "finalSubmitForReviewClicked": true,
+      "annualSubscription": "Waiting for Review; review screenshot processed",
+      "monthlySubscription": "Waiting for Review; review screenshot processed",
+      "subscriptionGroup": "Waiting for Review; submitted with the app and both subscriptions",
+      "evidence": [
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-draft-four-items.png",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png"
+      ],
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+      "itemsSubmitted": 4,
+      "previousDraftItemsReadyToSubmit": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submittedAtObserved": "2026-10-22T21:44:24Z"
+    },
+    "physicalDeviceCheck": {
+      "device": "iPhone 15 Pro",
+      "exactBundleBuild": "202610221728",
+      "method": "read-only devicectl exact bundle lookup",
+      "testFlight1728Install": "verified",
+      "localizedPrices": {
+        "annual": "$14.99/year",
+        "monthly": "$2.99/month",
+        "evidence": "user confirmed on updated physical TestFlight build"
+      },
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement",
+      "yearlyPurchase": "user confirmed yearly Sandbox purchase on physical TestFlight build while signed in as appreview@homedoc.invalid",
+      "originalAccountRestore": "user confirmed cold-start and Restore retained Pro on the original reviewer account"
+    },
+    "reviewerBillingVerification": {
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+      "readOnly": true,
+      "reviewerIdentityMatches": true,
+      "billingAccess": {
+        "plan": "pro",
+        "status": "active",
+        "provider": "app_store",
+        "beta_access": false,
+        "current_period_end": "2026-10-23T19:33:47+00:00"
+      },
+      "appStoreEntitlement": {
+        "product_id": "com.coalfocks.homedoc.pro.annual",
+        "status": "active",
+        "environment": "sandbox",
+        "expires_at": "2026-10-23T19:33:47+00:00",
+        "updated_at": "2026-10-22T20:20:07.74+00:00"
+      },
+      "currentMonthAiPlanCalls": 2
+    },
+    "purchaseSyncEvidence": {
+      "syncFunction": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+      "purchaseWebhook": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+      "syncPost200Count": 7,
+      "lastObservedSyncPostsUtc": [
+        "2026-10-22T20:19:40Z",
+        "2026-10-22T20:20:08Z"
+      ],
+      "purchaseTimeWebhookPost200Utc": "2026-10-22T19:33:49Z",
+      "payloadOrNotificationTypeRetained": false
+    },
+    "releaseReadiness": "Submitted for Apple review. Public release remains manual and subject to the outstanding live billing/lifecycle/quota and production API validation."
+  },
+  "previousPrivacyCandidate": {
+    "buildNumber": "202610212224",
+    "sourceCommit": "8dfcb1e",
+    "signedBuildId": "0d1d5d4c-f68b-4e22-9586-e795aec789d2",
+    "signedBuildStatus": "FINISHED",
+    "simulatorBuildId": "9ae6d105-51ad-4737-b849-63adae5032a0",
+    "simulatorBuildStatus": "FINISHED",
+    "sdk": "26.0",
+    "nativePrivacyInspection": "passed: nine collected categories, no tracking, five embedded SDK manifests",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39711114004",
+    "uploadWorkflowStatus": "success",
+    "appleProcessingVerified": true,
+    "status": "superseded by source candidate 202610220235 after native capture found AuthScreen safe-area defect; signed upload processed by Apple and native privacy inspection passed"
+  },
+  "olderPaidBuild": {
+    "buildNumber": "202610212048",
+    "easBuildId": "4f88a5b5-e0b4-4c4a-a41e-9f4c6bb50a90",
+    "sourceCommit": "e5cc6f1",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39684837111",
+    "uploadWorkflowStatus": "success",
+    "appleProcessingVerified": true,
+    "testFlightStatus": "Ready to Submit",
+    "status": "superseded by privacy-manifest candidate 202610212224"
+  },
+  "liveAppleProducts": {
+    "annualUsd": 14.99,
+    "monthlyUsd": 2.99,
+    "availability": "U.S. only",
+    "serviceLevel": 1,
+    "status": "Yearly, monthly, and HomeDoc Pro group submitted; Waiting for Review. English (U.S.) localization and U.S. sale availability verified.",
+    "reviewSubmissionState": {
+      "annual": "Waiting for Review",
+      "monthly": "Waiting for Review",
+      "subscriptionGroup": "Waiting for Review",
+      "finalSubmitForReviewClicked": true,
+      "submittedItems": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4"
+    }
+  },
+  "appleNotificationsAndPurchaseVerification": {
+    "sandboxTestNotification": "Apple reported SUCCESS; genuine signed notification returned hosted webhook HTTP 200",
+    "signatureAndOnlineValidation": "Deno 2.1.4 compatibility retains signature, certificate identity/date, and online OCSP checks",
+    "productionTestApi": "401; allowlisted reviewer-only Sandbox fallback is deployed",
+    "production401Gate": "post-release production verification; does not block pre-review Sandbox QA",
+    "actualPurchaseRestoreRenewalExpiryRefund": "annual Sandbox purchase and original-account Restore verified by user; backend annual app_store/pro/active Sandbox entitlement independently confirmed after Restore. Renewal, expiry, refund, cancellation, and monthly lifecycle remain unverified.",
+    "purchaseWebhook": "one POST 200 at 2026-10-22T19:33:49Z, two seconds after reported purchase; payload/type not retained; no manual TEST sent during the check",
+    "restoreSync": "seven sync-app-store-entitlement POST 200 invocations observed, including 2026-10-22T20:19:40Z and 20:20:08Z; payload metadata not retained"
+  },
+  "backend": {
+    "deployedSourceCommit": "e30b470",
+    "purchaseSyncWebhookAi": "deployed; production 401 to Sandbox fallback restricted to the allowlisted reviewer",
+    "anonymousAiStatus": 401,
+    "unsignedWebhookStatus": 400,
+    "billingMigration": {
+      "migration": "20261021024941",
+      "initialUsers": 39,
+      "initialBetaAccounts": 39,
+      "initialProperties": 16,
+      "initialOwners": 15,
+      "initialStatus": "applied; initial dataset preserved"
+    },
+    "currentFixtureCounts": {
+      "users": 40,
+      "betaAccounts": 39,
+      "nonBetaReviewerAccounts": 1,
+      "properties": 17,
+      "note": "Current totals include the one-property reviewer fixture; do not describe 39 users/16 properties as current totals."
+    },
+    "legacyTableHardening": {
+      "migration": "20261021224500",
+      "status": "applied and verified",
+      "emptyLegacyTables": 4,
+      "clientAccessibleLegacyTables": 0,
+      "serviceAccessPreserved": true,
+      "securityAdvisorErrors": 0,
+      "securityAdvisorWarnings": 33
+    }
+  },
+  "reviewer": {
+    "email": "appreview@homedoc.invalid",
+    "userId": "eb07fce4-3ac0-42ba-9723-2dffa068a77a",
+    "confirmed": true,
+    "betaAccess": false,
+    "onlySandboxAllowlistedAccount": true,
+    "fixture": {
+      "homes": 1,
+      "areas": 3,
+      "notes": 4,
+      "tasks": 2
+    },
+    "credentialsAndReviewContact": "saved privately in App Store Connect",
+    "nativeHumanLogin": "verified on iPhone 18 Pro and iPad Pro 13-inch (M5), build 202610221728",
+    "purchaseRestoreQa": {
+      "buildNumber": "202610221728",
+      "yearlySandboxPurchase": "user confirmed Pro activation on physical TestFlight build, signed in as appreview@homedoc.invalid",
+      "physicalColdStartAndRestore": "user confirmed Pro remained active after fully reopening and Restore in the original reviewer account",
+      "crossDevice": "already-signed-in reviewer simulator refreshed to Pro; no purchase occurred on simulator; screen displays feature copy, not provider/quota count",
+      "backendVerification": "read-only SQL on correct HomeDoc project confirms matching reviewer identity, pro/active/app_store, beta false, annual SKU, Sandbox; expiry 2026-10-23T19:33:47Z; row updated 2026-10-22T20:20:07.74Z after Restore",
+      "currentMonthAiPlanCalls": 2,
+      "quotaEvidence": "backend provider is app_store and deployed plan-todo code selects 50; actual quota exhaustion/reset not exercised",
+      "purchaseWebhook": "POST 200 at 19:33:49Z, two seconds after purchase; payload/type not retained",
+      "restoreSync": "seven POST 200 invocations; includes 20:19:40Z and 20:20:08Z; payload not retained",
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and alternate-account behavior not verified"
+    },
+    "databaseRoleVerification": {
+      "role": "authenticated",
+      "claims": "transaction-local reviewer UUID",
+      "visibleHomes": 1,
+      "visibleAreas": 3,
+      "visibleNotes": 4,
+      "visibleTasks": 2,
+      "billingPlan": "free (historical pre-purchase read-only check; current account-scoped query confirms app_store Pro active)",
+      "betaAccess": false,
+      "writes": "none; transaction rolled back"
+    },
+    "nativeQa235": {
+      "buildNumber": "202610220235",
+      "reviewerLogin": {
+        "iphone18Pro": true,
+        "ipad13M5": true
+      },
+      "nativeReadFlows": [
+        "iPad Maple House opens with three areas",
+        "iPad Kitchen displays two notes and one task",
+        "iPhone Todos displays two synthetic tasks"
+      ],
+      "aiFlow": {
+        "explicitConsentBeforeRequest": true,
+        "clarifyingQuestionsReturned": 4,
+        "realPlanGenerated": true,
+        "task": "Replace furnace filter (demo)",
+        "requestsUsed": 2,
+        "planRetainedAfterTabNavigation": true,
+        "coldStartPersistenceVerified": true,
+        "crossDevicePersistenceVerified": true,
+        "persistenceCheckRequestsUsed": 0,
+        "persistenceCheck": "terminated and relaunched iPhone app; reopened filter todo and confirmed saved plan; same plan visible on iPad 13"
+      },
+      "billing": {
+        "simulatorPrices": "unavailable on iPhone and iPad",
+        "purchasesAttempted": false,
+        "actualSandboxLifecycleVerified": false,
+        "simulatorSignature": "adhoc; TeamIdentifier not set",
+        "rootCause": "not established",
+        "appleMetadata": "both US prices/localizations/availability verified; Paid Apps Agreement Active"
+      },
+      "evidenceFiles": [
+        "reviewer-ipad-signed-in-202610220235.png",
+        "native-billing-unavailable-ipad-202610220235.png",
+        "native-ai-consent-202610220235.png"
+      ]
+    },
+    "currentBillingVerification": {
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+      "readOnly": true,
+      "reviewerIdentityMatches": true,
+      "billingAccess": {
+        "plan": "pro",
+        "status": "active",
+        "provider": "app_store",
+        "beta_access": false,
+        "current_period_end": "2026-10-23T19:33:47+00:00"
+      },
+      "appStoreEntitlement": {
+        "product_id": "com.coalfocks.homedoc.pro.annual",
+        "status": "active",
+        "environment": "sandbox",
+        "expires_at": "2026-10-23T19:33:47+00:00",
+        "updated_at": "2026-10-22T20:20:07.74+00:00"
+      },
+      "currentMonthAiPlanCalls": 2
+    },
+    "savedReviewNotesClarification": {
+      "saved": true,
+      "currentAccountState": "active Sandbox Pro after yearly purchase and Restore; a free account shows both purchase options",
+      "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/reviewer-notes-saved.png",
+      "exactNotes": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/reviewer-notes-saved.txt"
+    }
+  },
+  "listing": {
+    "releaseMode": "manual",
+    "subtitle": "Your home, documented",
+    "primaryCategory": "Lifestyle",
+    "secondaryCategory": "Productivity",
+    "ageRating": "4+ saved and verified",
+    "contentRights": "Does not use third-party content; saved",
+    "paidAppsAgreement": "Active; verified in App Store Connect after account holder completed business setup",
+    "downloadPriceUsd": 0.0,
+    "downloadPriceStatus": "saved and verified after reload",
+    "availabilityStatus": "U.S. only; Available on App Release",
+    "macAvailability": false,
+    "visionProAvailability": false,
+    "deviceAvailabilityStatus": "Mac and Vision Pro disabled, saved and verified after reload",
+    "selectedBuildNumber": "202610221728",
+    "versionSelection": "Save clicked; disabled Save/checkmark observed; selection and both screenshot sets persisted after reopening via Apps",
+    "versionSelectionReopenVerified": true,
+    "appReviewDraft": {
+      "version": "1.2.0",
+      "status": "Waiting for Review",
+      "items": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "finalSubmitForReviewClicked": true,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4"
+    }
+  },
+  "appStorePrivacy": {
+    "dataCategoryCount": 9,
+    "allCategoriesLinkedToUser": true,
+    "purpose": "App Functionality",
+    "tracking": false,
+    "privacyPolicyUrl": "https://homedocumentation.com/privacy",
+    "status": "published",
+    "publishedBy": "Cole Fox",
+    "publicationObserved": "App Store Connect showed \u201cPublished a few seconds ago by Cole Fox\u201d",
+    "humanApproval": "explicit approval to publish received",
+    "finalCandidateArtifactInspection": "passed on 202610221728: nine categories, no tracking, five SDK manifests"
+  },
+  "publicPrivacyPolicy": {
+    "url": "https://homedocumentation.com/privacy",
+    "published": true,
+    "privacyOnlyPullRequest": "https://github.com/coalfocks/homedoc/pull/27",
+    "mergeCommit": "1e161993abb55e449870dd1839aea5ec36132f98"
+  },
+  "webBilling": {
+    "fullBillingPullRequest": 26,
+    "status": "draft and unmerged",
+    "annualStripeRecurringPrice": "not configured",
+    "scopeNote": "Separate from native iOS StoreKit products and prices."
+  },
+  "notVerified": [
+    "live monthly purchase and renewal, cancellation, expiry, refund, and alternate-account behavior before public release",
+    "actual quota exhaustion/reset behavior; current usage query shows two AI plan calls",
+    "post-release production App Store Server API verification; current production API returns 401"
+  ],
+  "preReviewGates": [],
+  "postReleaseVerification": [
+    "Verify production App Store Server API access when Apple enables production for the app; the last production test response was HTTP 401."
+  ],
+  "publicSupportPage": {
+    "pullRequest": 28,
+    "merged": true,
+    "previewVerified": true,
+    "productionVerified": true,
+    "url": "https://homedocumentation.com/support",
+    "mergeCommit": "842d9d717d5093d8bf247a2a4bad842fcfe24e04",
+    "verifiedPaths": ["/support", "/support/"]
+  },
+  "previousProcessedCandidate235": {
+    "buildNumber": "202610220235",
+    "sourceRevision": "7835d57a5396b1c5ab02d1c8a97abebf2a7f5bc6",
+    "status": "superseded by candidate 202610221728; signed build processed and native QA provides prior evidence",
+    "changes": [
+      "AuthScreen normal login/signup and magic-link confirmation roots use SafeAreaView on top/left/right/bottom edges",
+      "AuthScreen ScrollView disables automatic content inset adjustment to avoid a duplicate top inset",
+      "production API 401 falls back to Sandbox only for the designated allowlisted reviewer"
+    ],
+    "typescript": "passed after AuthScreen safe-area change",
+    "targetedEslint": "passed after AuthScreen safe-area change",
+    "nativeUiVerified": false,
+    "appleProcessingVerified": true,
+    "signedWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39712790173",
+    "simulatorWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39712790284",
+    "ciWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39712788592",
+    "ciStatus": "all checks passed",
+    "vercelStatus": "passed",
+    "validation": {
+      "format": "passed",
+      "typescript": "passed",
+      "eslint": "passed",
+      "jest": "passed: 51 tests across 11 suites",
+      "serverAppleTests": "passed",
+      "preflight": "passed",
+      "timing": "after AuthScreen safe-area fix"
+    },
+    "artifactPrivacyInspection": "both passed: SDK26, nine collected categories, no tracking, five embedded SDK manifests",
+    "sourceCommit": "7835d57a5396b1c5ab02d1c8a97abebf2a7f5bc6",
+    "signedBuildId": "41eefb3f-60b0-45c5-a81f-58c39dbe4bd4",
+    "simulatorBuildId": "55605c14-d1ac-4630-97ff-0c664e28d9bd",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39715505290",
+    "testFlightStatus": "Ready to Submit",
+    "authSafeAreaVisualVerified": true,
+    "nativeLaunchVerified": true,
+    "nativeLoginVerified": true,
+    "nativeAuthUiVerification": {
+      "devices": [
+        "iPhone 18 Pro Max",
+        "iPhone 18 Pro",
+        "iPad Pro 13-inch (M5)"
+      ],
+      "safeAreas": "visually verified",
+      "iphoneKeyboard": "software keyboard leaves password and Sign in reachable",
+      "ipadKeyboard": "hardware keyboard accessory bar only; software keyboard not verified",
+      "nativeLogin": "verified on iPhone 18 Pro and iPad 13",
+      "recordFlows": "verified on iPhone 18 Pro and iPad 13; see nativeQa235 for flows"
+    },
+    "selectedForVersion": "historical selection; replaced by build 202610221728",
+    "versionSelectionVerifiedAfterReload": false,
+    "documentationCiStatus": "68ad578 CI and Vercel passed",
+    "nativeCoreReadFlowsVerified": true,
+    "aiPlanningFlowVerified": true,
+    "reviewerPlanPersistenceVerified": true,
+    "nativeRegressionQa": "reviewer and record/AI flows passed on iPhone 18 Pro and iPad 13; saved plan persistence later verified after relaunch and cross-device"
+  },
+  "replacement1728": {
+    "buildNumber": "202610221728",
+    "sourceCommit": "219be299d336cf42d244e4fee0f7fcd2debec410",
+    "signedBuildId": "5ed8c9a7-eefa-4466-b751-2d241e3d3688",
+    "simulatorBuildId": "30258387-54b7-404b-a84d-1a7fe643fb0e",
+    "signedWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823693711",
+    "simulatorWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823697805",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39825012334",
+    "uploadWorkflowStatus": "success",
+    "appleBuildId": "944a9276-935b-44ba-b7f3-a11b4de96921",
+    "appleStatus": "VALID",
+    "appleValidAt": "2026-10-22T17:46:08Z",
+    "sdk": "26.0",
+    "artifactPrivacyInspection": "passed: nine collected categories, no tracking, five embedded SDK manifests",
+    "nativeQa": "core read flows and stored plan verified on iPhone/iPad; physical TestFlight build confirmed with live $14.99/year and $2.99/month prices; user reports yearly sandbox purchase activated Pro",
+    "selectedForVersion": "1.2.0; Save clicked, disabled Save/checkmark observed, and selection persisted after reopening via Apps",
+    "internalTesting": "group internal contains build in Testing with Cole existing tester",
+    "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained",
+    "reviewSubmissionDraft": {
+      "createdVia": "version 1.2.0 Add for Review",
+      "status": "Waiting for Review",
+      "contents": [
+        "iOS App 1.2.0 (202610221728)",
+        "annual subscription",
+        "monthly subscription",
+        "HomeDoc Pro subscription group"
+      ],
+      "finalSubmitForReviewClicked": true,
+      "annualSubscription": "Waiting for Review; review screenshot processed",
+      "monthlySubscription": "Waiting for Review; review screenshot processed",
+      "subscriptionGroup": "Waiting for Review; submitted with the app and both subscriptions",
+      "evidence": [
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-draft-four-items.png",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png"
+      ],
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+      "itemsSubmitted": 4,
+      "previousDraftItemsReadyToSubmit": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submittedAtObserved": "2026-10-22T21:44:24Z"
+    },
+    "physicalDeviceCheck": {
+      "device": "iPhone 15 Pro",
+      "exactBundleBuild": "202610221728",
+      "method": "read-only devicectl exact bundle lookup",
+      "testFlight1728Install": "verified",
+      "localizedPrices": {
+        "annual": "$14.99/year",
+        "monthly": "$2.99/month",
+        "evidence": "user confirmed on updated physical TestFlight build"
+      },
+      "desktopAccess": "Mac accessible; physical phone screen sharing unsupported because iOS 18.7.3 is below Device Hub iOS 27.0 requirement",
+      "yearlyPurchase": "user confirmed yearly Sandbox purchase on physical TestFlight build while signed in as appreview@homedoc.invalid",
+      "originalAccountRestore": "user confirmed cold-start and Restore retained Pro on the original reviewer account"
+    },
+    "purchaseQa": {
+      "buildNumber": "202610221728",
+      "yearlySandboxPurchase": "user confirmed Pro activation on physical TestFlight build, signed in as appreview@homedoc.invalid",
+      "physicalColdStartAndRestore": "user confirmed Pro remained active after fully reopening and Restore in the original reviewer account",
+      "crossDevice": "already-signed-in reviewer simulator refreshed to Pro; no purchase occurred on simulator; screen displays feature copy, not provider/quota count",
+      "backendVerification": "read-only SQL on correct HomeDoc project confirms matching reviewer identity, pro/active/app_store, beta false, annual SKU, Sandbox; expiry 2026-10-23T19:33:47Z; row updated 2026-10-22T20:20:07.74Z after Restore",
+      "currentMonthAiPlanCalls": 2,
+      "quotaEvidence": "backend provider is app_store and deployed plan-todo code selects 50; actual quota exhaustion/reset not exercised",
+      "purchaseWebhook": "POST 200 at 19:33:49Z, two seconds after purchase; payload/type not retained",
+      "restoreSync": "seven POST 200 invocations; includes 20:19:40Z and 20:20:08Z; payload not retained",
+      "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and alternate-account behavior not verified"
+    },
+    "releaseReadiness": "Submitted for Apple review. Public release remains manual and subject to the outstanding live billing/lifecycle/quota and production API validation."
+  },
+  "beforePublicReleaseValidation": [
+    "Live monthly purchase, renewal/cancellation/expiry/refund, and alternate-account behavior; automated coverage passed but these live cases are not yet observed.",
+    "Quota exhaustion and UTC monthly reset; current reviewer usage is two calls."
+  ],
+  "reviewPreparationComplete": true,
+  "manualReleaseConfirmed": {
+    "checkedAt": "2026-10-22T20:27:34.768516+00:00",
+    "selected": true,
+    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/manual-release-confirmed.png",
+    "submissionSettingUnchanged": true
+  },
+  "appReviewSubmission": {
+    "observedAtUtc": "2026-10-22T21:44:24Z",
+    "app": "HomeDoc (Homedoc Home Documentation)",
+    "version": "1.2.0",
+    "build": "202610221728",
+    "submittedItems": [
+      "iOS App 1.2.0 (202610221728)",
+      "HomeDoc Pro Yearly (Subscription)",
+      "HomeDoc Pro Monthly (Subscription)",
+      "HomeDoc Pro (Subscription Group)"
+    ],
+    "itemCount": 4,
+    "status": "Waiting for Review",
+    "dateSubmittedDisplayed": "Oct 22, 2026 at 3:44 PM",
+    "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+    "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+    "submittedBy": "Cole Fox",
+    "releaseSetting": {
+      "mode": "manual",
+      "verifiedBeforeSubmit": true,
+      "evidence": "App Store Connect version page AX: Manually release this version, Value: 1; automatic and scheduled both 0."
+    },
+    "browser": {
+      "name": "Chrome",
+      "tabId": "1503698807"
+    },
+    "screenshots": ["submission-confirmed.png"],
+    "axText": "submission-confirmed-ax.txt",
+    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+    "sourceEvidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-result.json",
+    "finalSubmitForReviewClicked": true,
+    "publiclyReleased": false,
+    "operatorModel": "gpt-6-luna",
+    "primaryVerification": "Inspected targeted browser screenshots showing exact draft build, yearly/monthly names, and all four submitted Waiting for Review items."
+  }
+}

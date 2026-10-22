@@ -1,0 +1,28 @@
+{
+  "requestedProfile": "production",
+  "submitRequested": false,
+  "build": {
+    "id": "a5ae0a28-b3ce-4753-aa29-669d912519d8",
+    "status": "FINISHED",
+    "platform": "IOS",
+    "appIdentifier": "com.coalfocks.homedoc",
+    "appVersion": "1.2.0",
+    "appBuildVersion": "202610210251",
+    "distribution": "STORE",
+    "sdkVersion": "53.0.0",
+    "gitCommitHash": "e188b3c65a5a97d9441bc965dd3d2ab67cc21383",
+    "gitCommitMessage": "Clarify reviewer contact formatting",
+    "createdAt": "2026-10-21T03:10:14.246Z",
+    "updatedAt": "2026-10-21T03:16:19.174Z",
+    "completedAt": "2026-10-21T03:16:18.991Z"
+  },
+  "appleReadiness": {
+    "ready": false,
+    "httpStatus": 403,
+    "appleErrorCode": "FORBIDDEN.REQUIRED_AGREEMENTS_MISSING_OR_EXPIRED",
+    "bundleMatches": null
+  },
+  "note": "Build-only baseline using the existing free-beta production profile, not the configured paid app-store profile. No submission or production deployment occurred. Apple HTTP 403 prevented bundle verification; bundleMatches is unknown.",
+  "workflowRun": "https://github.com/coalfocks/homedoc/actions/runs/39536941286",
+  "buildUrl": "https://expo.dev/accounts/coalfocks/projects/homedoc/builds/a5ae0a28-b3ce-4753-aa29-669d912519d8"
+}

@@ -21,6 +21,20 @@
       "ios": {
         "image": "macos-sequoia-15.6-xcode-26.0"
       }
+    },
+    "app-store": {
+      "extends": "production",
+      "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_HOMEDOC_FREE_BETA": "false"
+      }
+    },
+    "app-store-simulator": {
+      "extends": "app-store",
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {

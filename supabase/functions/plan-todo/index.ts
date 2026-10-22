@@ -72,8 +72,43 @@ interface PlanChatMessage {
   createdAt: string;
 }
 
-const freeMonthlyAiCallLimit = 20;
-const proMonthlyAiCallLimit = 300;
+interface BillingAccess {
+  plan: 'free' | 'pro';
+  status: string;
+  provider: 'free' | 'beta' | 'stripe' | 'app_store';
+  beta_access: boolean;
+}
+
+interface AiPlanUsage {
+  allowed: boolean;
+  used: number;
+  monthly_limit: number;
+}
+
+interface RpcResponse {
+  data: unknown;
+  error: unknown | null;
+}
+
+interface RpcBuilder extends PromiseLike<RpcResponse> {
+  single(): PromiseLike<RpcResponse>;
+}
+
+interface BillingRpcClient {
+  rpc(name: 'billing_access_for_user', args: { p_user_id: string }): RpcBuilder;
+  rpc(
+    name: 'consume_ai_plan_call',
+    args: {
+      p_user_id: string;
+      p_period_start: string;
+      p_monthly_limit: number;
+    },
+  ): RpcBuilder;
+}
+
+const freeMonthlyAiCallLimit = 4;
+const betaMonthlyAiCallLimit = 20;
+const proMonthlyAiCallLimit = 50;
 const maxAnswersPayloadLength = 6000;
 const maxChatMessageLength = 2000;
 // Match the deployed model. Disable reasoning so the bounded completion budget
@@ -136,9 +171,16 @@ serve(async (req: Request) => {
     const area = todo.areas as unknown as Area;
     const property = area?.properties as unknown as Property;
     const adminClient = createClient(supabaseUrl, supabaseKey);
+    // This function uses an ungenerated Supabase schema, so supabase-js types
+    // both RPCs as unavailable. Keep the assertion limited to these two RPCs.
+    const billingRpcClient: BillingRpcClient = {
+      rpc: adminClient.rpc.bind(
+        adminClient,
+      ) as unknown as BillingRpcClient['rpc'],
+    };
     const openai = new OpenAI({ apiKey: openaiKey });
     const requireAiQuota = async () => {
-      const quota = await consumeAiPlanCall(adminClient, userData.user.id);
+      const quota = await consumeAiPlanCall(billingRpcClient, userData.user.id);
 
       if (!quota.allowed) {
         return jsonError(
@@ -369,21 +411,22 @@ function jsonError(status: number, message: string) {
 }
 
 async function consumeAiPlanCall(
-  adminClient: ReturnType<typeof createClient>,
+  adminClient: BillingRpcClient,
   userId: string,
 ) {
-  const { data: entitlement, error: entitlementError } = await adminClient
-    .from('user_entitlements')
-    .select('plan, status')
-    .eq('user_id', userId)
-    .maybeSingle();
+  const { data: entitlementData, error: entitlementError } =
+    await adminClient.rpc('billing_access_for_user', { p_user_id: userId });
 
   if (entitlementError) throw entitlementError;
 
-  const isPro =
-    entitlement?.plan === 'pro' &&
-    ['active', 'trialing'].includes(entitlement.status);
-  const limit = isPro ? proMonthlyAiCallLimit : freeMonthlyAiCallLimit;
+  const entitlement = isBillingAccess(entitlementData) ? entitlementData : null;
+  const isPro = entitlement?.plan === 'pro' && entitlement.status === 'active';
+  const limit =
+    isPro && ['app_store', 'stripe'].includes(entitlement?.provider)
+      ? proMonthlyAiCallLimit
+      : entitlement?.beta_access
+        ? betaMonthlyAiCallLimit
+        : freeMonthlyAiCallLimit;
   const now = new Date();
   const periodStart = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
@@ -401,9 +444,35 @@ async function consumeAiPlanCall(
 
   if (usageError) throw usageError;
 
+  const validUsage = isAiPlanUsage(usage) ? usage : null;
+
   return {
-    allowed: Boolean(usage?.allowed),
-    used: usage?.used ?? limit,
-    limit: usage?.monthly_limit ?? limit,
+    allowed: Boolean(validUsage?.allowed),
+    used: validUsage?.used ?? limit,
+    limit: validUsage?.monthly_limit ?? limit,
   };
+}
+
+function isBillingAccess(value: unknown): value is BillingAccess {
+  if (typeof value !== 'object' || value === null) return false;
+  const access = value as Record<string, unknown>;
+  return (
+    (access.plan === 'free' || access.plan === 'pro') &&
+    typeof access.status === 'string' &&
+    (access.provider === 'free' ||
+      access.provider === 'beta' ||
+      access.provider === 'stripe' ||
+      access.provider === 'app_store') &&
+    typeof access.beta_access === 'boolean'
+  );
+}
+
+function isAiPlanUsage(value: unknown): value is AiPlanUsage {
+  if (typeof value !== 'object' || value === null) return false;
+  const usage = value as Record<string, unknown>;
+  return (
+    typeof usage.allowed === 'boolean' &&
+    typeof usage.used === 'number' &&
+    typeof usage.monthly_limit === 'number'
+  );
 }

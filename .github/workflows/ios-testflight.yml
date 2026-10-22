@@ -2,47 +2,104 @@ name: iOS TestFlight
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        type: choice
+        options:
+          - production
+          - app-store
+          - app-store-simulator
+        default: app-store
+        required: true
+      submit:
+        description: Submit the completed build to App Store Connect
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      EAS_BUILD_PROFILE: ${{ inputs.profile }}
+      EXPO_PUBLIC_HOMEDOC_FREE_BETA: ${{ startsWith(inputs.profile, 'app-store') && 'false' || '' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 22
+          cache: npm
+
+      - name: Validate selected profile
+        env:
+          SUBMIT_REQUESTED: ${{ inputs.submit }}
+        run: |
+          case "$EAS_BUILD_PROFILE" in
+            production|app-store|app-store-simulator) ;;
+            *) echo "Unsupported EAS profile" >&2; exit 1 ;;
+          esac
+          if [ "$EAS_BUILD_PROFILE" = app-store-simulator ] && [ "$SUBMIT_REQUESTED" = true ]; then
+            echo "Simulator builds cannot be submitted to App Store Connect" >&2
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Install pinned EAS CLI
+        run: npm install --global eas-cli@25.3.0
 
       - name: Typecheck
         run: npx tsc --noEmit
 
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test -- --runInBand
 
-      - name: Write App Store Connect API key
-        run: |
-          mkdir -p ios/certs
-          printf '%s' "$ASC_API_KEY_P8" > ios/certs/AuthKey.p8
-          chmod 600 ios/certs/AuthKey.p8
+      - name: Database permission tests
+        run: npm run test:db
+
+      - name: Submission preflight
+        run: npm run check:submission
+
+      - name: Test read-only Apple readiness checker
+        run: node --test scripts/check-apple-readiness.test.mjs
+
+      - name: Check App Store Connect API readiness (read-only)
+        id: apple
+        continue-on-error: true
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: node scripts/check-apple-readiness.mjs
 
-      - name: Restore iOS signing credentials
+      - name: Restore local iOS signing credentials
+        if: inputs.profile != 'app-store-simulator'
+        env:
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set -euo pipefail
+          test -n "$IOS_DIST_CERT_P12_BASE64"
+          test -n "$IOS_DIST_CERT_PASSWORD"
+          test -n "$IOS_PROVISIONING_PROFILE_BASE64"
+          test -n "$APPLE_TEAM_ID"
           mkdir -p ios/certs
+          umask 077
           printf '%s' "$IOS_DIST_CERT_P12_BASE64" | base64 --decode > ios/certs/dist-cert.p12
           printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ios/certs/profile.mobileprovision
           node <<'NODE'
           const fs = require('fs');
-
           const credentials = {
             ios: {
               provisioningProfilePath: 'ios/certs/profile.mobileprovision',
@@ -52,44 +109,154 @@ jobs:
               },
             },
           };
-
-          fs.writeFileSync('credentials.json', `${JSON.stringify(credentials, null, 2)}\n`);
+          fs.writeFileSync('credentials.json', `${JSON.stringify(credentials, null, 2)}\n`, { mode: 0o600 });
           NODE
-          openssl pkcs12 -legacy -in ios/certs/dist-cert.p12 -clcerts -nokeys -passin "pass:$IOS_DIST_CERT_PASSWORD" >/tmp/homedoc-dist-cert.pem
+          chmod 600 ios/certs/dist-cert.p12 ios/certs/profile.mobileprovision credentials.json
+          openssl pkcs12 -legacy -in ios/certs/dist-cert.p12 -clcerts -nokeys -passin env:IOS_DIST_CERT_PASSWORD -out /tmp/homedoc-dist-cert.pem
           openssl x509 -in /tmp/homedoc-dist-cert.pem -noout -fingerprint -sha1
-          chmod 600 credentials.json ios/certs/dist-cert.p12 ios/certs/profile.mobileprovision
-        env:
-          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
-          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
-          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          rm -f /tmp/homedoc-dist-cert.pem
 
-      - name: Build and submit iOS
-        run: |
-          set +e
-          set -o pipefail
-          eas build --platform ios --profile production --non-interactive --wait 2>&1 | tee eas-build-output.log
-          status=${PIPESTATUS[0]}
-          build_url=$(grep -Eo 'https://expo.dev/accounts/[^ ]+/builds/[a-f0-9-]+' eas-build-output.log | tail -1)
-          build_id="${build_url##*/}"
-
-          if [ "$status" -ne 0 ]; then
-            if [ -n "$build_url" ]; then
-              build_id="${build_url##*/}"
-              echo "EAS build id: $build_id"
-              eas build:view "$build_id" --json > eas-build-view.json || true
-              node -e "(async()=>{const fs=require('fs');if(!fs.existsSync('eas-build-view.json'))process.exit(0);const build=JSON.parse(fs.readFileSync('eas-build-view.json','utf8'));const logUrl=build.logFiles&&build.logFiles[0];if(!logUrl){console.log('No EAS log file URL found.');process.exit(0);}const response=await fetch(logUrl);const body=await response.text();const lines=body.trim().split(/\\r?\\n/);console.log('--- EAS remote build log tail ---');console.log(lines.slice(-260).join('\\n'));})().catch(e=>console.log('Failed to fetch EAS remote log: '+e.message));"
-            fi
-            exit "$status"
-          fi
-
-          if [ -z "$build_url" ] || [ "$build_id" = "$build_url" ]; then
-            echo "Could not find EAS build URL in output."
-            exit 1
-          fi
-
-          echo "Submitting EAS build id: $build_id"
-          eas submit --platform ios --profile production --id "$build_id" --non-interactive --wait --verbose --verbose-fastlane
+      - name: Build iOS app
+        id: build
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPO_TOKEN"
+          build_log=$(mktemp)
+          eas build --platform ios --profile "$EAS_BUILD_PROFILE" --non-interactive --wait 2>&1 | tee "$build_log"
+          build_id=$(sed -nE 's#.*https://expo\.dev/accounts/[^[:space:]]+/builds/([0-9a-f-]{36}).*#\1#p' "$build_log" | tail -n 1)
+          rm -f "$build_log"
+          if [[ ! "$build_id" =~ ^[0-9a-f-]{36}$ ]]; then
+            echo "Could not safely identify the completed EAS build" >&2
+            exit 1
+          fi
+          echo "id=$build_id" >> "$GITHUB_OUTPUT"
+
+      - name: Create sanitized build metadata
+        id: metadata
+        if: always() && steps.build.outputs.id != ''
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+          BUILD_ID: ${{ steps.build.outputs.id }}
+          APPLE_READINESS: ${{ steps.apple.outputs.ready }}
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -f eas-build-view.raw.json' EXIT
+          eas build:view "$BUILD_ID" --json > eas-build-view.raw.json
+          node --input-type=module <<'NODE'
+          import { createWriteStream } from 'node:fs';
+          import { readFile, writeFile, rm } from 'node:fs/promises';
+          import { Readable } from 'node:stream';
+          import { pipeline } from 'node:stream/promises';
+
+          try {
+            const raw = JSON.parse(await readFile('eas-build-view.raw.json', 'utf8'));
+            if (raw.id !== process.env.BUILD_ID || raw.status !== 'FINISHED' || raw.platform !== 'IOS' || raw.gitCommitHash !== process.env.GITHUB_SHA) {
+              throw new Error('Completed artifact does not match the requested source build');
+            }
+            const allow = ['id','status','platform','profile','appIdentifier','appVersion','appBuildVersion','buildVersion','runtimeVersion','channel','distribution','sdkVersion','gitCommitHash','gitCommitMessage','createdAt','updatedAt','completedAt'];
+            const build = Object.fromEntries(allow.filter((key) => ['string','number','boolean'].includes(typeof raw?.[key])).map((key) => [key, raw[key]]));
+            const apple = JSON.parse(await readFile('apple-readiness.json', 'utf8').catch(() => '{"ready":false,"httpStatus":null,"appleErrorCode":"CHECK_UNAVAILABLE","bundleMatches":null}'));
+            const metadata = { requestedProfile: process.env.EAS_BUILD_PROFILE, submitRequested: ${{ inputs.submit }}, build, appleReadiness: { ready: apple.ready === true, httpStatus: Number.isInteger(apple.httpStatus) ? apple.httpStatus : null, appleErrorCode: typeof apple.appleErrorCode === 'string' ? apple.appleErrorCode : null, bundleMatches: typeof apple.bundleMatches === 'boolean' ? apple.bundleMatches : null } };
+            await writeFile('eas-build-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
+
+            const artifactUrl = raw?.artifacts?.applicationArchiveUrl || raw?.artifacts?.buildUrl;
+            if (typeof artifactUrl !== 'string' || !/^https:\/\//i.test(artifactUrl)) {
+              throw new Error('Artifact download unavailable');
+            }
+            const simulator = process.env.EAS_BUILD_PROFILE === 'app-store-simulator';
+            const artifactPath = simulator ? 'ios-simulator-artifact.tar.gz' : 'ios-build-artifact.ipa';
+            const response = await fetch(artifactUrl, { redirect: 'follow' });
+            if (!response.ok || !response.body) {
+              throw new Error('Artifact download failed');
+            }
+            await pipeline(Readable.fromWeb(response.body), createWriteStream(artifactPath, { mode: 0o600 }));
+          } catch {
+            console.error('Could not retrieve completed native build artifact');
+            process.exitCode = 1;
+          } finally {
+            await rm('eas-build-view.raw.json', { force: true });
+          }
+          NODE
+
+      - name: Inspect native artifact metadata and privacy manifest
+        id: inspect
+        if: steps.metadata.outcome == 'success'
+        env:
+          EAS_BUILD_PROFILE: ${{ inputs.profile }}
+        run: |
+          set -euo pipefail
+          if [ "$EAS_BUILD_PROFILE" = app-store-simulator ]; then
+            artifact=ios-simulator-artifact.tar.gz
+          else
+            artifact=ios-build-artifact.ipa
+          fi
+          python3 scripts/inspect-ios-artifact.py \
+            --artifact "$artifact" \
+            --profile "$EAS_BUILD_PROFILE" \
+            --config app.json \
+            --required-reason-apis docs/app-store/required-reason-apis.json \
+            --report native-privacy-report.json
+
+      - name: Upload sanitized build metadata
+        if: always() && steps.build.outputs.id != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-metadata-${{ steps.build.outputs.id }}
+          path: eas-build-metadata.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload sanitized native privacy report
+        if: always() && steps.build.outputs.id != '' && hashFiles('native-privacy-report.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-privacy-report-${{ steps.build.outputs.id }}
+          path: native-privacy-report.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Retain simulator build for native QA
+        if: always() && inputs.profile == 'app-store-simulator' && hashFiles('ios-simulator-artifact.tar.gz') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-native-qa-${{ steps.build.outputs.id }}
+          path: ios-simulator-artifact.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Delete signed IPA after inspection
+        if: always() && inputs.profile != 'app-store-simulator'
+        run: rm -f ios-build-artifact.ipa
+
+      - name: Require successful Apple readiness for submission
+        if: inputs.submit && steps.build.outcome == 'success' && steps.inspect.outcome == 'success'
+        env:
+          APPLE_READY: ${{ steps.apple.outputs.ready }}
+        run: |
+          if [[ "$APPLE_READY" != "true" ]]; then
+            echo "Apple API readiness check failed; build is retained, but submission is blocked. See sanitized metadata." >&2
+            exit 1
+          fi
+
+      - name: Restore App Store Connect API key for submission
+        if: inputs.submit && steps.build.outcome == 'success' && steps.inspect.outcome == 'success'
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          test -n "$ASC_API_KEY_P8"
+          mkdir -p ios/certs
+          umask 077
+          printf '%s' "$ASC_API_KEY_P8" > ios/certs/AuthKey.p8
+          chmod 600 ios/certs/AuthKey.p8
+
+      - name: Submit exact EAS build to TestFlight
+        if: inputs.submit && steps.build.outcome == 'success' && steps.inspect.outcome == 'success'
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+        run: eas submit --platform ios --profile production --id "${{ steps.build.outputs.id }}" --non-interactive --wait

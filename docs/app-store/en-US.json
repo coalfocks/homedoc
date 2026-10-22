@@ -1,0 +1,11 @@
+{
+  "locale": "en-US",
+  "name": "HomeDoc",
+  "subtitle": "Your home, documented",
+  "promo": "Keep property details, photos, notes, and maintenance plans together—ready when you need them.",
+  "description": "Keep the details of a home together in one organized record. HomeDoc helps you save property information, room-by-room notes, photos, and maintenance tasks so useful details are easier to find later.\n\nOrganize each property into areas such as a kitchen, utility room, or garage. Add notes and photos, track task status and due dates, and keep records available to the people you choose to share them with. When a home or responsibility changes hands, transfer its record to another HomeDoc account.\n\nFor a maintenance task, you can ask HomeDoc's AI planner to suggest clarifying questions, prepare a project plan, and answer follow-up questions. AI requests use task and property context you choose to provide and require your permission. Generated plans and chat are saved with the task.\n\nHomeDoc includes:\n• Property and area records\n• Notes with photo attachments\n• Maintenance tasks, status, and due dates\n• AI-assisted maintenance planning and follow-up chat\n• Property sharing, contractor area access, and transfer tools\n\nDue dates are saved with tasks; HomeDoc does not currently send due-date notifications. Each AI question set, plan, or follow-up uses one request. Allowances reset each UTC calendar month.\n\nBasic records for one home are free, including notes, photos, and maintenance tasks, plus four AI requests per month. Optional HomeDoc Pro adds properties and 50 AI requests per month. Choose $14.99 per year or $2.99 per month in the U.S.; local prices are shown before purchase. Both subscriptions renew automatically unless canceled in your Apple Account settings. Canceling Pro keeps your existing basic records accessible.\n\nPrivacy: https://homedocumentation.com/privacy\nTerms of use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "keywords": "maintenance,property,home inventory,repair planner,warranty,homeowner,renovation,move in,contractor",
+  "supportUrl": "https://homedocumentation.com/support",
+  "privacyPolicyUrl": "https://homedocumentation.com/privacy",
+  "termsOfUseUrl": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+}

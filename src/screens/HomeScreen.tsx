@@ -45,7 +45,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     (sum, property) => sum + (property.area_count ?? 0),
     0,
   );
-  const hasReachedFreePropertyLimit = !isPro && properties.length >= 1;
+  const hasReachedFreePropertyLimit =
+    !isPro &&
+    properties.filter((property) => property.user_id === user?.id).length >= 1;
   const handleAddProperty = () => {
     if (hasReachedFreePropertyLimit) {
       navigation.getParent()?.navigate('Pro');
@@ -90,11 +92,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <BetaFeedbackCard
         context="Properties"
         compact
-        title={betaAccess ? 'Free beta is on' : 'Beta feedback wanted'}
+        betaAccess={betaAccess}
+        title={betaAccess ? 'Free beta is on' : 'Help improve HomeDoc'}
         body={
           betaAccess
             ? 'Pro features are included for now. Send feedback when something feels clunky or worth keeping.'
-            : 'Tell us what made sense, what felt clunky, and what would make this worth keeping around.'
+            : 'Tell us what worked well or what we could make clearer. Your feedback helps us improve HomeDoc.'
         }
       />
 
@@ -153,7 +156,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <EmptyStateCard
             icon="home"
             title="No properties yet"
-            description="A good beta test starts with the home you live in, rent out, or help maintain."
+            description="A useful first setup starts with the home you live in, rent out, or help maintain."
             actionLabel="Add your first property"
             onActionPress={handleAddProperty}
           />

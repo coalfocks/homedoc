@@ -44,7 +44,7 @@ const statusOptions: {
 
 const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
   const { todo, loading, error, refetch } = useTodo(route.params.todoId);
-  const { isPro, checkoutLoading, openCheckout } = useBilling();
+  const { isPro, checkoutLoading } = useBilling();
 
   if (loading) {
     return (
@@ -184,7 +184,7 @@ const TodoScreen: React.FC<TodoScreenProps> = ({ navigation, route }) => {
         planChat={todo.plan_chat}
         isPro={isPro}
         upgradeLoading={checkoutLoading}
-        onUpgradePress={openCheckout}
+        onUpgradePress={() => navigation.getParent()?.navigate('Pro')}
         onPlanGenerated={refetch}
       />
     </Screen>

@@ -15,6 +15,8 @@ import { theme } from '../utils/theme';
 import { useAuth } from '../contexts/AuthContext';
 import { openFeedbackEmail } from '../utils/feedback';
 import { PrivacyPolicyLink } from '../components/PrivacyPolicyLink';
+import { isFreeBeta } from '../config/beta';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type AuthMode = 'magic' | 'password';
 
@@ -89,7 +91,10 @@ const AuthScreen: React.FC = () => {
 
   if (magicLinkSent) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView
+        edges={['top', 'left', 'right', 'bottom']}
+        style={styles.container}
+      >
         <View style={[styles.content, isWideViewport && styles.contentWide]}>
           <View style={styles.authCard}>
             <View style={styles.header}>
@@ -136,17 +141,20 @@ const AuthScreen: React.FC = () => {
             />
           </View>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={styles.container}
+    >
       <View style={[styles.content, isWideViewport && styles.contentWide]}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentInsetAdjustmentBehavior="automatic"
+          contentInsetAdjustmentBehavior="never"
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={
             Platform.OS === 'ios' ? 'interactive' : 'on-drag'
@@ -334,17 +342,25 @@ const AuthScreen: React.FC = () => {
           ) : null}
 
           <View style={styles.betaNotice}>
-            <Text style={styles.betaNoticeTitle}>Free beta</Text>
-            <Text style={styles.betaNoticeBody}>
-              Beta access is free. HomeDoc stores home details, addresses, and
-              photos in your account.
+            <Text style={styles.betaNoticeTitle}>
+              {isFreeBeta ? 'Free beta' : 'Start free'}
             </Text>
             <Text style={styles.betaNoticeBody}>
-              During beta, uploaded images are private to people with record
-              access. AI planning may send todo context to our AI provider to
-              generate a plan, with your permission. Beta accounts include 20 AI
-              requests per calendar month; questions, plans and chat each use a
-              request.
+              {isFreeBeta
+                ? 'Beta access is free.'
+                : 'Your first home and basic records are free. Optional Pro adds more AI planning and properties.'}{' '}
+              HomeDoc stores home details, addresses, and photos in your
+              account.
+            </Text>
+            <Text style={styles.betaNoticeBody}>
+              Uploaded images are private to people with record access. AI
+              planning may send todo context to our AI provider to generate a
+              plan, with your permission.{' '}
+              {isFreeBeta
+                ? 'Beta accounts include 20'
+                : 'Free accounts include 4'}{' '}
+              AI requests per calendar month; questions, plans and chat each use
+              a request.
             </Text>
             <View style={styles.betaNoticeActions}>
               <PrivacyPolicyLink
@@ -371,7 +387,7 @@ const AuthScreen: React.FC = () => {
           </View>
         </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
