@@ -1,18 +1,18 @@
-# Store screenshot capture plan
+# Store screenshot captures
 
-No store screenshots have been fabricated or captured from the unsigned/unconfigured candidate. Capture after the final signed build, reviewer account, and purchase configuration are working, with synthetic home records only.
+Version **1.2.0 (202610221728)** has three native iPhone screenshots and three native iPad screenshots uploaded and processed in App Store Connect. Both sets remained present after reopening the version through Apps. The matching signed and simulator artifacts passed metadata and privacy inspection before capture.
 
-Use a fictional **Maple House** with kitchen, utility room, and garage areas. Seed notes for paint color, furnace filter size, water shutoff, and an appliance model; add a maintenance todo and a real AI-generated plan. Avoid real addresses, personal photos, email addresses, receipts, or purchase dialogs in marketing images.
+The iPhone set shows the fictional Maple House property, its complete furnace-filter note, and the maintenance task list. The iPad set shows the property, note library, and maintenance task list. All records are synthetic; no real addresses, personal photos, email addresses, receipts, or purchase dialogs appear.
 
-Capture these screens in order:
+The captures came from Device Hub's native Screenshot control on iPhone 18 Pro and iPad Pro 13-inch (M5), running the exact candidate simulator app. Raw PNG captures were retained. Because the native PNGs include an alpha channel, `sips` converted copies to opaque JPEG at full quality, without resizing, cropping, or changing UI content.
 
-1. Property and its areas — “The details your house should have come with.”
-2. A note and its attached photo — “Paint colors, filters, and appliance details.”
-3. Todos with a due date — “Keep maintenance in view.” Do not imply alerts are delivered.
-4. A verified generated plan — “Make a plan before you start.” Describe AI as fallible guidance.
-5. Sharing/transfer — “Pass the home record along.” Use only synthetic recipient information and do not complete a real transfer for a screenshot.
-6. Account/paywall — capture separately for subscription review after the actual localized product price and restore controls work; it need not lead the marketing set.
+| Slot                                       | Native size | Processed screenshots |
+| ------------------------------------------ | ----------- | --------------------- |
+| iPhone with Dynamic Island, medium display | 1206 × 2622 | 3                     |
+| iPad 13-inch                               | 2064 × 2752 | 3                     |
 
-The app supports both iPhone and iPad. Apple's current [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications) list a required Dynamic Island medium iPhone slot and a required 13-inch iPad slot. Capture native images for those slots and optionally the larger iPhone slot, then validate the exact pixel dimensions against App Store Connect. Do not resize a web page into a pretend native screenshot, include simulator chrome, or submit images with transparency.
+The local capture manifest and files are saved outside the repository in `beta-outreach-results/app-store/screenshots-202610221728/`. Dimensions and absence of alpha were verified before upload. These match Apple's [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications).
 
-Available local simulator targets include iPhone 18 Pro, iPhone 18 Pro Max, and iPad Pro 13-inch. The Mac must be unlocked for screen inspection and capture. Inspect layout, keyboard/safe-area behavior, text clipping, and large-text settings before choosing final images.
+Both subscription review images remain open. Capture the actual paywall after Apple-localized prices and purchase/restore behavior have been verified in the signed TestFlight build. The simulator's unavailable-pricing state must not be used as proof that purchases work. The real generated AI plan remains saved and was verified on both devices, but is not part of the uploaded marketing set.
+
+Due dates are stored; the listing does not imply that notifications are delivered. Sharing and transfer are included free and require an existing recipient HomeDoc account. No real transfer was performed for these captures.

@@ -1,21 +1,70 @@
 {
-  "checkedAt": "2026-10-22T17:29:49.061030+00:00",
+  "checkedAt": "2026-10-22T18:05:30.050800+00:00",
   "version": "1.2.0",
   "buildNumber": "202610221728",
   "sourceBranch": "codex/app-store-submission",
   "billingProvider": "Apple StoreKit 2",
   "currentCandidate": {
     "buildNumber": "202610221728",
-    "sourceRevision": "working tree; release-copy update",
-    "status": "source prepared; not built yet",
+    "sourceRevision": "219be299d336cf42d244e4fee0f7fcd2debec410",
+    "status": "signed and simulator builds finished; upload succeeded; Apple reports VALID",
     "changes": [
-      "General feedback wording for non-beta users; preserves existing beta access/copy",
-      "General setup copy replaces beta-test wording"
+      "General feedback, empty-state, and create-state wording updated for non-beta users; existing beta-access behavior is preserved"
     ],
-    "nativeUiVerified": false,
-    "appleProcessingVerified": false,
-    "artifactPrivacyInspection": "pending for replacement; both235 artifacts passed",
-    "nativeLoginVerified": false
+    "nativeUiVerified": true,
+    "appleProcessingVerified": true,
+    "artifactPrivacyInspection": "both exact artifact inspections passed: nine categories, no tracking, five SDK manifests",
+    "nativeLoginVerified": true,
+    "signedWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823693711",
+    "simulatorWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823697805",
+    "ciWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823684487",
+    "ciStatus": "passed",
+    "vercelStatus": "passed",
+    "localValidation": {
+      "format": "passed",
+      "lint": "passed",
+      "typescript": "passed",
+      "jest": "passed: 51 tests across 11 suites",
+      "serverAppleTests": "passed"
+    },
+    "signedBuildId": "5ed8c9a7-eefa-4466-b751-2d241e3d3688",
+    "simulatorBuildId": "30258387-54b7-404b-a84d-1a7fe643fb0e",
+    "appleBuildId": "944a9276-935b-44ba-b7f3-a11b4de96921",
+    "appleValidAt": "2026-10-22T17:46:08Z",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39825012334",
+    "uploadWorkflowStatus": "success",
+    "sdk": "26.0",
+    "nativeRegressionQa": {
+      "devices": ["iPhone 18 Pro", "iPad Pro 13-inch (M5)"],
+      "installedOver": "202610220235",
+      "reviewerSessionsPersisted": true,
+      "updatedFreeAccountCopyVerified": true,
+      "recordFlows": "one home, three areas, four notes, two tasks loaded",
+      "savedAiPlanVisibleOnBothDevices": true,
+      "additionalAiRequests": 0,
+      "layouts": "visually verified",
+      "keyboardQa": "not rerun; AuthScreen is unchanged from previously verified candidate 202610220235",
+      "selectionVersion": "1.2.0",
+      "listingScreenshotsProcessed": true,
+      "simulatorProductPrices": "unavailable on replacement1728; actual TestFlight check pending"
+    },
+    "appStoreSelection": {
+      "version": "1.2.0",
+      "saveClicked": true,
+      "disabledSaveAndCheckmarkObserved": true,
+      "fullReloadVerification": false,
+      "reopenedViaAppsVerified": true
+    },
+    "internalTestingGroup": "internal; build 202610221728 in Testing with existing tester Cole",
+    "screenshots": {
+      "iphoneCount": 3,
+      "iphoneSlot": "1206x2622",
+      "ipadCount": 3,
+      "ipadSlot": "2064x2752",
+      "status": "uploaded and processed",
+      "conversion": "opaque JPEG from device PNG using sips; no resize or content change; capture manifest retained",
+      "reopenedViaAppsVerified": true
+    }
   },
   "previousPrivacyCandidate": {
     "buildNumber": "202610212224",
@@ -46,7 +95,7 @@
     "monthlyUsd": 2.99,
     "availability": "U.S. only",
     "serviceLevel": 1,
-    "status": "saved; both products Prepare for Submission"
+    "status": "both products Prepare for Submission; English (U.S.) localization and U.S. sale availability verified"
   },
   "appleNotificationsAndPurchaseVerification": {
     "sandboxTestNotification": "Apple reported SUCCESS; genuine signed notification returned hosted webhook HTTP 200",
@@ -98,7 +147,7 @@
       "tasks": 2
     },
     "credentialsAndReviewContact": "saved privately in App Store Connect",
-    "nativeHumanLogin": "verified on build202610220235 on iPhone18Pro and iPad13M5; replacement regression check pending",
+    "nativeHumanLogin": "verified on build 202610221728 on iPhone 18 Pro and iPad Pro 13-inch (M5)",
     "purchaseRestoreQa": "not verified",
     "databaseRoleVerification": {
       "role": "authenticated",
@@ -129,7 +178,10 @@
         "task": "Replace furnace filter (demo)",
         "requestsUsed": 2,
         "planRetainedAfterTabNavigation": true,
-        "coldStartPersistenceVerified": false
+        "coldStartPersistenceVerified": true,
+        "crossDevicePersistenceVerified": true,
+        "persistenceCheckRequestsUsed": 0,
+        "persistenceCheck": "terminated and relaunched iPhone app; reopened filter todo and confirmed saved plan; same plan visible on iPad 13"
       },
       "billing": {
         "simulatorPrices": "unavailable on iPhone and iPad",
@@ -160,7 +212,9 @@
     "macAvailability": false,
     "visionProAvailability": false,
     "deviceAvailabilityStatus": "Mac and Vision Pro disabled, saved and verified after reload",
-    "selectedBuildNumber": "202610220235"
+    "selectedBuildNumber": "202610221728",
+    "versionSelection": "Save clicked; disabled Save/checkmark observed; selection and both screenshot sets persisted after reopening via Apps",
+    "versionSelectionReopenVerified": true
   },
   "appStorePrivacy": {
     "dataCategoryCount": 9,
@@ -172,7 +226,7 @@
     "publishedBy": "Cole Fox",
     "publicationObserved": "App Store Connect showed \u201cPublished a few seconds ago by Cole Fox\u201d",
     "humanApproval": "explicit approval to publish received",
-    "finalCandidateArtifactInspection": "pending for replacement1728; both235 artifacts passed, privacy configuration unchanged"
+    "finalCandidateArtifactInspection": "passed on 202610221728: nine categories, no tracking, five SDK manifests"
   },
   "publicPrivacyPolicy": {
     "url": "https://homedocumentation.com/privacy",
@@ -187,16 +241,14 @@
     "scopeNote": "Separate from native iOS StoreKit products and prices."
   },
   "notVerified": [
-    "replacement1728 signed/simulator artifacts, Apple processing and native regression QA",
-    "actual Sandbox localized-price, purchase, restore, renewal, expiry, and refund lifecycle",
-    "final native marketing and subscription review screenshots",
-    "post-release production API verification after current production test API401"
+    "TestFlight 202610221728 actual localized prices, purchase, restore, renewal, expiry, and refund lifecycle; no transaction attempted",
+    "subscription review images and attaching both initial subscriptions to version 1.2.0",
+    "post-release production API verification after current production test API 401"
   ],
   "preReviewGates": [
-    "build and inspect replacement1728 signed/simulator artifacts; upload, process and select exact replacement",
-    "verify preserved reviewer sessions, record and AI flows on replacement",
-    "actual TestFlight Sandbox price/purchase/restore lifecycle QA with only the allowlisted reviewer",
-    "final native marketing and subscription review screenshots; attach both initial subscriptions"
+    "install TestFlight build 202610221728 and verify actual localized prices and account access",
+    "complete actual TestFlight Sandbox purchase, restore, and lifecycle QA with only the allowlisted reviewer",
+    "create subscription review images and attach both initial subscriptions to version 1.2.0"
   ],
   "postReleaseVerification": [
     "verify production App Store Server API behavior; current test API response is 401 and Sandbox fallback is reviewer-only"
@@ -213,7 +265,7 @@
   "previousProcessedCandidate235": {
     "buildNumber": "202610220235",
     "sourceRevision": "7835d57a5396b1c5ab02d1c8a97abebf2a7f5bc6",
-    "status": "signed and simulator builds finished and inspected; signed build uploaded and Apple processed VALID",
+    "status": "superseded by candidate 202610221728; signed build processed and native QA provides prior evidence",
     "changes": [
       "AuthScreen normal login/signup and magic-link confirmation roots use SafeAreaView on top/left/right/bottom edges",
       "AuthScreen ScrollView disables automatic content inset adjustment to avoid a duplicate top inset",
@@ -255,13 +307,34 @@
       "safeAreas": "visually verified",
       "iphoneKeyboard": "software keyboard leaves password and Sign in reachable",
       "ipadKeyboard": "hardware keyboard accessory bar only; software keyboard not verified",
-      "nativeLogin": "pending human sign-in",
-      "recordFlows": "not verified"
+      "nativeLogin": "verified on iPhone 18 Pro and iPad 13",
+      "recordFlows": "verified on iPhone 18 Pro and iPad 13; see nativeQa235 for flows"
     },
-    "selectedForVersion": "1.2.0",
-    "versionSelectionVerifiedAfterReload": true,
+    "selectedForVersion": "historical selection; replaced by build 202610221728",
+    "versionSelectionVerifiedAfterReload": false,
     "documentationCiStatus": "68ad578 CI and Vercel passed",
     "nativeCoreReadFlowsVerified": true,
-    "aiPlanningFlowVerified": true
+    "aiPlanningFlowVerified": true,
+    "reviewerPlanPersistenceVerified": true,
+    "nativeRegressionQa": "reviewer and record/AI flows passed on iPhone 18 Pro and iPad 13; saved plan persistence later verified after relaunch and cross-device"
+  },
+  "replacement1728": {
+    "buildNumber": "202610221728",
+    "sourceCommit": "219be299d336cf42d244e4fee0f7fcd2debec410",
+    "signedBuildId": "5ed8c9a7-eefa-4466-b751-2d241e3d3688",
+    "simulatorBuildId": "30258387-54b7-404b-a84d-1a7fe643fb0e",
+    "signedWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823693711",
+    "simulatorWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39823697805",
+    "uploadWorkflow": "https://github.com/coalfocks/homedoc/actions/runs/39825012334",
+    "uploadWorkflowStatus": "success",
+    "appleBuildId": "944a9276-935b-44ba-b7f3-a11b4de96921",
+    "appleStatus": "VALID",
+    "appleValidAt": "2026-10-22T17:46:08Z",
+    "sdk": "26.0",
+    "artifactPrivacyInspection": "passed: nine collected categories, no tracking, five embedded SDK manifests",
+    "nativeQa": "installed over 202610220235 on iPhone 18 Pro and iPad Pro 13-inch (M5); sessions persisted; copy and sample records verified; saved plan visible on both; no additional AI requests",
+    "selectedForVersion": "1.2.0; Save clicked, disabled Save/checkmark observed, and selection persisted after reopening via Apps",
+    "internalTesting": "group internal contains build in Testing with Cole existing tester",
+    "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained"
   }
 }
