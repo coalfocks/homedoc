@@ -229,7 +229,7 @@ const UpgradeScreen: React.FC = () => {
           <Text style={styles.deleteAccountButtonText}>Delete account</Text>
         </TouchableOpacity>
       </View>
-      <BetaFeedbackCard context="Account" compact />
+      <BetaFeedbackCard context="Account" compact betaAccess={betaAccess} />
     </Screen>
   );
 };

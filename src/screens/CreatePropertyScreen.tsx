@@ -157,7 +157,7 @@ const CreatePropertyScreen: React.FC<CreatePropertyScreenProps> = ({
           <CreationPrompt
             icon="home"
             title="Start with the parts you know"
-            body="A name is enough for beta. Add the address, photo, and nickname now if they are handy, or fill them in later."
+            body="A name is enough to start. Add the address, photo, and nickname now if they are handy, or fill them in later."
           />
 
           <CreationCard>
