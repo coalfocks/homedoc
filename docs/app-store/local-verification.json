@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-22T20:32:43.239263+00:00",
+  "checkedAt": "2026-10-22T21:44:24Z",
   "version": "1.2.0",
   "buildNumber": "202610221728",
   "sourceBranch": "codex/app-store-submission",
@@ -7,7 +7,7 @@
   "currentCandidate": {
     "buildNumber": "202610221728",
     "sourceRevision": "219be299d336cf42d244e4fee0f7fcd2debec410",
-    "status": "processed selected binary; live annual Sandbox purchase and original-account Restore verified; release candidate prepared for review; final Submit for Review not clicked",
+    "status": "Submitted to Apple review; all four items Waiting for Review. Annual Sandbox purchase and original-account Restore verified; manual release selected.",
     "changes": [
       "General feedback, empty-state, and create-state wording updated for non-beta users; existing beta-access behavior is preserved"
     ],
@@ -57,14 +57,14 @@
       "disabledSaveAndCheckmarkObserved": true,
       "fullReloadVerification": false,
       "reopenedViaAppsVerified": true,
-      "draftStatus": "Ready for Review; four items staged; final Submit for Review not clicked",
+      "draftStatus": "Submitted; Waiting for Review; four items",
       "draftContents": [
         "iOS App 1.2.0 (202610221728)",
         "HomeDoc Pro annual subscription",
         "HomeDoc Pro monthly subscription",
         "HomeDoc Pro subscription group"
       ],
-      "finalSubmitForReviewClicked": false
+      "finalSubmitForReviewClicked": true
     },
     "internalTestingGroup": "internal; build 202610221728 in Testing with existing tester Cole",
     "screenshots": {
@@ -84,18 +84,17 @@
     },
     "reviewSubmissionDraft": {
       "createdVia": "version 1.2.0 Add for Review",
-      "status": "Ready for Review",
+      "status": "Waiting for Review",
       "contents": [
         "iOS App 1.2.0 (202610221728)",
         "annual subscription",
         "monthly subscription",
         "HomeDoc Pro subscription group"
       ],
-      "itemsReadyToSubmit": 4,
-      "finalSubmitForReviewClicked": false,
-      "annualSubscription": "Ready for Review; review information screenshot uploaded and processed",
-      "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
-      "subscriptionGroup": "Ready for Review; attached to the same existing draft",
+      "finalSubmitForReviewClicked": true,
+      "annualSubscription": "Waiting for Review; review screenshot processed",
+      "monthlySubscription": "Waiting for Review; review screenshot processed",
+      "subscriptionGroup": "Waiting for Review; submitted with the app and both subscriptions",
       "evidence": [
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
@@ -103,9 +102,15 @@
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
-        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json"
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png"
       ],
-      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-ready-for-approval.png"
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+      "itemsSubmitted": 4,
+      "previousDraftItemsReadyToSubmit": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submittedAtObserved": "2026-10-22T21:44:24Z"
     },
     "physicalDeviceCheck": {
       "device": "iPhone 15 Pro",
@@ -152,7 +157,7 @@
       "purchaseTimeWebhookPost200Utc": "2026-10-22T19:33:49Z",
       "payloadOrNotificationTypeRetained": false
     },
-    "releaseReadiness": "Prepared for Apple review based on signed annual Sandbox purchase, original-account Restore, read-only backend association, and automated billing coverage. This does not mean every lifecycle case has been exercised or submitted."
+    "releaseReadiness": "Submitted for Apple review. Public release remains manual and subject to the outstanding live billing/lifecycle/quota and production API validation."
   },
   "previousPrivacyCandidate": {
     "buildNumber": "202610212224",
@@ -183,13 +188,14 @@
     "monthlyUsd": 2.99,
     "availability": "U.S. only",
     "serviceLevel": 1,
-    "status": "yearly and monthly products and group Ready for Review; English (U.S.) localization and U.S. sale availability verified",
+    "status": "Yearly, monthly, and HomeDoc Pro group submitted; Waiting for Review. English (U.S.) localization and U.S. sale availability verified.",
     "reviewSubmissionState": {
-      "annual": "Ready for Review; annual screenshot uploaded and processed",
-      "monthly": "Ready for Review; monthly screenshot uploaded and processed",
-      "subscriptionGroup": "attached to existing version 1.2.0 draft; Ready for Review",
-      "draftItemsReadyToSubmit": 4,
-      "finalSubmitForReviewClicked": false
+      "annual": "Waiting for Review",
+      "monthly": "Waiting for Review",
+      "subscriptionGroup": "Waiting for Review",
+      "finalSubmitForReviewClicked": true,
+      "submittedItems": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4"
     }
   },
   "appleNotificationsAndPurchaseVerification": {
@@ -351,14 +357,16 @@
     "versionSelectionReopenVerified": true,
     "appReviewDraft": {
       "version": "1.2.0",
-      "status": "Ready for Review",
+      "status": "Waiting for Review",
       "items": [
         "iOS App 1.2.0 (202610221728)",
         "annual subscription",
         "monthly subscription",
         "HomeDoc Pro subscription group"
       ],
-      "finalSubmitForReviewClicked": false
+      "finalSubmitForReviewClicked": true,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4"
     }
   },
   "appStorePrivacy": {
@@ -388,12 +396,9 @@
   "notVerified": [
     "live monthly purchase and renewal, cancellation, expiry, refund, and alternate-account behavior before public release",
     "actual quota exhaustion/reset behavior; current usage query shows two AI plan calls",
-    "post-release production App Store Server API verification; current production API returns 401",
-    "final Submit for Review; the four-item draft is Ready for Review and submission has not been performed"
+    "post-release production App Store Server API verification; current production API returns 401"
   ],
-  "preReviewGates": [
-    "No remaining purchase/Restore or account-association evidence gate identified for review preparation; final Submit for Review remains unclicked."
-  ],
+  "preReviewGates": [],
   "postReleaseVerification": [
     "Verify production App Store Server API access when Apple enables production for the app; the last production test response was HTTP 401."
   ],
@@ -482,18 +487,17 @@
     "screenshots": "three iPhone and three iPad screenshots uploaded and processed into required slots; opaque JPEG conversion without resize/content change; capture manifest retained",
     "reviewSubmissionDraft": {
       "createdVia": "version 1.2.0 Add for Review",
-      "status": "Ready for Review",
+      "status": "Waiting for Review",
       "contents": [
         "iOS App 1.2.0 (202610221728)",
         "annual subscription",
         "monthly subscription",
         "HomeDoc Pro subscription group"
       ],
-      "itemsReadyToSubmit": 4,
-      "finalSubmitForReviewClicked": false,
-      "annualSubscription": "Ready for Review; review information screenshot uploaded and processed",
-      "monthlySubscription": "Ready for Review; review information screenshot uploaded and processed",
-      "subscriptionGroup": "Ready for Review; attached to the same existing draft",
+      "finalSubmitForReviewClicked": true,
+      "annualSubscription": "Waiting for Review; review screenshot processed",
+      "monthlySubscription": "Waiting for Review; review screenshot processed",
+      "subscriptionGroup": "Waiting for Review; submitted with the app and both subscriptions",
       "evidence": [
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/annual-review.jpg",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/monthly-review.jpg",
@@ -501,9 +505,15 @@
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-flow-evidence.json",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/backend-purchase-verification.json",
         "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/real-purchase-webhook.json",
-        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json"
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/purchase-restore-sync.json",
+        "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png"
       ],
-      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/review-ready-for-approval.png"
+      "finalProof": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+      "itemsSubmitted": 4,
+      "previousDraftItemsReadyToSubmit": 4,
+      "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+      "submittedAtObserved": "2026-10-22T21:44:24Z"
     },
     "physicalDeviceCheck": {
       "device": "iPhone 15 Pro",
@@ -531,7 +541,7 @@
       "restoreSync": "seven POST 200 invocations; includes 20:19:40Z and 20:20:08Z; payload not retained",
       "otherLifecycle": "monthly purchase, renewal, cancellation, expiry, refund and alternate-account behavior not verified"
     },
-    "releaseReadiness": "Prepared for Apple review based on signed annual Sandbox purchase, original-account Restore, read-only backend association, and automated billing coverage. This does not mean every lifecycle case has been exercised or submitted."
+    "releaseReadiness": "Submitted for Apple review. Public release remains manual and subject to the outstanding live billing/lifecycle/quota and production API validation."
   },
   "beforePublicReleaseValidation": [
     "Live monthly purchase, renewal/cancellation/expiry/refund, and alternate-account behavior; automated coverage passed but these live cases are not yet observed.",
@@ -541,6 +551,42 @@
   "manualReleaseConfirmed": {
     "checkedAt": "2026-10-22T20:27:34.768516+00:00",
     "selected": true,
-    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/manual-release-confirmed.png"
+    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/manual-release-confirmed.png",
+    "submissionSettingUnchanged": true
+  },
+  "appReviewSubmission": {
+    "observedAtUtc": "2026-10-22T21:44:24Z",
+    "app": "HomeDoc (Homedoc Home Documentation)",
+    "version": "1.2.0",
+    "build": "202610221728",
+    "submittedItems": [
+      "iOS App 1.2.0 (202610221728)",
+      "HomeDoc Pro Yearly (Subscription)",
+      "HomeDoc Pro Monthly (Subscription)",
+      "HomeDoc Pro (Subscription Group)"
+    ],
+    "itemCount": 4,
+    "status": "Waiting for Review",
+    "dateSubmittedDisplayed": "Oct 22, 2026 at 3:44 PM",
+    "submissionId": "5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+    "submissionUrl": "https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4",
+    "submittedBy": "Cole Fox",
+    "releaseSetting": {
+      "mode": "manual",
+      "verifiedBeforeSubmit": true,
+      "evidence": "App Store Connect version page AX: Manually release this version, Value: 1; automatic and scheduled both 0."
+    },
+    "browser": {
+      "name": "Chrome",
+      "tabId": "1503698807"
+    },
+    "screenshots": ["submission-confirmed.png"],
+    "axText": "submission-confirmed-ax.txt",
+    "evidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-confirmed.png",
+    "sourceEvidence": "/Users/coalfocks/Documents/ChatGPT/Homedoc/beta-outreach-results/app-store/subscription-review-202610221728/submission-result.json",
+    "finalSubmitForReviewClicked": true,
+    "publiclyReleased": false,
+    "operatorModel": "gpt-6-luna",
+    "primaryVerification": "Inspected targeted browser screenshots showing exact draft build, yearly/monthly names, and all four submitted Waiting for Review items."
   }
 }

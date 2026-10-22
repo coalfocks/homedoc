@@ -6,7 +6,7 @@ Approved October 21, 2026: Apple StoreKit 2 directly, with **no third-party subs
 
 App **6779373725**, bundle **com.coalfocks.homedoc**. Group **HomeDoc Pro** (ID **22501802**) and both products below have been created. The account holder resolved the previous agreement blocker; the agent did not accept an agreement.
 
-Both products are saved at service level 1, available only in the U.S., with Family Sharing off and individual App Store purchase enabled. Annual Apple ID is **6825527261**; monthly is **6825528603**. Both products and their group are now Ready for Review in the same existing version 1.2.0 draft:
+Both products are saved at service level 1, available only in the U.S., with Family Sharing off and individual App Store purchase enabled. Annual Apple ID is **6825527261**; monthly is **6825528603**. Both products and their group were submitted with version 1.2.0 on October 22, 2026 at 3:44 PM America/Denver and are **Waiting for Review** ([submission](https://appstoreconnect.apple.com/apps/6779373725/distribution/reviewsubmissions/details/5ad1a8cf-ad80-4b54-ac27-3386d42d7ac4)). Release remains manual:
 
 | Product ID                          | Duration | U.S. price | Localized name      | Description                                     |
 | ----------------------------------- | -------- | ---------- | ------------------- | ----------------------------------------------- |
@@ -70,7 +70,7 @@ Automated coverage meaningfully exercises both SKUs, account mismatch, active/ex
 - Confirm one free owned home, free basic records/sharing/transfer, and preserved beta fallback. After Pro ends, existing records remain accessible; additional-home creation and AI follow current free limits.
 - Verify the 50-request quota exhaustion and UTC monthly reset; current reviewer usage is two calls. A question set plus generated plan uses two requests; each follow-up uses one.
 - Test current-build photos, sharing/revocation/transfer using two synthetic accounts, and account deletion with a disposable account.
-- Native listing and subscription review screenshots are captured and processed. The exact build/source and sanitized evidence are saved; both initial subscriptions and their group accompany version 1.2.0 in its draft.
+- Native listing and subscription review screenshots are captured and processed. The exact build/source and sanitized evidence are saved; both initial subscriptions and their group were submitted with version 1.2.0 and are Waiting for Review.
 
 ## References
 
