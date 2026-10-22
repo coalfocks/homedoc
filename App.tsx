@@ -17,6 +17,7 @@ import SplashScreen from './src/screens/SplashScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import { MarketingScreen } from './src/screens/MarketingScreen';
 import PrivacyScreen from './src/screens/PrivacyScreen';
+import SupportScreen from './src/screens/SupportScreen';
 import { theme } from './src/utils/theme';
 import { isSupabaseConfigured } from './src/lib/supabase';
 import {
@@ -278,6 +279,20 @@ const App = () => {
         <StatusBar style="dark" />
         <ThemeProvider theme={theme}>
           <PrivacyScreen onClose={() => window.location.assign('/')} />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    );
+  }
+
+  if (
+    Platform.OS === 'web' &&
+    typeof window !== 'undefined' &&
+    /^\/support\/?$/.test(window.location.pathname)
+  ) {
+    return (
+      <SafeAreaProvider>
+        <ThemeProvider theme={theme}>
+          <SupportScreen />
         </ThemeProvider>
       </SafeAreaProvider>
     );

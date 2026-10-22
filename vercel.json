@@ -4,6 +4,8 @@
   "rewrites": [
     { "source": "/privacy", "destination": "/" },
     { "source": "/privacy/", "destination": "/" },
+    { "source": "/support", "destination": "/" },
+    { "source": "/support/", "destination": "/" },
     { "source": "/auth/callback", "destination": "/" }
   ]
 }
