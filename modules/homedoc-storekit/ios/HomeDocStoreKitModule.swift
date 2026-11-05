@@ -1,6 +1,7 @@
 import ExpoModulesCore
 import Foundation
 import StoreKit
+import UIKit
 
 public final class HomeDocStoreKitModule: Module {
   private var transactionUpdatesTask: Task<Void, Never>?
@@ -33,7 +34,12 @@ public final class HomeDocStoreKitModule: Module {
     }
 
     AsyncFunction("getProducts") { (productIDs: [String]) async throws -> [[String: Any]] in
-      let products = try await Product.products(for: productIDs)
+      let products: [Product]
+      do {
+        products = try await Product.products(for: productIDs)
+      } catch {
+        throw StoreKitModuleException("StoreKit product lookup failed: \(String(describing: error))")
+      }
       return products.map { product in
         let period = product.subscription?.subscriptionPeriod
         return [
@@ -63,7 +69,14 @@ public final class HomeDocStoreKitModule: Module {
         throw StoreKitModuleException("The selected App Store product is not an auto-renewable subscription.")
       }
 
-      let result = try await product.purchase(options: [.appAccountToken(accountToken)])
+      let result: Product.PurchaseResult
+      do {
+        result = try await Self.purchase(product, options: [.appAccountToken(accountToken)])
+      } catch let error as StoreKitModuleException {
+        throw error
+      } catch {
+        throw StoreKitModuleException("StoreKit purchase failed: \(String(describing: error))")
+      }
       switch result {
       case .success(let verification):
         switch verification {
@@ -119,6 +132,29 @@ public final class HomeDocStoreKitModule: Module {
       }
       return false
     }
+  }
+
+  // UIKit apps must tell StoreKit which scene hosts the purchase sheet. Without it,
+  // iPadOS can fail to present the confirmation sheet, so the purchase never starts.
+  @MainActor
+  private static func foregroundWindowScene() -> UIWindowScene? {
+    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    return scenes.first { $0.activationState == .foregroundActive }
+      ?? scenes.first { $0.activationState == .foregroundInactive }
+      ?? scenes.first
+  }
+
+  private static func purchase(
+    _ product: Product,
+    options: Set<Product.PurchaseOption>
+  ) async throws -> Product.PurchaseResult {
+    if #available(iOS 17.0, *) {
+      let scene = await foregroundWindowScene()
+      if let scene {
+        return try await product.purchase(confirmIn: scene, options: options)
+      }
+    }
+    return try await product.purchase(options: options)
   }
 
   private static func currentTransactionIDs(appAccountToken: UUID, productIDs: Set<String>) async -> [String] {

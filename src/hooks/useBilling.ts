@@ -315,12 +315,15 @@ export const useBilling = ({ loadOffering = false } = {}) => {
               },
             });
           })
-          .catch(() => {
+          .catch((pricingError) => {
             if (isCurrentContext(context)) {
               setPriceState({ ...context, value: null });
+              const detail =
+                pricingError instanceof Error ? pricingError.message : '';
               updateUi(context, {
-                error:
-                  'App Store pricing is unavailable. Please try again later.',
+                error: detail
+                  ? `App Store pricing is unavailable. ${detail}`
+                  : 'App Store pricing is unavailable. Please try again later.',
               });
             }
           });
