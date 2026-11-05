@@ -222,6 +222,26 @@ describe('native StoreKit billing adapter', () => {
     ).rejects.toMatchObject({ code: 'purchase_failed' });
   });
 
+  it('includes a short native detail when StoreKit fails', async () => {
+    mockStoreKit.purchase.mockRejectedValueOnce(
+      new Error('StoreKit purchase failed: systemError'),
+    );
+    await expect(
+      billing.purchaseBillingPackage(USER_A, 'annual'),
+    ).rejects.toMatchObject({
+      code: 'purchase_failed',
+      message: expect.stringContaining('StoreKit purchase failed: systemError'),
+    });
+
+    mockStoreKit.getProducts.mockRejectedValueOnce(
+      new Error('StoreKit product lookup failed: networkError'),
+    );
+    await expect(billing.getBillingPackages(USER_A)).rejects.toMatchObject({
+      code: 'billing_unavailable',
+      message: expect.stringContaining('networkError'),
+    });
+  });
+
   it('returns only native current-entitlement transaction IDs for this account token', async () => {
     mockStoreKit.getCurrentEntitlements.mockResolvedValue(['9000000000000001']);
 

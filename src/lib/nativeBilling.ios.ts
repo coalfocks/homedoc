@@ -68,6 +68,19 @@ function billingError(
   return new NativeBillingError(code, message);
 }
 
+// Native StoreKit failures are opaque to users. A short detail suffix lets App
+// Review screenshots and support reports identify the failing step.
+function withDetail(message: string, error: unknown): string {
+  const raw =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : '';
+  const detail = raw.replace(/\s+/g, ' ').trim().slice(0, 140);
+  return detail ? `${message} (${detail})` : message;
+}
+
 function validateUserId(userId: string): void {
   if (!UUID_PATTERN.test(userId)) {
     throw billingError(
@@ -167,7 +180,10 @@ async function loadPackages(): Promise<
     if (error instanceof NativeBillingError) throw error;
     throw billingError(
       'billing_unavailable',
-      'Purchases are temporarily unavailable. Please try again later.',
+      withDetail(
+        'Purchases are temporarily unavailable. Please try again later.',
+        error,
+      ),
     );
   }
 }
@@ -191,10 +207,13 @@ export async function purchaseBillingPackage(
     let result;
     try {
       result = await StoreKit.purchase(selected.product.identifier, userId);
-    } catch {
+    } catch (error) {
       throw billingError(
         'purchase_failed',
-        'The purchase could not be completed. Please try again.',
+        withDetail(
+          'The purchase could not be completed. Please try again.',
+          error,
+        ),
       );
     }
 
