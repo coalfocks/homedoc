@@ -15,6 +15,10 @@ on:
         description: Expected CFBundleVersion
         required: true
         type: string
+      close_queued_submission:
+        description: Cancel the queued Expo upload after Apple accepts this build
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,8 +43,19 @@ jobs:
         run: |
           set -euo pipefail
           npx --yes eas-cli@25.3.0 submit:view c3aa3356-247c-4b15-99f7-1f8d3232336a --json | jq -e '{id, status, createdAt, updatedAt, completedAt}'
+      - name: Close queued Expo submission after Apple acceptance
+        if: inputs.close_queued_submission && inputs.eas_build_id == 'a7df4819-59ba-46dd-bb8f-fdddddad7523' && inputs.build_number == '202611251726'
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+        run: |
+          set -euo pipefail
+          submission=c3aa3356-247c-4b15-99f7-1f8d3232336a
+          state=$(npx --yes eas-cli@25.3.0 submit:view "$submission" --json | jq -er '.status')
+          if [[ "$state" == IN_QUEUE ]]; then
+            npx --yes eas-cli@25.3.0 submit:cancel "$submission" --non-interactive
+          fi
   repair:
-    if: github.ref == 'refs/heads/codex/testflight-202611251726-upload' && inputs.eas_build_id == 'a7df4819-59ba-46dd-bb8f-fdddddad7523' && inputs.build_number == '202611251726' && inputs.app_version == '1.2.0'
+    if: github.ref == 'refs/heads/codex/testflight-202611251726-upload' && !inputs.close_queued_submission && inputs.eas_build_id == 'a7df4819-59ba-46dd-bb8f-fdddddad7523' && inputs.build_number == '202611251726' && inputs.app_version == '1.2.0'
     runs-on: macos-15-intel
     timeout-minutes: 35
     env:
