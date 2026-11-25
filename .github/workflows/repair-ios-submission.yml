@@ -24,9 +24,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  submission-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read Expo submission status
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+        run: |
+          set -euo pipefail
+          npx --yes eas-cli@25.3.0 submit:view c3aa3356-247c-4b15-99f7-1f8d3232336a --json | jq -e '{id, status, createdAt, updatedAt, completedAt}'
   repair:
-    if: github.ref == 'refs/heads/main'
-    runs-on: macos-15
+    if: github.ref == 'refs/heads/codex/testflight-202611251726-upload' && inputs.eas_build_id == 'a7df4819-59ba-46dd-bb8f-fdddddad7523' && inputs.build_number == '202611251726' && inputs.app_version == '1.2.0'
+    runs-on: macos-15-intel
     timeout-minutes: 35
     env:
       EAS_BUILD_ID: ${{ inputs.eas_build_id }}
@@ -40,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install EAS CLI
-        run: npm install --global eas-cli
+        run: npm install --global eas-cli@25.3.0
 
       - name: Check Apple state and fetch the existing IPA
         id: check
