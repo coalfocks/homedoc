@@ -84,14 +84,83 @@ describe('native StoreKit billing adapter', () => {
   it('returns both current products with localized prices and ISO periods', async () => {
     const result = await billing.getBillingPackages(USER_A);
 
-    expect(result.monthly.product.priceString).toBe('$2.99');
-    expect(result.monthly.product.subscriptionPeriod).toBe('P1M');
-    expect(result.annual.product.priceString).toBe('$14.99');
-    expect(result.annual.product.subscriptionPeriod).toBe('P1Y');
+    expect(result.monthly?.product.priceString).toBe('$2.99');
+    expect(result.monthly?.product.subscriptionPeriod).toBe('P1M');
+    expect(result.annual?.product.priceString).toBe('$14.99');
+    expect(result.annual?.product.subscriptionPeriod).toBe('P1Y');
     expect(mockStoreKit.getProducts).toHaveBeenCalledWith([
       MONTHLY_SKU,
       ANNUAL_SKU,
     ]);
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['empty localized price', '   '],
+  ] as const)(
+    'keeps a valid monthly plan when the annual product is %s',
+    async (_label, priceString) => {
+      mockAnnualProduct.priceString = priceString;
+
+      await expect(billing.getBillingPackages(USER_A)).resolves.toEqual({
+        monthly: expect.objectContaining({
+          product: expect.objectContaining({ identifier: MONTHLY_SKU }),
+        }),
+      });
+      await expect(
+        billing.purchaseBillingPackage(USER_A, 'monthly'),
+      ).resolves.toBe('9000000000000001');
+      expect(mockStoreKit.purchase).toHaveBeenCalledWith(MONTHLY_SKU, USER_A);
+      await expect(
+        billing.purchaseBillingPackage(USER_A, 'annual'),
+      ).rejects.toMatchObject({ code: 'annual_plan_unavailable' });
+      expect(mockStoreKit.purchase).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('keeps and purchases a valid annual plan when monthly price is malformed', async () => {
+    mockMonthlyProduct.priceString = '';
+
+    await expect(billing.getBillingPackages(USER_A)).resolves.toEqual({
+      annual: expect.objectContaining({
+        product: expect.objectContaining({ identifier: ANNUAL_SKU }),
+      }),
+    });
+    mockStoreKit.getProducts.mockClear();
+
+    await expect(
+      billing.purchaseBillingPackage(USER_A, 'annual'),
+    ).resolves.toBe('9000000000000001');
+    expect(mockStoreKit.getProducts).toHaveBeenCalledWith([ANNUAL_SKU]);
+    expect(mockStoreKit.purchase).toHaveBeenCalledWith(ANNUAL_SKU, USER_A);
+  });
+
+  it('rejects an empty or wholly invalid catalog', async () => {
+    mockStoreKit.getProducts.mockResolvedValueOnce([]);
+    await expect(billing.getBillingPackages(USER_A)).rejects.toMatchObject({
+      code: 'billing_unavailable',
+    });
+
+    mockMonthlyProduct.price = Number.NaN;
+    mockMonthlyProduct.priceString = '';
+    mockAnnualProduct.priceString = '';
+    await expect(billing.getBillingPackages(USER_A)).rejects.toMatchObject({
+      code: 'billing_unavailable',
+    });
+  });
+
+  it('does not expose an unexpected SKU with otherwise valid product data', async () => {
+    mockMonthlyProduct.productId = 'com.coalfocks.homedoc.pro.monthly.wrong';
+
+    await expect(billing.getBillingPackages(USER_A)).resolves.toEqual({
+      annual: expect.objectContaining({
+        product: expect.objectContaining({ identifier: ANNUAL_SKU }),
+      }),
+    });
+    await expect(
+      billing.purchaseBillingPackage(USER_A, 'monthly'),
+    ).rejects.toMatchObject({ code: 'monthly_plan_unavailable' });
+    expect(mockStoreKit.purchase).not.toHaveBeenCalled();
   });
 
   it('serializes operations and passes each account token to StoreKit', async () => {
@@ -140,12 +209,11 @@ describe('native StoreKit billing adapter', () => {
       product.subscriptionPeriod = period;
       product.isAutoRenewable = isAutoRenewable;
 
-      await expect(billing.getBillingPackages(USER_A)).rejects.toMatchObject({
-        code:
-          interval === 'monthly'
-            ? 'monthly_plan_unavailable'
-            : 'annual_plan_unavailable',
-      });
+      const packages = await billing.getBillingPackages(USER_A);
+      expect(packages[interval]).toBeUndefined();
+      expect(
+        packages[interval === 'monthly' ? 'annual' : 'monthly'],
+      ).toBeDefined();
     },
   );
 

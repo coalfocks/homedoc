@@ -30,6 +30,8 @@ const UpgradeScreen: React.FC = () => {
     error,
     notice,
     prices,
+    priceError,
+    retryPrices,
     billingInterval,
     setBillingInterval,
     openCheckout,
@@ -115,15 +117,35 @@ const UpgradeScreen: React.FC = () => {
             cta={
               displayedPrices?.[billingInterval]
                 ? `${isIos ? 'Subscribe' : 'Continue'} — ${displayedPrices[billingInterval]}/${billingInterval === 'annual' ? 'year' : 'month'}`
-                : 'App Store pricing unavailable'
+                : isIos && priceError
+                  ? 'Retry App Store pricing'
+                  : isIos
+                    ? 'Loading App Store prices…'
+                    : 'App Store pricing unavailable'
             }
             loading={checkoutLoading || loading}
             disabled={
-              (isIos && !displayedPrices?.[billingInterval]) ||
+              (isIos && !priceError && !displayedPrices?.[billingInterval]) ||
               Platform.OS === 'android'
             }
-            onPress={openCheckout}
+            onPress={isIos && priceError ? retryPrices : openCheckout}
           />
+          {isIos && priceError ? (
+            <Text accessibilityLiveRegion="polite" style={styles.errorBody}>
+              {priceError}
+            </Text>
+          ) : null}
+          {isIos && prices && (!prices.annual || !prices.monthly) ? (
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={retryPrices}
+              disabled={checkoutLoading}
+            >
+              <Text style={styles.secondaryButtonText}>
+                Refresh available plans
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           {isIos && prices?.[billingInterval] ? (
             <Text style={styles.activeBody}>
               HomeDoc Pro is an auto-renewing {billingInterval} subscription at{' '}

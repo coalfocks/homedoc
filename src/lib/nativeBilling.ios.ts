@@ -129,17 +129,16 @@ function periodFor(interval: BillingInterval): string {
 function toBillingPackage(
   product: NativeStoreProduct | undefined,
   interval: BillingInterval,
-): BillingPackage {
+): BillingPackage | undefined {
   if (
     !product ||
     product.productId !== expectedProductId(interval) ||
     product.subscriptionPeriod !== periodFor(interval) ||
-    product.isAutoRenewable !== true
+    product.isAutoRenewable !== true ||
+    typeof product.priceString !== 'string' ||
+    !product.priceString.trim()
   ) {
-    throw billingError(
-      unavailableCode(interval),
-      `The ${interval} plan is temporarily unavailable. Please try again later.`,
-    );
+    return undefined;
   }
 
   return {
@@ -157,25 +156,21 @@ function toBillingPackage(
   };
 }
 
-async function loadPackages(): Promise<
-  Record<BillingInterval, BillingPackage>
-> {
+async function loadPackages(
+  intervals: BillingInterval[] = ['monthly', 'annual'],
+): Promise<Partial<Record<BillingInterval, BillingPackage>>> {
   try {
-    const products = await StoreKit.getProducts(expectedProductIds());
-    return {
-      monthly: toBillingPackage(
-        products.find(
-          (product) => product.productId === expectedProductId('monthly'),
-        ),
-        'monthly',
-      ),
-      annual: toBillingPackage(
-        products.find(
-          (product) => product.productId === expectedProductId('annual'),
-        ),
-        'annual',
-      ),
-    };
+    const products = await StoreKit.getProducts([
+      ...new Set(intervals.map(expectedProductId)),
+    ]);
+    const packages: Partial<Record<BillingInterval, BillingPackage>> = {};
+    for (const interval of intervals) {
+      const billingPackage = products
+        .map((product) => toBillingPackage(product, interval))
+        .find((item): item is BillingPackage => item !== undefined);
+      if (billingPackage) packages[interval] = billingPackage;
+    }
+    return packages;
   } catch (error) {
     if (error instanceof NativeBillingError) throw error;
     throw billingError(
@@ -190,10 +185,17 @@ async function loadPackages(): Promise<
 
 export async function getBillingPackages(
   userId: string,
-): Promise<Record<BillingInterval, BillingPackage>> {
+): Promise<Partial<Record<BillingInterval, BillingPackage>>> {
   return enqueue(async () => {
     validateUserId(userId);
-    return loadPackages();
+    const packages = await loadPackages();
+    if (!packages.monthly && !packages.annual) {
+      throw billingError(
+        'billing_unavailable',
+        'The App Store did not return any available HomeDoc subscriptions.',
+      );
+    }
+    return packages;
   });
 }
 
@@ -203,7 +205,13 @@ export async function purchaseBillingPackage(
 ): Promise<string> {
   return enqueue(async () => {
     validateUserId(userId);
-    const selected = (await loadPackages())[interval];
+    const selected = (await loadPackages([interval]))[interval];
+    if (!selected) {
+      throw billingError(
+        unavailableCode(interval),
+        `The ${interval} plan is temporarily unavailable. Please try again later.`,
+      );
+    }
     let result;
     try {
       result = await StoreKit.purchase(selected.product.identifier, userId);

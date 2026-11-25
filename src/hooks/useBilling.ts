@@ -66,8 +66,11 @@ export const useBilling = ({ loadOffering = false } = {}) => {
   const [priceState, setPriceState] = useState<{
     userId: string | undefined;
     generation: number;
-    value: Record<BillingInterval, string> | null;
-  }>({ userId, generation: userGeneration.current, value: null });
+    value: Partial<Record<BillingInterval, string>> | null;
+    error: string | null;
+  }>({ userId, generation: userGeneration.current, value: null, error: null });
+  const [priceRequest, setPriceRequest] = useState(0);
+  const retryPrices = useCallback(() => setPriceRequest((n) => n + 1), []);
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('annual');
   const billingLock = useRef(false);
@@ -294,6 +297,62 @@ export const useBilling = ({ loadOffering = false } = {}) => {
 
   useFocusEffect(
     useCallback(() => {
+      if (!loadOffering || Platform.OS !== 'ios' || isFreeBeta || !userId)
+        return;
+      const context = { userId, generation: userGeneration.current };
+      let focused = true;
+      let inFlight = false;
+      let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
+      const loadPrices = async (retryOnce: boolean) => {
+        if (inFlight) return;
+        clearTimeout(retryTimer);
+        inFlight = true;
+        setPriceState({ ...context, value: null, error: null });
+        try {
+          const packages = await getBillingPackages(userId);
+          if (!focused || !isCurrentContext(context)) return;
+          const value = {
+            monthly: packages.monthly?.product.priceString,
+            annual: packages.annual?.product.priceString,
+          };
+          setPriceState({ ...context, value, error: null });
+          setBillingInterval((selected) =>
+            value[selected] ? selected : value.annual ? 'annual' : 'monthly',
+          );
+        } catch (error) {
+          if (!focused || !isCurrentContext(context)) return;
+          if (retryOnce) {
+            retryTimer = setTimeout(() => void loadPrices(false), 1000);
+          } else {
+            setPriceState({
+              ...context,
+              value: null,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'The App Store could not load subscription prices.',
+            });
+          }
+        } finally {
+          inFlight = false;
+        }
+      };
+
+      void loadPrices(true);
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state === 'active') void loadPrices(true);
+      });
+      return () => {
+        focused = false;
+        clearTimeout(retryTimer);
+        subscription.remove();
+      };
+    }, [isCurrentContext, loadOffering, priceRequest, userId]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
       const context = { userId, generation: userGeneration.current };
       updateUi(context, { error: null, notice: null });
 
@@ -303,30 +362,6 @@ export const useBilling = ({ loadOffering = false } = {}) => {
         !isFreeBeta &&
         context.userId
       ) {
-        setPriceState({ ...context, value: null });
-        void getBillingPackages(context.userId)
-          .then((packages) => {
-            if (!isCurrentContext(context)) return;
-            setPriceState({
-              ...context,
-              value: {
-                monthly: packages.monthly.product.priceString,
-                annual: packages.annual.product.priceString,
-              },
-            });
-          })
-          .catch((pricingError) => {
-            if (isCurrentContext(context)) {
-              setPriceState({ ...context, value: null });
-              const detail =
-                pricingError instanceof Error ? pricingError.message : '';
-              updateUi(context, {
-                error: detail
-                  ? `App Store pricing is unavailable. ${detail}`
-                  : 'App Store pricing is unavailable. Please try again later.',
-              });
-            }
-          });
         void recoverAppleEntitlements(context);
         const transactionSubscription = subscribeToTransactionUpdates(
           context.userId,
@@ -467,6 +502,8 @@ export const useBilling = ({ loadOffering = false } = {}) => {
     loading: userId ? (sameLoadingContext ? loadingState.value : true) : false,
     checkoutLoading: sameContext && uiState.checkoutLoading,
     prices: samePriceContext ? priceState.value : null,
+    priceError: samePriceContext ? priceState.error : null,
+    retryPrices,
     billingInterval,
     setBillingInterval,
     error: sameContext ? uiState.error : null,

@@ -50,7 +50,7 @@ const unavailable = (): NativeBillingError =>
 
 export async function getBillingPackages(
   _userId: string,
-): Promise<Record<BillingInterval, BillingPackage>> {
+): Promise<Partial<Record<BillingInterval, BillingPackage>>> {
   throw unavailable();
 }
 

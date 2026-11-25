@@ -40,6 +40,12 @@ public final class HomeDocStoreKitModule: Module {
       } catch {
         throw StoreKitModuleException("StoreKit product lookup failed: \(String(describing: error))")
       }
+      if products.isEmpty {
+        if let storefront = await Storefront.current {
+          throw StoreKitModuleException("The App Store returned no matching subscription products for the \(storefront.countryCode) storefront.")
+        }
+        throw StoreKitModuleException("The App Store returned no matching subscription products.")
+      }
       return products.map { product in
         let period = product.subscription?.subscriptionPeriod
         return [

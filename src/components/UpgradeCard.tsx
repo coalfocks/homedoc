@@ -42,17 +42,21 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
         {(['annual', 'monthly'] as const).map((option) => {
           const selected = interval === option;
           const price = prices?.[option];
+          const unavailable = Boolean(prices && !price);
           return (
             <TouchableOpacity
               key={option}
               accessibilityRole="radio"
-              accessibilityState={{ selected, disabled: selectionDisabled }}
+              accessibilityState={{
+                selected,
+                disabled: selectionDisabled || unavailable,
+              }}
               style={[
                 styles.intervalOption,
                 selected && styles.intervalSelected,
               ]}
               onPress={() => onIntervalChange(option)}
-              disabled={selectionDisabled}
+              disabled={selectionDisabled || unavailable}
             >
               <View style={styles.intervalCopy}>
                 <Text style={styles.intervalTitle}>
@@ -62,7 +66,9 @@ export const UpgradeCard: React.FC<UpgradeCardProps> = ({
                 <Text style={styles.intervalPrice}>
                   {price
                     ? `${price}/${option === 'annual' ? 'year' : 'month'}`
-                    : `Billed ${option === 'annual' ? 'yearly' : 'monthly'}`}
+                    : unavailable
+                      ? 'Unavailable'
+                      : `Billed ${option === 'annual' ? 'yearly' : 'monthly'}`}
                 </Text>
               </View>
               <View style={[styles.radio, selected && styles.radioSelected]}>

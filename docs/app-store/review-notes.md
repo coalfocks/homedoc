@@ -11,10 +11,12 @@ Use the dedicated review email and password entered in App Store Connect's **App
 1. On sign-in, choose **Password**, enter the supplied review email/password, and tap **Sign in**.
 2. **Properties** is the initial tab. Open the seeded property and area for notes and tasks. **Areas**, **Notes**, and **Todos** show records across the account.
 3. Open a todo and its AI panel. After the explicit data-sharing consent, request questions, generate a plan, and send follow-up questions using synthetic data. Each question set, plan, or follow-up counts as one AI request.
-4. Open **Account** for **Restore purchases** and Apple subscription management. A free account shows yearly/monthly Pro with localized Apple pricing; the annual option is selected by default and both options provide identical features. The separate subscription review screenshots show that purchase screen, since the supplied reviewer account currently has active Sandbox Pro.
+4. Open **Account** for **Restore purchases** and Apple subscription management. A free account shows yearly/monthly Pro with localized Apple pricing; the annual option is selected by default and both options provide identical features. An account with active Sandbox Pro shows its subscription status instead.
 5. **Account** also provides privacy, support, and **Delete account**. Deletion is permanent and does not cancel Apple billing. Cancel the deletion confirmation to preserve the reviewer account; test deletion using a separate disposable account.
 
 ## Release access
+
+HomeDoc and both Pro subscriptions are available in the United States storefront only. Please use a U.S. App Store sandbox account to test purchases.
 
 Basic records for one owned home are free: areas, notes, photos, maintenance tasks, sharing, and home transfer. Free accounts have four AI requests per UTC calendar month. HomeDoc Pro adds owned homes and 50 AI requests each month, at US$14.99/year or US$2.99/month. Both subscriptions renew automatically; actual localized Apple prices appear before purchase. Annual billing does not grant a yearly AI pool. Existing records remain accessible after cancellation. Existing beta accounts keep their previously granted beta access.
 
